@@ -28,5 +28,7 @@
 *.app
 
 .vs
-Debug
+Debug*
 parsing4ef.*
+obj/*.o
+

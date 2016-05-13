@@ -9,12 +9,12 @@ inline static int TMP_to_int(const string& x)
 	int y = 0;
 	tmp_str >> y;
 	if(y==0 && x[0]!='0')
-		throw exception("Int-Error: transfer to int.");
+		throw runtime_error("Int-Error: transfer to int.");
 	return y;
 }
 
 // some routines for DpSentence
-void DpSentence::read_one(const vector<string*>& them)
+void DpSentence::read_one(const vector<unique_ptr<string>>& them)
 {
 	//In fact, add one line and in CoNLL 08 format
 	//1,index; 2,word; 3,pos; 4,head; 5,rel
@@ -26,7 +26,7 @@ void DpSentence::read_one(const vector<string*>& them)
 		rels.emplace_back("<root-rel>");
 	}
 	if(TMP_to_int(*them[0]) != size())
-		throw exception("Format-Error: wrong field[0].");
+		throw runtime_error("Format-Error: wrong field[0].");
 	forms.emplace_back(*them[1]);
 	postags.emplace_back(*them[4]);
 	heads.emplace_back(TMP_to_int(*them[8]));
@@ -61,57 +61,53 @@ void DpSentence::write_this(ostream & fout)
 }
 
 // read and write them all
-vector<DpSentence*>* read_corpus(string file)
+DPS_PTR read_corpus(string file)
 {
 	ifstream fin;
 	fin.open(file);
-	vector<DpSentence*>* dps = new vector<DpSentence*>();
+	DPS_PTR dps{new vector<DP_PTR>()};
 	//read them in
 	string cur_line;
-	DpSentence* one = new DpSentence();
+	DP_PTR one{new DpSentence()};
 	int all_tokens = 0;
 	while(getline(fin, cur_line)){
 		stringstream tmp_str(cur_line);
-		vector<string*> tmp_fields;
+		vector<unique_ptr<string>> tmp_fields;
 		//split the fields for empty ones
-		string* tmp_one = new string();
+		unique_ptr<string> tmp_one = unique_ptr<string>{new string()};
 		while(tmp_str >> *tmp_one){
-			tmp_fields.emplace_back(tmp_one);
+			tmp_fields.emplace_back(move(tmp_one));
+			tmp_one = unique_ptr<string>{new string()};
 		}
-		delete tmp_one;
 		//sentence
 		if(tmp_fields.size() > 0){
 			one->read_one(tmp_fields);
-			for(auto ptr : tmp_fields)
-				delete ptr;
 		}
 		else if(one->size() > 0){
 			// finish one
 			one->finish_one();
-			dps->emplace_back(one);
 			all_tokens += one->size() - 1;
-			one = new DpSentence();		//allocate new one
+			dps->emplace_back(std::move(one));
+			one = DP_PTR{new DpSentence()};		//allocate new one
 		}
 	}
 	//finish the last one maybe
 	if(one->size() > 0){
 		// finish one
 		one->finish_one();
-		dps->emplace_back(one);
 		all_tokens += one->size() - 1;
+		dps->emplace_back(std::move(one));
 	}
-	else
-		delete one;
 	fin.close();
 	cout << "- Read file " << file << ": sentence " << dps->size() << "; tokens " << all_tokens << endl;
 	return dps;
 }
 
-void write_corpus(vector<DpSentence*>* instances, string file)
+void write_corpus(DPS_PTR& instances, string file)
 {
 	ofstream fout;
 	fout.open(file);
-	for(auto ins_ptr : *instances)
+	for(auto& ins_ptr : *instances)
 		ins_ptr->write_this(fout);
 	fout.close();
 }

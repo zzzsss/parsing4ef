@@ -5,6 +5,7 @@
 #include <string>
 #include <fstream>
 #include <iostream>
+#include <memory>
 using namespace std;
 
 // this is the base one, multiple partial ones share this one instance
@@ -36,14 +37,16 @@ public:
 	//some routines
 	int size() { return forms.size(); }
 	// init or read/write files
-	void read_one(const vector<string*>& them);	//add one-line to (forms, postags, heads, rels)
+	void read_one(const vector<unique_ptr<string>>& them);	//add one-line to (forms, postags, heads, rels)
 	void finish_one();							//finish adding, currently only need build (the-childs)
 	void write_this(ostream& fout);
 };
 
 // read and write them all
-extern vector<DpSentence*>* read_corpus(string file);
-extern void write_corpus(vector<DpSentence*>* instances, string file);
+using DP_PTR = unique_ptr<DpSentence>;
+using DPS_PTR = unique_ptr<vector<DP_PTR>>;
+extern DPS_PTR read_corpus(string file);
+extern void write_corpus(DPS_PTR& instances, string file);
 
 // evaluate
 extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);

@@ -13,10 +13,10 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	punctSet.insert(",");
 	punctSet.insert("PU");	//for CTB
 
-	vector<DpSentence*>* gold = read_corpus(act_file);
-	vector<DpSentence*>* pred = read_corpus(pred_file);
+	DPS_PTR gold = read_corpus(act_file);
+	DPS_PTR pred = read_corpus(pred_file);
 	if(gold->size() != pred->size())
-		throw exception("Not matching of #sent.");
+		throw runtime_error("Not matching of #sent.");
 
 	int total = 0;
 	int total_root = 0;
@@ -43,12 +43,12 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	int corrsentNoPunc = 0;
 	int corrsentLNoPunc = 0;
 
-	for(int i = 0; i < gold->size(); i++) {
-		DpSentence* goldInstance = gold->at(i);
-		DpSentence* predInstance = pred->at(i);
+	for(unsigned int i = 0; i < gold->size(); i++) {
+		DP_PTR goldInstance = std::move(gold->at(i));
+		DP_PTR predInstance = std::move(pred->at(i));
 		int instanceLength = goldInstance->size();
 		if(instanceLength != predInstance->size())
-			throw exception("Not matching of sent length.");
+			throw runtime_error("Not matching of sent length.");
 
 		vector<int>* goldHeads = &goldInstance->heads;
 		vector<string>* goldLabels = &goldInstance->rels;
@@ -146,12 +146,7 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 			corrsentLNoPunc++;
 		}
 		numsent++;
-		delete(goldInstance);
-		delete(predInstance);
 	}
-
-	delete gold;
-	delete pred;
 
 	printf("Tokens: %d\n", total);
 	printf("Correct: %d\n", corr);
@@ -211,4 +206,12 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	return ((double)corr) / total;
 }
 
+#define TEST_EVALUATOR
+
+#ifdef TEST_EVALUATOR
+int main(int argc, char** argv){
+	//dp_evaluate(string{argv[1]}, string{argv[2]});
+	dp_evaluate("Debug-test\\test.right", "Debug-test\\output.txt");
+}
+#endif // TEST_EVALUATOR
 
