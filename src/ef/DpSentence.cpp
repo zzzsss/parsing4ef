@@ -2,15 +2,17 @@
 #include <sstream>
 #include <stdexcept>
 
-// TMP helper methods
-inline static int TMP_to_int(const string& x)
-{
-	stringstream tmp_str(x);
-	int y = 0;
-	tmp_str >> y;
-	if(y==0 && x[0]!='0')
-		throw runtime_error("Int-Error: transfer to int.");
-	return y;
+namespace{
+	// TMP helper methods
+	inline int TMP_to_int(const string& x)
+	{
+		stringstream tmp_str(x);
+		int y = 0;
+		tmp_str >> y;
+		if(y == 0 && x[0] != '0')
+			throw runtime_error("Int-Error: transfer to int.");
+		return y;
+	}
 }
 
 // some routines for DpSentence
@@ -76,7 +78,7 @@ DPS_PTR read_corpus(string file)
 		//split the fields for empty ones
 		unique_ptr<string> tmp_one = unique_ptr<string>{new string()};
 		while(tmp_str >> *tmp_one){
-			tmp_fields.emplace_back(move(tmp_one));
+			tmp_fields.emplace_back(std::move(tmp_one));
 			tmp_one = unique_ptr<string>{new string()};
 		}
 		//sentence

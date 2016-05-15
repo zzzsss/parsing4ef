@@ -1,5 +1,5 @@
-#ifndef _TOOLS_DPSENTENCE
-#define _TOOLS_DPSENTENCE
+#ifndef _EF_DPSENTENCE
+#define _EF_DPSENTENCE
 
 #include <vector>
 #include <string>
@@ -47,8 +47,5 @@ using DP_PTR = unique_ptr<DpSentence>;
 using DPS_PTR = unique_ptr<vector<DP_PTR>>;
 extern DPS_PTR read_corpus(string file);
 extern void write_corpus(DPS_PTR& instances, string file);
-
-// evaluate
-extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);
 
 #endif

@@ -1,4 +1,5 @@
-#include "DpSentence.h"
+#include "../ef/DpSentence.h"
+#include "DpTools.h"
 #include <set>
 #include <cstdio>
 #include <stdexcept>
@@ -44,8 +45,8 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	int corrsentLNoPunc = 0;
 
 	for(unsigned int i = 0; i < gold->size(); i++) {
-		DP_PTR goldInstance = std::move(gold->at(i));
-		DP_PTR predInstance = std::move(pred->at(i));
+		DP_PTR& goldInstance = gold->at(i);
+		DP_PTR& predInstance = pred->at(i);
 		int instanceLength = goldInstance->size();
 		if(instanceLength != predInstance->size())
 			throw runtime_error("Not matching of sent length.");

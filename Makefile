@@ -27,6 +27,8 @@ obj/%.o: src/%.cpp
 	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
 obj/%.o: src/tools/%.cpp
 	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
+obj/%.o: src/ef/%.cpp
+	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
 
 include obj/depends
 
