@@ -207,12 +207,4 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	return ((double)corr) / total;
 }
 
-#define TEST_EVALUATOR
-
-#ifdef TEST_EVALUATOR
-int main(int argc, char** argv){
-	//dp_evaluate(string{argv[1]}, string{argv[2]});
-	dp_evaluate("Debug-test\\test.right", "Debug-test\\output.txt");
-}
-#endif // TEST_EVALUATOR
 
