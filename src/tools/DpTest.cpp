@@ -16,5 +16,9 @@ int main(int argc, char** argv){
 	DpDictionary d{};
 	DpOptions x;
 	d.build_map(train, x);
+	d.index_dps(train);
+	d.write(string(argv[2]));
+	DpDictionary d2{string(argv[2])};
+	cout << d2.num_word() << "-" << d2.num_pos() << "-" << d2.num_rel() << endl;
 }
 #endif // TEST_DICTIONARY

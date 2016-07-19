@@ -1,15 +1,26 @@
 #include "DpDictionary.h"
 #include "../tools/DpTools.h"
-#include <regex>
+#include <fstream>
+#include <algorithm>
 
 namespace{
 	// !! This has to coordinate with DpDictionary's enums
-	const vector<string> TEMP_SPE_WORD = {"<w-s>", "<w-e>", "w-unk"};
-	const vector<string> TEMP_SPE_POS = {"<p-s>", "<p-e>", "p-unk"};
-	// special treatment for words
-	const regex TMP_renum{"[0-9]+|[0-9]+\\.[0-9]+|[0-9]+[0-9,]+|[0-9]+\\\\/[0-9]+"};
-	const vector<pair<regex, string>> TEMP_RE_MATCH
-		= {{TMP_renum, "<num>"}};
+	const vector<string> TEMP_SPE_WORD = {"<w-s>", "<w-e>", "<w-unk>"};
+	const vector<string> TEMP_SPE_POS = {"<p-s>", "<p-e>", "<p-unk>"};
+
+	// lookup in a map with default
+	int TEMP_lookup(unordered_map<string, int>& m, string& s, int de)
+	{
+		auto z = m.find(s);
+		if(z == m.end()){
+			if(de < 0)	//throw an runtime
+				throw runtime_error("Lookup Error.");
+			else
+				return de;
+		}
+		else
+			return z->second;
+	}
 }
 
 void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
@@ -27,7 +38,7 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 		for(string x: one->postags)
 			if(map_pos.find(x) == map_pos.end())
 				map_pos.insert({x, map_pos.size()});
-		for(int i = 1; i < one->rels.size(); i++)	// need special treatment
+		for(unsigned i = 1; i < one->rels.size(); i++)	// need special treatment
 			if(map_rel.find(one->rels[i]) == map_rel.end())
 				map_rel.insert({one->rels[i], map_rel.size()});
 	}
@@ -35,13 +46,7 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 	// -- first one scan for all words
 	unordered_map<string, int> map_freq{};
 	for(DP_PTR one : *corpus){
-		for(string x : one->forms){
-			for(auto p : TEMP_RE_MATCH){
-				if(regex_match(x, p.first)){
-					x = p.second;
-					break;
-				}
-			}
+		for(string x : one->words_norm){
 			auto z = map_freq.find(x);
 			if(z == map_freq.end())
 				map_freq.insert({x, 1});
@@ -53,9 +58,24 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 	cout << "-- Build_map before: word/pos/rel are " << (num_word()+map_freq.size()) << "/" << num_pos() << "/" << num_rel() << endl;
 	// 3. cut the low frequency ones
 	cout << "-- Cut words less than " << conf.dict_remove << " times." << endl;
-	for(auto iter: map_freq)
-		if(iter.second >= conf.dict_remove)
-			map_word.insert({iter.first, map_word.size()});
+	if(conf.dict_reorder){
+		vector<pair<string, int>> temp_flist;
+		for(auto iter : map_freq)
+			temp_flist.push_back({iter.first, iter.second});
+		using TEMP_type = decltype(temp_flist.back());
+		sort(temp_flist.begin(), temp_flist.end(), [](TEMP_type a, TEMP_type b){ return a.second > b.second; });
+		for(auto iter : temp_flist){
+			if(iter.second >= conf.dict_remove)
+				map_word.insert({iter.first, map_word.size()});
+			else
+				break;
+		}
+	}
+	else{
+		for(auto iter : map_freq)
+			if(iter.second >= conf.dict_remove)
+				map_word.insert({iter.first, map_word.size()});
+	}
 	// -- report after
 	cout << "-- Build_map after: word/pos/rel are " << num_word() << "/" << num_pos() << "/" << num_rel() << endl;
 	// 4. put them into the list
@@ -70,3 +90,70 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 		list_rel[i.second] = i.first;
 	return;
 }
+
+void DpDictionary::index_dps(DPS_PTR corpus)
+{
+	// three vectors to be indexed
+	for(DP_PTR one : *corpus){
+		for(auto& x : one->words_norm)
+			one->index_forms.emplace_back(TEMP_lookup(map_word, x, WORD_UNK));
+		for(auto& x : one->postags)
+			one->index_forms.emplace_back(TEMP_lookup(map_pos, x, POS_UNK));
+		one->index_forms.emplace_back(0);	// not important
+		for(unsigned i = 1; i < one->rels.size(); i++)	// need special treatment
+			one->index_forms.emplace_back(TEMP_lookup(map_rel, one->rels[i], -1));
+	}
+}
+
+void DpDictionary::put_rels(DPS_PTR corpus)
+{
+	// final step: predicted rel index -> rel strings
+	for(DP_PTR one : *corpus){
+		for(auto& x : one->index_predict_rels)
+			one->predict_rels.emplace_back(list_rel.at(x));
+	}
+}
+
+// -- IO: read and write
+// --- format: #words ... #pos ... #rel ...
+DpDictionary::DpDictionary(string file)
+{
+	Recorder TMP_recorder{string{"Read maps "}+file};
+	ifstream fin;
+	fin.open(file);
+	vector<pair<vector<string>*, unordered_map<string, int>*>> temp_maps{{&list_word, &map_word}, {&list_pos, &map_pos}, {&list_rel, &map_rel}};
+	for(auto x : temp_maps){
+		auto the_list = x.first;
+		auto the_map = x.second;
+		int number = 0;
+		fin >> number;
+		the_list->resize(number);	// this is somewhat dangerous, but ...
+		for(int i = 0; i < number; i++){
+			int tmp_index;
+			string tmp_str;
+			fin >> tmp_str >> tmp_index;
+			the_list->at(tmp_index) = tmp_str;
+			the_map->insert({tmp_str, tmp_index});
+		}
+		if(the_map->size() != the_list->size())
+			throw(runtime_error("Map read error."));
+	}
+	fin.close();
+}
+
+void DpDictionary::write(string file)
+{
+	Recorder TMP_recorder{string{"Write maps "}+file};
+	ofstream fout;
+	fout.open(file);
+	vector<pair<vector<string>*, unordered_map<string, int>*>> temp_maps{{&list_word, &map_word},{&list_pos, &map_pos},{&list_rel, &map_rel}};
+	for(auto x : temp_maps){
+		auto the_list = x.first;
+		auto the_map = x.second;
+		fout << the_list->size() << endl;
+		for(auto& s : *the_list)
+			fout << s << " " << the_map->at(s) << endl;
+	}
+	fout.close();
+}
+

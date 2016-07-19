@@ -7,6 +7,7 @@
 using namespace std;
 
 // the dictionary for the parser
+// -- main functions: build_map, index_dps, put_rels, read&write, <ENUMs>
 class DpDictionary{
 private:
 	// mapping and reverse map

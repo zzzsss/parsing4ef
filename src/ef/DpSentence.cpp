@@ -2,6 +2,7 @@
 #include "../tools/DpTools.h"
 #include <sstream>
 #include <stdexcept>
+#include <regex>
 
 namespace{
 	// TMP helper methods
@@ -14,6 +15,10 @@ namespace{
 			throw runtime_error("Int-Error: transfer to int.");
 		return y;
 	}
+	// special treatment for words
+	const regex TMP_renum{"[0-9]+|[0-9]+\\.[0-9]+|[0-9]+[0-9,]+|[0-9]+\\\\/[0-9]+"};
+	const vector<pair<regex, string>> TEMP_RE_MATCH
+		= {{TMP_renum, "<num>"}};
 }
 
 // some routines for DpSentence
@@ -24,6 +29,7 @@ void DpSentence::read_one(const vector<string>& them)
 	if(size() == 0){
 		//append the root node
 		forms.emplace_back("<root>");
+		words_norm.emplace_back("<root>");
 		postags.emplace_back("<root-pos>");
 		heads.emplace_back(-1);
 		rels.emplace_back("<root-rel>");
@@ -31,6 +37,16 @@ void DpSentence::read_one(const vector<string>& them)
 	if(TMP_to_int(them[0]) != size())
 		throw runtime_error("Format-Error: wrong field[0].");
 	forms.emplace_back(them[1]);
+	// -- norm with re
+	string temp_norm = them[1];
+	for(auto& p : TEMP_RE_MATCH){
+		if(regex_match(temp_norm, p.first)){
+			temp_norm = p.second;
+			break;
+		}
+	}
+	words_norm.emplace_back(temp_norm);
+	// -- norm with re
 	postags.emplace_back(them[4]);
 	heads.emplace_back(TMP_to_int(them[8]));
 	rels.emplace_back(them[9]);

@@ -24,6 +24,7 @@ class DpSentence {
 public:		// all public: all init and assign are default
 	//basic ones --- for simplicity: "_" means nope
 	vector<string> forms;
+	vector<string> words_norm;		//normalized words
 	vector<string> postags;
 
 	//gold ones
@@ -49,7 +50,7 @@ public:
 	//some routines
 	int size() { return forms.size(); }
 	// init or read/write files
-	void read_one(const vector<string>& them);	//add one-line to (forms, postags, heads, rels)
+	void read_one(const vector<string>& them);	//add one-line to (forms, words_norm, postags, heads, rels)
 	void finish_one();							//finish adding, currently only need build (the-childs)
 	void write_this(ostream& fout);
 };
