@@ -168,16 +168,16 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	}
 
 	printf("\n");
-
+	/*
 	printf("Tokens Non Root: %d\n", total_non_root);
 	printf("Correct Non Root: %d\n", corr_non_root);
 	printf("Unlabeled Accuracy Non Root: %.2lf%%\n", ((double)corr_non_root) * 100 / total_non_root);
 	if(labeled){
 		printf("Labeled Accuracy Non Root: %.2lf%%\n", ((double)corrL_non_root) * 100 / total_non_root);
 	}
-
+	
 	printf("\n");
-
+	*/
 	printf("Tokens No Punc: %d\n", totalNoPunc);
 	printf("Correct No Punc: %d\n", corrNoPunc);
 	printf("Unlabeled Accuracy No Punc: %.2lf%%\n", ((double)corrNoPunc) * 100 / totalNoPunc);
@@ -186,7 +186,7 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 		printf("Labeled Accuracy No Punc: %.2lf%%\n", ((double)corrLNoPunc) * 100 / totalNoPunc);
 		printf("Labeled Complete Correct No Punc: %.2lf%%\n", ((double)corrsentLNoPunc) * 100 / numsent);
 	}
-
+	/*
 	printf("\n");
 
 	printf("Tokens No Punc Root: %d\n", totalNoPunc_root);
@@ -204,6 +204,7 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	if(labeled){
 		printf("Labeled Accuracy No Punc Non Root: %.2lf%%\n", ((double)corrLNoPunc_non_root) * 100 / totalNoPunc_non_root);
 	}
+	*/
 	return ((double)corr) / total;
 }
 

@@ -1,20 +1,8 @@
 #include "DpSentence.h"
 #include "../tools/DpTools.h"
-#include <sstream>
-#include <stdexcept>
 #include <regex>
 
 namespace{
-	// TMP helper methods
-	inline int TMP_to_int(const string& x)
-	{
-		stringstream tmp_str(x);
-		int y = 0;
-		tmp_str >> y;
-		if(y == 0 && x[0] != '0')
-			throw runtime_error("Int-Error: transfer to int.");
-		return y;
-	}
 	// special treatment for words
 	const regex TMP_renum{"[0-9]+|[0-9]+\\.[0-9]+|[0-9]+[0-9,]+|[0-9]+\\\\/[0-9]+"};
 	const vector<pair<regex, string>> TEMP_RE_MATCH
@@ -34,7 +22,7 @@ void DpSentence::read_one(const vector<string>& them)
 		heads.emplace_back(-1);
 		rels.emplace_back("<root-rel>");
 	}
-	if(TMP_to_int(them[0]) != size())
+	if(dp_str2int(them[0]) != size())
 		throw runtime_error("Format-Error: wrong field[0].");
 	forms.emplace_back(them[1]);
 	// -- norm with re
@@ -48,7 +36,7 @@ void DpSentence::read_one(const vector<string>& them)
 	words_norm.emplace_back(temp_norm);
 	// -- norm with re
 	postags.emplace_back(them[4]);
-	heads.emplace_back(TMP_to_int(them[8]));
+	heads.emplace_back(dp_str2int(them[8]));
 	rels.emplace_back(them[9]);
 }
 
@@ -81,7 +69,7 @@ void DpSentence::write_this(ostream & fout)
 	fout << "\n";
 }
 
-// read and write them all
+// read and write them all -- no checking for file error
 DPS_PTR read_corpus(string file)
 {
 	Recorder TMP_recorder{string{"read file "}+file};
@@ -124,7 +112,7 @@ DPS_PTR read_corpus(string file)
 	return dps;
 }
 
-void write_corpus(DPS_PTR& instances, string file)
+void write_corpus(DPS_PTR instances, string file)
 {
 	Recorder TMP_recorder{string{"write file "}+file};
 	ofstream fout;

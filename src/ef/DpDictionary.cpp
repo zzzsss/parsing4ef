@@ -116,11 +116,19 @@ void DpDictionary::put_rels(DPS_PTR corpus)
 
 // -- IO: read and write
 // --- format: #words ... #pos ... #rel ...
-DpDictionary::DpDictionary(string file)
+void DpDictionary::read(string file)
 {
 	Recorder TMP_recorder{string{"Read maps "}+file};
+	// clear possibly
+	if(!empty())
+		clear();
 	ifstream fin;
 	fin.open(file);
+	if(!fin){
+		cerr << "Invalid dictionary file " << file << endl;
+		fin.close();
+		return;
+	}
 	vector<pair<vector<string>*, unordered_map<string, int>*>> temp_maps{{&list_word, &map_word}, {&list_pos, &map_pos}, {&list_rel, &map_rel}};
 	for(auto x : temp_maps){
 		auto the_list = x.first;

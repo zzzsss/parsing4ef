@@ -59,6 +59,6 @@ public:
 using DP_PTR = DpSentence*;
 using DPS_PTR = vector<DP_PTR>*;
 extern DPS_PTR read_corpus(string file);
-extern void write_corpus(DPS_PTR& instances, string file);
+extern void write_corpus(DPS_PTR instances, string file);
 
 #endif

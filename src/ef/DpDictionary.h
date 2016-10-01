@@ -27,12 +27,22 @@ public:
 	void index_dps(DPS_PTR);		// complete some of the rest of the DpSentences
 	void put_rels(DPS_PTR);			// put back rel names for sentences
 	//io
-	DpDictionary(string file);
+	void read(string file);
 	void write(string file);
 	//number -- should return the size of maps
 	unsigned num_word(){ return map_word.size(); }
 	unsigned num_pos(){ return map_pos.size(); }
 	unsigned num_rel(){ return map_rel.size(); }
+	//helpers
+	void clear(){
+		for(auto& x : vector<decltype(map_word)>{map_word, map_pos, map_rel})
+			x.clear();
+		for(auto& x : vector<decltype(list_word)>{list_word, list_pos, list_rel})
+			x.clear();
+	}
+	bool empty(){	// this check should be enough
+		return num_word() == 0;
+	}
 };
 
 #endif

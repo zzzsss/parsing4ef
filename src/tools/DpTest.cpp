@@ -9,8 +9,9 @@ int main(int argc, char** argv){
 }
 #endif // TEST_EVALUATOR
 
-#define TEST_DICTIONARY
+//#define TEST_DICTIONARY
 #ifdef TEST_DICTIONARY
+// ./a.out <train-file> <dictionary-file>
 int main(int argc, char** argv){
 	DPS_PTR train = read_corpus(argv[1]);
 	DpDictionary d{};
@@ -18,7 +19,8 @@ int main(int argc, char** argv){
 	d.build_map(train, x);
 	d.index_dps(train);
 	d.write(string(argv[2]));
-	DpDictionary d2{string(argv[2])};
+	DpDictionary d2{};
+	d2.read(string(argv[2]));
 	cout << d2.num_word() << "-" << d2.num_pos() << "-" << d2.num_rel() << endl;
 }
 #endif // TEST_DICTIONARY
