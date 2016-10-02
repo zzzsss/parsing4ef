@@ -6,10 +6,23 @@
 #include <string>
 using namespace std;
 
+// option codes
+// t0. the transition-system type
+enum EF_MODE{ EF_STD, EF_EAGER };
+// t1: obejct function for the training: perceptron, approximate CRF, special-losses
+enum LOSS_MODE{ LOSS_PERCEPTRON, LOSS_ACRF, LOSS_SPECIAL };
+// t2.1: the update strategy: till-the-end, max-violation, early-update, restart with one gold
+enum UPDATE_MODE{ UPDATE_END, UPDATE_MAXV, UPDATE_EU, UPDATE_RESTART };
+// t2.2: the divisor when updating (this influences lr): 1, current_len, sentence_len
+enum UPDATEDIV_MODE{ UPDATEDIV_ONE, UPDATEDIV_CUR, UPDATEDIV_ALL };
+// t3: recombination mode
+enum RECOMB_MODE{ RECOMB_NOPE, RECOMB_STRICT, RECOMB_SPINE, RECOMB_SPINE2, RECOMB_TOPC, RECOMB_TOPC2, RECOMB_TOP };
+
 class DpOptions{	//TODO: the options
 private:
 	// for initialization, a vector of "key value" pairs
 	void init(vector<pair<string, string>>&);
+	void check_and_report();	// after init
 public:
 	// 0. procedures
 	int iftrain{1};		// whether training; [default 1]
@@ -25,13 +38,26 @@ public:
 	// 1.1. model files
 	string file_dict{"dictionary.txt"};	// to build for training or to load for testing
 	string file_tdict{""};	// to load for training (train-dict)
-	
-	//1. about dictionary
+	//2. about dictionary
 	int dict_remove{2};		//remove words appears < this times; [default 2 (remove 1 time)]
 	int dict_reorder{1};	//whether re-order the words according to frequency; [default True]
-	//2. about features
-	int ef_mode{0};		//ef_std or ef_eager or ...
+	//3. about transition & features
+	int ef_mode{0};		//ef_std or ef_eager or ... (State)
 	string fss{""};			//feature specifier: see FeatureManager for details (may repeat it and can overwrite)
+	//4. about searching
+	//4.1 training schemes
+	double margin{0.0};		// margin for the scores
+	int update_mode{0};		// update strategies (Agenda)
+	int updatediv_mode{0};	// what is the divisor for update
+	int loss_mode{0};		// object when update (Agenda)
+	//4.2 beam sizes && recombination option
+	int beam_flabel{2};		// first filter for labels, which controls diversity on one beam
+	int beam_div{4};		// main diversity beam, controls diversity for same structure
+	int beam_all{16};		// final beam-size
+	int recomb_mode{0};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
+	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
+	int gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
+	int gold_unum{1};		// how many golds for updating (could be less)
 
 	// Initialization
 	DpOptions(int argc, char** argv);

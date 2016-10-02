@@ -54,9 +54,9 @@ public:
 	int num_labels(){ return labels.size(); }
 
 	// for pretty-looking
-	void feature_them(vector<StateTemp*> them){
-		for(auto* i : them)
-			i->fetch_feature(this);
+	void feature_them(vector<StateTemp>& them){
+		for(auto& i : them)
+			i.fetch_feature(this);
 	}
 };
 

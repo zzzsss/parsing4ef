@@ -53,6 +53,11 @@ public:
 	void read_one(const vector<string>& them);	//add one-line to (forms, words_norm, postags, heads, rels)
 	void finish_one();							//finish adding, currently only need build (the-childs)
 	void write_this(ostream& fout);
+	// only these method can see golds
+	bool is_correct(int m, int h, int r){ return heads[m] == h &&  index_rels[m] == r; }
+	bool is_correct(int m, int h){ return heads[m] == h; }
+	int get_head(int m){ return heads[m]; }
+	int get_rel(int m){ return index_rels[m]; }
 };
 
 // read and write them all -- again point to vector of pointers

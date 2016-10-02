@@ -14,7 +14,6 @@ protected:
 	Scorer* scorer;		//from outside: the scoring model
 	FeatureManager* featureM;	//from outside: specify the features
 	DpOptions* options;		//from outside: the options
-	bool is_training;		//if current is training
 
 	int num_sent{0};
 	int num_token{0};

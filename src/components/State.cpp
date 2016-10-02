@@ -1,4 +1,6 @@
 #include "State.h"
+#include "../ef/DpOptions.h"
+#include <sstream>
 
 // 0. basics
 State* State::make_empty(DP_PTR s, int opt)
@@ -8,7 +10,7 @@ State* State::make_empty(DP_PTR s, int opt)
 		return new EfstdState(s);
 	case EF_EAGER:
 		return new EfeagerState(s);
-	defautl:
+	default:
 		throw runtime_error("Unkonw ef mode.");
 	}
 }
@@ -69,28 +71,28 @@ int EfstdState::travel_down(int i, int which, int steps)
 
 // 1. expand: create the new candidates according to the current state
 // EasyFirst-Stdandard
-vector<StateTemp*> EfstdState::expand()
+vector<StateTemp> EfstdState::expand()
 {
 	// In EF-std, only nodes at the top level will be considered as the head
-	vector<StateTemp*> them;
+	vector<StateTemp> them;
 	// for all the nodes that have no heads
 	int cur = nb_right[0];
 	while(cur != NOPE_YET){
 		// left or right
 		if(nb_left[cur] != NOPE_YET)
-			them.push_back(new StateTemp(this, cur, nb_left[cur]));
+			them.emplace_back(StateTemp(this, cur, nb_left[cur]));
 		if(nb_right[cur] != NOPE_YET)
-			them.push_back(new StateTemp(this, cur, nb_right[cur]));
+			them.emplace_back(StateTemp(this, cur, nb_right[cur]));
 		cur = nb_right[cur];
 	}
 	return them;
 }
 
 // EasyFirst-Eager
-vector<StateTemp*> EfeagerState::expand()
+vector<StateTemp> EfeagerState::expand()
 {
 	// In EF-eager, we need to consider the nodes on the spine as the head
-	vector<StateTemp*> them;
+	vector<StateTemp> them;
 	// for all the nodes that have no heads
 	int cur = nb_right[0];
 	int one = NOPE_YET;
@@ -98,16 +100,34 @@ vector<StateTemp*> EfeagerState::expand()
 		// left or right spine
 		one = nb_left[cur];
 		while(one != NOPE_YET){
-			them.push_back(new StateTemp(this, cur, one));
+			them.emplace_back(StateTemp(this, cur, one));
 			one = ch_right[one];
 		}
 		one = nb_right[cur];
 		while(one != NOPE_YET){
-			them.push_back(new StateTemp(this, cur, one));
+			them.emplace_back(StateTemp(this, cur, one));
 			one = ch_left[one];
 		}
 		cur = nb_right[cur];
 	}
 	return them;
+}
+
+//2. get representation -- for recombination in searching
+string EfstdState::get_repr(int mode, bool labeled)
+{
+	stringstream tmp_str;
+	switch(mode){
+	case RECOMB_STRICT:
+		for(int i = 1; i < partial_heads.size(); i++){
+			if(partial_heads[i] != NOPE_YET){
+				tmp_str << partial_heads[i];
+				if(labeled)
+					tmp_str << '-' << partial_rels[i];
+				tmp_str << '|';
+			}
+		}
+		break;
+	}
 }
 

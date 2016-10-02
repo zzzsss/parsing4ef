@@ -6,7 +6,7 @@
 /*
 * ef_search: the searching process itself **
 * --> <what effect> train: only back-propagate error; test: store best to one
-* --> <managed by> State*: Agenda, StateTemp*: local, Feature*: FeatureManager, Score*: Scorer
+* --> <managed by> State*: Agenda, StateTemp: local(stack), Feature*: FeatureManager, Score*: Scorer
 */
 /*
 What is the process for this search?
@@ -26,11 +26,12 @@ Who needs to know what options?
 */
 void Searcher::ef_search(DP_PTR one, int train)
 {
+	bool is_training = static_cast<bool>(train);
 	// helpers
 	ACCRECORDER_ONCE("Search-all");
 	Scorer& the_scorer = *scorer;
 	FeatureManager& the_featurer = *featureM;
-	Agenda the_agenda;
+	Agenda the_agenda{is_training, options};
 	// the empty one for the start
 	State* start = State::make_empty(one, options->ef_mode);
 	vector<State*> beam = the_agenda.init(start);
@@ -41,11 +42,11 @@ void Searcher::ef_search(DP_PTR one, int train)
 		num_steps++;
 		// expand -- first collect all candidates 
 		// -- (for simplicity, reconstruct Features)
-		vector<StateTemp*> candidates{};
+		vector<StateTemp> candidates{};
 		{
 			ACCRECORDER_ONCE("Search-expand");
 			for(State* s : beam){
-				vector<StateTemp*> ones = s->expand();
+				vector<StateTemp> ones = s->expand();
 				candidates.insert(candidates.end(), ones.begin(), ones.end());
 			}
 		}
@@ -65,9 +66,6 @@ void Searcher::ef_search(DP_PTR one, int train)
 			ACCRECORDER_ONCE("Search-rank");
 			beam = the_agenda.rank_them(candidates);
 		}
-		// release sources
-		for(auto* s : candidates)
-			delete s;
 	}
 	// assign and clear
 	if(!is_training){
