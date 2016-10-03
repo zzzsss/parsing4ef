@@ -8,7 +8,7 @@
 // -- when it remains in the beam, it can be later stablized to a new State
 // -- in fact, this class should be generalized to a Transition class maybe
 class StateTemp{
-protected:
+private:
 	State* base;
 	// -- the new edge this time
 	int mod;
@@ -36,36 +36,22 @@ public:
 		return feat;
 	}
 	// setter and getter
-	void set_score(REAL a){ partial_score = a; }
+	void set_score(Score* a){ scores = a; }
+	void set_pscore(REAL a){ partial_score = a; }
 	REAL get_score(){ return partial_score; }
 	DP_PTR get_sentence(){ return base->get_sentence(); }
 	bool is_correct_cur(){ return get_sentence()->is_correct(mod, head, rel_index); }	// is current one correct?
 	bool is_correct_all(){ return is_correct_cur() && base->is_correct(); }	// is all correct?
 	// !! using in Agenda.rank_them() !!
-	// expand the k-best labels and return new StateTemps (this may be bad design!!), ensuring add GOLD when training
-	vector<StateTemp*> expand_labels(int k, bool iftraining) 
-	{
-		vector<StateTemp*> ret;
-		auto l = scores->kbest_index(k);
-		bool hitflag = false;
-		int gold_rel = base->get_sentence()->get_rel(mod);
-		for(int i : l){
-			if(i == gold_rel)
-				hitflag = true;
-			ret.push_back(new StateTemp(base, mod, head, i, feat, scores));
-		}
-		if(iftraining && !hitflag){
-			// only add gold for training when gold is possible
-			if(base->is_correct() && get_sentence()->is_correct(mod, head))
-				ret.push_back(new StateTemp(base, mod, head, gold_rel, feat, scores));
-		}
-		return ret;
-	}
+	// expand the k-best labels and return labeled StateTemps (this may be bad design!!), ensuring add GOLD when training
+	static vector<StateTemp> expand_labels(StateTemp& st, int k, bool iftraining);
 	State* stablize(){	// ..., what a design !=_=
 		State* one = base->copy();
-		one->stablize(this);
+		one->transform(this);
 		return one;
 	}
+	// TODO: to eliminate this !! ok, have to use friend for this one
+	friend void EfstdState::transform(StateTemp*);
 };
 
 #endif

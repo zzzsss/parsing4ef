@@ -131,3 +131,34 @@ string EfstdState::get_repr(int mode, bool labeled)
 	}
 }
 
+//3. transform: this is the friend method of StateTemp
+void EfstdState::transform(StateTemp*)
+{
+
+}
+
+// others: StateTemp
+vector<StateTemp> StateTemp::expand_labels(StateTemp& st, int k, bool iftraining)
+{
+	vector<StateTemp> ret;
+	auto l = st.scores->kbest_index(k);
+	auto base = st.base;
+	auto head = st.head;
+	auto mod = st.mod;
+	auto feat = st.feat;
+	auto scores = st.scores;
+	auto sent = base->get_sentence();
+	bool hitflag = false;
+	int gold_rel = sent->get_rel(st.mod);
+	for(int i : l){
+		if(i == gold_rel)
+			hitflag = true;
+		ret.emplace_back(StateTemp{base, mod, head, i, feat, scores});
+	}
+	if(iftraining && !hitflag){
+		// only add gold for training when gold is possible
+		if(base->is_correct() && sent->is_correct(mod, head))
+			ret.emplace_back(StateTemp{base, mod, head, gold_rel, feat, scores});
+	}
+	return ret;
+}

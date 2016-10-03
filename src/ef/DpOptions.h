@@ -57,7 +57,6 @@ public:
 	int recomb_mode{0};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	int gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
-	int gold_unum{1};		// how many golds for updating (could be less)
 
 	// Initialization
 	DpOptions(int argc, char** argv);

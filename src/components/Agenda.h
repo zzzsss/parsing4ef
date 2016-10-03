@@ -13,23 +13,34 @@ protected:
 	// --- options ---
 	bool is_training;	// if training
 	DpOptions* opt;
+	// --- memories ---
+	vector<State*> last_beam;
+	vector<State*> max_beam;	//for MAX_VIOLATION update method
+	REAL max_viol{0};				//for MAX_VIOLATION update method
 	// --- helpers ---
 	void clear(){
 		// clear the states
 		for(auto* s : records)
 			delete s;
 	}
+	// crucial step for updating and finishing when training
+	vector<State*> alter_beam(vector<State*> curr_beam, bool no_gold);
 public:
 	~Agenda(){ clear(); }
 	Agenda(bool iftrain, DpOptions* the_opt):is_training(iftrain), opt(the_opt){}
 	// to start a search
-	decltype(records) init(State* start){
+	vector<State*> init(State* start){
 		clear();
 		records.push_back(start);
+		if(is_training){
+			last_beam = vector<State*>{start};
+			max_beam = vector<State*>{start};
+		}
 		return vector<State*>{start};
 	}
 	// the main function -- ranking
 	vector<State*> rank_them(vector<StateTemp>& them);
+	State* get_best(){ return last_beam[0]; }
 };
 
 #endif

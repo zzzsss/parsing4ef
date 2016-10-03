@@ -7,6 +7,7 @@
 * ef_search: the searching process itself **
 * --> <what effect> train: only back-propagate error; test: store best to one
 * --> <managed by> State*: Agenda, StateTemp: local(stack), Feature*: FeatureManager, Score*: Scorer
+* ----> (Those * need pointers mainly because we have to store them for future use.)
 */
 /*
 What is the process for this search?
@@ -70,7 +71,7 @@ void Searcher::ef_search(DP_PTR one, int train)
 	// assign and clear
 	if(!is_training){
 		State* end = the_agenda.get_best();
-		end.assignto(one);
+		end->assignto(one);
 	}
 	// possibly clean up
 	the_scorer.clear();

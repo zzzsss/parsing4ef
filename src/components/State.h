@@ -6,6 +6,21 @@
 #include "FeatureManager.h"
 
 // State represent a partial tree, which needs further transitions
+/*
+-- A little explanation of the State and StateTemp.
+1. why so complicated?
+-> well, mainly for efficiency, most of the StateTemp will not be stablized as State, so only keep the lightweighted one.
+2. what is the contract or internal semantic of them?
+=> State::init=>EmptyState (the start) 
+=> State::expand=>StateTemp (without Feature/Score/rel_index)
+=> FeatureManager::feature_them(StateTemp) (adding Feature)
+=> Scorer::score_them(StateTemp) (adding Score)
+=> Agenda::rank_them(StateTemp)=>State {
+	1.extend labels and add gold if training;
+	2.calculate score (base->score+new_score+margin)
+	3.stablize (add one edge, change structure and recordings and scores(direct from StateTemp's partial_score))
+}
+*/
 class State{
 protected:
 	static const int NOPE_YET = -1;
@@ -55,7 +70,14 @@ public:
 	// identifications for recombination
 	virtual string get_repr(int mode, bool labeled) = 0;
 	virtual State* copy() = 0;	// copy myself
-	virtual void stablize(StateTemp*) = 0;
+	virtual void transform(StateTemp*) = 0;
+	// others
+	bool finished(){ return num_arc == sentence->size()-1; }
+	void assignto(DP_PTR x){	// write back to sentence
+		if(!finished())
+			throw runtime_error("State: unfinished assign.");
+		x->assign(partial_heads, partial_rels);
+	}
 };
 
 // EasyFirst-Stdandard
@@ -72,8 +94,10 @@ public:
 	virtual ~EfstdState() = default;
 	virtual State* copy() override { return new EfstdState{*this}; }
 	virtual vector<StateTemp> expand() override;
+	// for both Ef*State
 	virtual int travel_down(int i, int which, int steps) override;
 	virtual string get_repr(int mode, bool labeled) override;
+	virtual void transform(StateTemp*) override;	// this is the friend method of StateTemp
 };
 
 // EasyFirst-Eager
@@ -85,8 +109,6 @@ public:
 	virtual ~EfeagerState() = default;
 	virtual State* copy() override { return new EfeagerState{*this}; }
 	virtual vector<StateTemp> expand() override;
-	// virtual State* stabilize(StateTemp*);					// same as EfstdState
-	// virtual int travel_down(int i, int which, int steps);	// same as EfstdState
 };
 
 #endif

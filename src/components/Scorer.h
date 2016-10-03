@@ -7,6 +7,7 @@ class Scorer{
 private:
 public:
 	void score_them(vector<StateTemp>& them);	//attach scores to them
+	void clear(){}
 };
 
 #endif
