@@ -29,17 +29,18 @@ protected:
 	// partial heads and rel-index for the tree, NOPE_YET means nope, also including dummy root node
 	vector<int> partial_heads;	
 	vector<int> partial_rels;
+	vector<Score*> partial_sc;
 	// double linked list for the top nodes
 	vector<int> nb_left;		// left neibourhood
 	vector<int> nb_right;		// right neibourhood
 	// recordings
 	REAL partial_score{0};	//including penalty when training
 	int num_arc{0};
-	int num_wrong{0};
+	int num_wrong{0};		//only record when training
 
 	// we only need these two for construction
-	State(DP_PTR s, REAL sc=0): sentence(s), partial_heads(s->size(), NOPE_YET), partial_rels(s->size(), NOPE_YET),
-		nb_left(s->size(), NOPE_YET), nb_right(s->size(), NOPE_YET), partial_score(sc){
+	State(DP_PTR s): sentence(s), partial_heads(s->size(), NOPE_YET), partial_rels(s->size(), NOPE_YET),
+		nb_left(s->size(), NOPE_YET), nb_right(s->size(), NOPE_YET), partial_sc(s->size(), nullptr){
 		// linear structure at first
 		for(int i = 0; i < s->size(); i++){	
 			nb_left[i] = i - 1;
@@ -70,9 +71,10 @@ public:
 	// identifications for recombination
 	virtual string get_repr(int mode, bool labeled) = 0;
 	virtual State* copy() = 0;	// copy myself
-	virtual void transform(StateTemp*) = 0;
+	virtual void transform(StateTemp*, bool) = 0;
 	// others
 	bool finished(){ return num_arc == sentence->size()-1; }
+	int get_numarc() { return num_arc; }
 	void assignto(DP_PTR x){	// write back to sentence
 		if(!finished())
 			throw runtime_error("State: unfinished assign.");
@@ -97,7 +99,7 @@ public:
 	// for both Ef*State
 	virtual int travel_down(int i, int which, int steps) override;
 	virtual string get_repr(int mode, bool labeled) override;
-	virtual void transform(StateTemp*) override;	// this is the friend method of StateTemp
+	virtual void transform(StateTemp*, bool) override;	// this is the friend method of StateTemp
 };
 
 // EasyFirst-Eager

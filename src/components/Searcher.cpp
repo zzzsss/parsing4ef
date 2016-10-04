@@ -65,7 +65,7 @@ void Searcher::ef_search(DP_PTR one, int train)
 		// get the new beam for the next round
 		{
 			ACCRECORDER_ONCE("Search-rank");
-			beam = the_agenda.rank_them(candidates);
+			beam = the_agenda.rank_them(candidates, the_scorer);
 		}
 	}
 	// assign and clear

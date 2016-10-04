@@ -8,6 +8,9 @@
 // -- when it remains in the beam, it can be later stablized to a new State
 // -- in fact, this class should be generalized to a Transition class maybe
 class StateTemp{
+	// TODO: to eliminate this !! ok, have to use friend for this one
+	//friend void EfstdState::transform(StateTemp*, bool);
+	friend class EfstdState;
 private:
 	State* base;
 	// -- the new edge this time
@@ -45,13 +48,11 @@ public:
 	// !! using in Agenda.rank_them() !!
 	// expand the k-best labels and return labeled StateTemps (this may be bad design!!), ensuring add GOLD when training
 	static vector<StateTemp> expand_labels(StateTemp& st, int k, bool iftraining);
-	State* stablize(){	// ..., what a design !=_=
+	State* stablize(bool istraining){	// ..., what a design !=_=
 		State* one = base->copy();
-		one->transform(this);
+		one->transform(this, istraining);
 		return one;
 	}
-	// TODO: to eliminate this !! ok, have to use friend for this one
-	friend void EfstdState::transform(StateTemp*);
 };
 
 #endif

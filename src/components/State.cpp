@@ -132,9 +132,44 @@ string EfstdState::get_repr(int mode, bool labeled)
 }
 
 //3. transform: this is the friend method of StateTemp
-void EfstdState::transform(StateTemp*)
+void EfstdState::transform(StateTemp* st, bool istraining)
 {
-
+	// with the power of friend for StateTemp
+	int mod = st->mod;
+	int head = st->head;
+	int rel_index = st->rel_index;
+	Score* scores = st->scores;
+	REAL pscore = st->partial_score;
+	// add a new edge, currently simple
+	// -- records
+	num_arc++;
+	partial_score = pscore;
+	if(istraining)		// only know this when training
+		if(!st->is_correct_cur())
+			num_wrong++;
+	// -- left-right for the mod if one top list, and nb_r/r[mod] has no meaning
+	if(travel_up(mod, 1) == NOPE_YET){
+		int left = nb_left[mod];
+		int right = nb_right[mod];
+		if(left != NOPE_YET)
+			nb_right[left] = right;
+		if(right != NOPE_YET)
+			nb_left[right] = left;
+	}
+	// -- childs
+	if(mod < head){
+		ch_left2[head] = ch_left[head];
+		ch_left[head] = mod;
+	}
+	else{
+		ch_right2[head] = ch_right[head];
+		ch_right[head] = mod;
+	}
+	// -- finally heads
+	partial_heads[mod] = head;
+	partial_rels[mod] = rel_index;
+	partial_sc[mod] = scores;
+	return;
 }
 
 // others: StateTemp
