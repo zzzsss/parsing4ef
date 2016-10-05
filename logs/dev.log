@@ -7,3 +7,4 @@
 2016.10.02<dev-c>(tmp) Working on Agenda::rank_them, next for the beam generation.
 2016.10.03<dev-c>(tmp) Next, need to complete Agenda::alter_beam (for updates).
 2016.10.04<dev-c>(tmp) Next-step, on Scorer and Model.
+2016.10.05<dev-c>(tmp) Next, finish the component dir.

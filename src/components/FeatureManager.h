@@ -58,6 +58,9 @@ public:
 		for(auto& i : them)
 			i.fetch_feature(this);
 	}
+
+	// prepare expanded feature
+	vector<int> feature_expand(Feature* ff, DP_PTR sent);
 };
 
 #endif

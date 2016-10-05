@@ -123,7 +123,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	// 6.1 update and possibly alter beam when training
 	bool finished = beam[0]->finished(); //here is the simple criterion
 	if(is_training)
-		beam = alter_beam(beam, no_gold_yet, finished);
+		beam = alter_beam(beam, no_gold_yet, finished, scer);
 	// 6.2 finished for testing --- 
 	else if(finished)
 		beam.clear();

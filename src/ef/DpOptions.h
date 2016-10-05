@@ -18,6 +18,12 @@ enum UPDATEDIV_MODE{ UPDATEDIV_ONE, UPDATEDIV_CUR, UPDATEDIV_ALL };
 // t3: recombination mode
 enum RECOMB_MODE{ RECOMB_NOPE, RECOMB_STRICT, RECOMB_SPINE, RECOMB_SPINE2, RECOMB_TOPC, RECOMB_TOPC2, RECOMB_TOP };
 
+/*
+	Explanation for the options:
+	1. Separated by <BLANK>: different options
+	2. Separated by ':": key:value
+	3. fss: '|','-'; mss: '|',
+*/
 class DpOptions{	//TODO: the options
 private:
 	// for initialization, a vector of "key value" pairs
@@ -57,6 +63,8 @@ public:
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	int gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
+	//5. about model
+	string mss{""};			//model specifier: see model/* for details
 
 	// Initialization
 	DpOptions(int argc, char** argv);

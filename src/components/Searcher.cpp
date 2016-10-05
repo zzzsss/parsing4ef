@@ -60,7 +60,7 @@ void Searcher::ef_search(DP_PTR one, int train)
 		// -- rely on the cache of Scorer for avoiding dup-calculations
 		{
 			ACCRECORDER_ONCE("Search-score");
-			the_scorer.score_them(candidates);
+			the_scorer.score_them(candidates, the_featurer);
 		}
 		// get the new beam for the next round
 		{

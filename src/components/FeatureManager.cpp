@@ -62,7 +62,8 @@ FeatureManager::FeatureManager(const string& fss, int ef_mode)
 		<< ", #distances:" << num_distances() << ", #labels:" << num_labels() << endl;
 }
 
-// this one is repeated many times, thus it is not efficient enough? //TODO
+// this one is repeated many times, thus it is not efficient enough? 
+//TODO: optimize?
 Feature* FeatureManager::make_feature(State* s, int m, int h)
 {
 	vector<int> nodes(num_nodes(), -10000);
@@ -141,7 +142,7 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 			tlabels.push_back(s->get_rel_label(one));
 	}
 	// ok, record and return that -- use move
-	auto ret = new Feature(std::move(nodes), std::move(distances), std::move(tlabels));
+	auto ret = new Feature(move(nodes), move(distances), move(tlabels));
 	records.push_back(ret);
 	return ret;
 }
