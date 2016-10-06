@@ -28,3 +28,8 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 {
 
 }
+
+void DpOptions::check_and_report()
+{
+
+}

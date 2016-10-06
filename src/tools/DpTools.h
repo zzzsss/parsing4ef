@@ -126,4 +126,11 @@ extern AccRecorder global_recorder;
 #define ACCRECORDER_RESET(x)
 #endif
 
+template<class T>
+void CHECK_EQUAL(const T& a, const T& b)
+{
+	if(a != b)
+		throw runtime_error("Equality check failed.");
+}
+
 #endif

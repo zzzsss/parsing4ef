@@ -58,12 +58,9 @@ public:
 	bool is_correct(int m, int h){ return heads[m] == h; }
 	int get_head(int m){ return heads[m]; }
 	int get_rel(int m){ return index_rels[m]; }
-	void assign(vector<int>& h, vector<int>& r){
-		if(h.size() != heads.size() || r.size() != index_rels.size())
-			throw runtime_error("DpSentence assign not match.");
-		predict_heads = h;
-		index_predict_rels = r;
-	}
+	void assign(vector<int>& h, vector<int>& r);
+	int get_index_w(int i);
+	int get_index_p(int i);
 };
 
 // read and write them all -- again point to vector of pointers

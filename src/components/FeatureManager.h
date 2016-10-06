@@ -2,10 +2,13 @@
 #define _EF_COMP_FEATURE_MANAGER
 
 #include "Feature.h"
-#include "State.h"
+#include "StateTemp.h"
 #include <unordered_map>
 #include <vector>
 using namespace std;
+#include "../ef/DpDictionary.h"
+
+class State;
 
 // FeatureManager is the specification for the input (features) of the model.
 // -- it also decideds the input size and helps initializing the model, and stores the Feature*
@@ -21,17 +24,34 @@ Label:    l-<n>
 // TODO: NON_EXIST should be more fine-grained??, like -2, -3, ...
 */
 
+// This one is slightly coupled with DpDictionary ... todo ...
 class FeatureManager{
-protected:
+private:
+	// static for final index of nn
+	static const int INDEX_BIAS = 1;		// only one kind of non-exist
+	static const int INDEX_DIST_MAX = 50;	// NON_DIS as not-exist
+	// 
 	static const int NON_EXIST = -1;//same as State::NOPE_YET
 	static const int NON_DIS = 0;	// only 0 is not used for distance
 	static const int NON_NOPELABEL = -2;	// label for no nodes
+	//
+	DpDictionary* dictionary;
 	vector<Feature*> records;		//for final releasing
 	// feature specifications for the nodes
 	unordered_map<string, int> index;	// the place for this feature in the Feature
 	vector<int> spans;					// size of the span in the origin surface string (default 1)
 	vector<pair<int, int>> distance_pairs;
 	vector<int> labels;
+	// settle the final indexes
+	int settle_word(int x){ return x + INDEX_BIAS; }
+	int settle_distance(int x){		// [0, INDEX_DIST_MAX*2+1]
+		if(x < -INDEX_DIST_MAX)
+			x = -INDEX_DIST_MAX;
+		else if(x > INDEX_DIST_MAX)
+			x = INDEX_DIST_MAX;
+		return x + INDEX_DIST_MAX;
+	}
+	int settle_label(int x){ return x; }
 public:
 	void clear(){
 		// clear the states
@@ -39,7 +59,7 @@ public:
 			delete s;
 	}
 	~FeatureManager(){ clear(); }
-	FeatureManager(const string& fss, int ef_mode);		//ef_mode is only for checking
+	FeatureManager(const string& fss, DpDictionary* d, int ef_mode);		//ef_mode is only for checking
 	Feature* make_feature(State* s, int m, int h);
 
 	// helpers for the size

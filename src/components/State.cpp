@@ -1,4 +1,5 @@
 #include "State.h"
+#include "FeatureManager.h"
 #include "../ef/DpOptions.h"
 #include <sstream>
 
@@ -6,12 +7,9 @@
 State* State::make_empty(DP_PTR s, int opt)
 {
 	switch(opt){
-	case EF_STD:
-		return new EfstdState(s);
-	case EF_EAGER:
-		return new EfeagerState(s);
-	default:
-		throw runtime_error("Unkonw ef mode.");
+	case EF_STD:	return new EfstdState(s);
+	case EF_EAGER:	return new EfeagerState(s);
+	default:	throw runtime_error("Unkonw ef mode.");
 	}
 }
 
@@ -114,21 +112,63 @@ vector<StateTemp> EfeagerState::expand()
 }
 
 //2. get representation -- for recombination in searching
+// TODO: special decoding: assuming the sentence length is smaller than 255, and sometimes '0' as separator
 string EfstdState::get_repr(int mode, bool labeled)
 {
-	stringstream tmp_str;
+	string tmp_str;
+	bool use_c2 = false;	// use second child?
+	int cdepth = -1;		// -1 means whole spine, it can never go down to 0
 	switch(mode){
 	case RECOMB_STRICT:
-		for(int i = 1; i < partial_heads.size(); i++){
-			if(partial_heads[i] != NOPE_YET){
-				tmp_str << partial_heads[i];
-				if(labeled)
-					tmp_str << '-' << partial_rels[i];
-				tmp_str << '|';
-			}
+	{
+		for(unsigned i = 1; i < partial_heads.size(); i++){
+			tmp_str += partial_heads[i];
+			if(labeled)
+				tmp_str += partial_rels[i];
 		}
-		break;
+		return tmp_str;		// directly return
 	}
+	case RECOMB_SPINE:	break;
+	case RECOMB_SPINE2:	use_c2 = true; break;
+	case RECOMB_TOPC:	cdepth = 1; break;
+	case RECOMB_TOPC2:	use_c2 = true; cdepth = 1; break;
+	case RECOMB_TOP:	cdepth = 0; break;
+	default: throw runtime_error("Unkonw recomb mode."); break;
+	}
+	// get them
+	{
+		int cur = 0;
+		while(cur != NOPE_YET){
+			tmp_str += cur;
+			// left or right
+			const int step = 2;
+			auto them = vector<vector<int>*>{&ch_left, &ch_left2, &ch_right, &ch_right2};
+			for(unsigned i = 0; i < them.size(); i+=step){
+				vector<int>& ch1 = *(them[i]);
+				vector<int>& ch2 = *(them[i+1]);
+				int tmp_depth = cdepth;
+				int iter = ch1[cur];
+				int iter2 = ch2[cur];
+				while(tmp_depth != 0 && iter != NOPE_YET){
+					tmp_str += iter;
+					if(use_c2)
+						tmp_str += iter2;
+					if(labeled){
+						tmp_str += partial_rels[iter];
+						if(use_c2)
+							tmp_str += partial_rels[iter2];
+					}
+					iter2 = ch2[iter];
+					iter = ch1[iter];
+					tmp_depth--;
+				}
+				tmp_str += '0';		// as separator
+			}
+			// move right
+			cur = nb_right[cur];
+		}
+	}
+	return tmp_str;
 }
 
 //3. transform: this is the friend method of StateTemp
@@ -196,4 +236,26 @@ vector<StateTemp> StateTemp::expand_labels(StateTemp& st, int k, bool iftraining
 			ret.emplace_back(StateTemp{base, mod, head, gold_rel, feat, scores});
 	}
 	return ret;
+}
+
+State* StateTemp::stablize(bool istraining){	// ..., what a design !=_=
+	State* one = base->copy();
+	one->transform(this, istraining);
+	return one;
+}
+
+// StateTemp -- have to be here
+StateTemp::StateTemp(State* s, int m, int h, int r, Feature* ff, Score* ss):
+	base(s), mod(m), head(h), rel_index(r), feat(ff), scores(ss){
+	partial_score = scores->get_one(r) + s->get_score();
+}
+bool StateTemp::is_correct_all(){ return is_correct_cur() && base->is_correct(); }	// is all correct?
+DP_PTR StateTemp::get_sentence(){ return base->get_sentence(); }
+
+Feature* StateTemp::fetch_feature(FeatureManager* fm){	// create if nope (both getter and setter)
+	// let the State to add feature for it concerns the details of the structures
+	if(feat)
+		return feat;
+	feat = fm->make_feature(base, mod, head);
+	return feat;
 }

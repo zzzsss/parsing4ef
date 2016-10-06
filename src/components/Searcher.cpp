@@ -1,6 +1,7 @@
 #include "Searcher.h"
-#include "StateTemp.h"
+#include "State.h"
 #include "Agenda.h"
+#include "Scorer.h"
 #include "../tools/DpTools.h"
 
 /*
@@ -25,13 +26,13 @@ Who needs to know what options?
 4. beam and recombinition: Agenda
 5. gold-drop and criteria: Agenda
 */
-void Searcher::ef_search(DP_PTR one, int train)
+void Searcher::ef_search(DP_PTR one, int train, Model* m, FeatureManager* fm)
 {
 	bool is_training = static_cast<bool>(train);
 	// helpers
 	ACCRECORDER_ONCE("Search-all");
-	Scorer& the_scorer = *scorer;
-	FeatureManager& the_featurer = *featureM;
+	Scorer the_scorer{m};
+	FeatureManager& the_featurer = *fm;
 	Agenda the_agenda{is_training, options};
 	// the empty one for the start
 	State* start = State::make_empty(one, options->ef_mode);
@@ -39,7 +40,7 @@ void Searcher::ef_search(DP_PTR one, int train)
 	// start the searching
 	num_sent++;
 	num_token += one->size() - 1;
-	while(1){
+	while(!beam.empty()){
 		num_steps++;
 		// expand -- first collect all candidates 
 		// -- (for simplicity, reconstruct Features)
@@ -74,7 +75,6 @@ void Searcher::ef_search(DP_PTR one, int train)
 		end->assignto(one);
 	}
 	// possibly clean up
-	the_scorer.clear();
 	the_featurer.clear();
 	return;
 }

@@ -5,7 +5,7 @@
 #include <cmath>
 
 namespace{
-	bool TMP_cmp(StateTemp* i, StateTemp* j){ return (i->get_score() > j->get_score()); }
+	bool TMP_cmp(const StateTemp& i, const StateTemp& j){ return (i.get_score() > j.get_score()); }
 }
 
 // one of the most important ones, deciding the beam at one time
@@ -24,7 +24,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	if(is_training){
 		for(auto x : them_all)
 			if(!x.is_correct_cur())
-				x.set_pscore(x.get_score() + opt->margin);		//!! penalties are accumulated
+				x.set_pscore(x.get_score() + static_cast<REAL>(opt->margin));		//!! penalties are accumulated
 	}
 	// 3. sort them by score (high first)
 	std::sort(them_all.begin(), them_all.end(), TMP_cmp);
@@ -193,6 +193,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 	vector<REAL> to_grads;
 	switch(opt->updatediv_mode){	// the first two must need gold ones !!
 	case LOSS_PERCEPTRON:	// loss = best - gold
+	{
 		// TODO: do we need to update for all the golds?
 		State* best = ubeam[0];
 		State* gold = nullptr;
@@ -206,15 +207,17 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			throw runtime_error("Update need at least one gold.");
 		if(gold != best){
 			to_update = vector<State*>{best, gold};
-			to_grads = vector<REAL>{1/div, -1/div};
+			to_grads = vector<REAL>{1 / div, -1 / div};
 		}
 		break;
+	}
 	case LOSS_ACRF:			// loss = - log (exp(gold) - sum(exp(all)))
+	{
 		to_update = ubeam;
 		to_grads = vector<REAL>{};
 		REAL exp_all = 0;
 		REAL exp_gold = 0;
-		for(auto* x: ubeam){
+		for(auto* x : ubeam){
 			REAL one_exp = exp(x->get_score());
 			to_grads.push_back(one_exp);
 			exp_all += one_exp;
@@ -223,13 +226,14 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		}
 		if(!exp_gold)
 			throw runtime_error("Update need at least one gold.");
-		for(int i = 0; i < ubeam.size(); i++){
+		for(unsigned i = 0; i < ubeam.size(); i++){
 			if(ubeam[i]->is_correct())
 				to_grads[i] = to_grads[i] / exp_all - to_grads[i] / exp_gold;
 			else
 				to_grads[i] = to_grads[i] / exp_all;
 		}
 		break;
+	}
 	case LOSS_SPECIAL:
 		// TODO: about this one??
 		throw runtime_error("Currently, LOSS_SPECIAL un-implemented.");

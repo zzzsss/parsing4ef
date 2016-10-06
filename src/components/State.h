@@ -3,7 +3,6 @@
 
 #include "../ef/DpSentence.h"
 #include "StateTemp.h"
-#include "FeatureManager.h"
 
 // State represent a partial tree, which needs further transitions
 /*
@@ -80,6 +79,18 @@ public:
 			throw runtime_error("State: unfinished assign.");
 		x->assign(partial_heads, partial_rels);
 	}
+	int append_si(vector<Output*>& vo, vector<int>& vi){	
+		//append scores and index, for backprop; return number
+		int n = 0;
+		for(unsigned i = 0; i < partial_heads.size(); i++){
+			if(partial_heads[i] != NOPE_YET){
+				vo.push_back(partial_sc[i]->get_output());
+				vi.push_back(partial_rels[i]);
+				n++;
+			}
+		}
+		return n;
+	}
 };
 
 // EasyFirst-Stdandard
@@ -93,13 +104,13 @@ public:
 	EfstdState(DP_PTR s): State(s), ch_left(s->size(), NOPE_YET), ch_right(s->size(), NOPE_YET),
 		ch_left2(s->size(), NOPE_YET), ch_right2(s->size(), NOPE_YET){}
 	EfstdState(const EfstdState&) = default;
-	virtual ~EfstdState() = default;
-	virtual State* copy() override { return new EfstdState{*this}; }
-	virtual vector<StateTemp> expand() override;
+	~EfstdState() = default;
+	State* copy() override { return new EfstdState{*this}; }
+	vector<StateTemp> expand() override;
 	// for both Ef*State
-	virtual int travel_down(int i, int which, int steps) override;
-	virtual string get_repr(int mode, bool labeled) override;
-	virtual void transform(StateTemp*, bool) override;	// this is the friend method of StateTemp
+	int travel_down(int i, int which, int steps) override;
+	string get_repr(int mode, bool labeled) override;
+	void transform(StateTemp*, bool) override;	// this is the friend method of StateTemp
 };
 
 // EasyFirst-Eager
@@ -108,9 +119,9 @@ protected:
 public:
 	EfeagerState(DP_PTR s): EfstdState(s){}
 	EfeagerState(const EfeagerState&) = default;
-	virtual ~EfeagerState() = default;
-	virtual State* copy() override { return new EfeagerState{*this}; }
-	virtual vector<StateTemp> expand() override;
+	~EfeagerState() = default;
+	State* copy() override { return new EfeagerState{*this}; }
+	vector<StateTemp> expand() override;
 };
 
 #endif

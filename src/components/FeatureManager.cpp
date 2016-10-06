@@ -1,4 +1,5 @@
 #include "FeatureManager.h"
+#include "State.h"
 #include "../tools/DpTools.h"
 
 namespace{
@@ -18,7 +19,7 @@ namespace{
 }
 
 // read from option
-FeatureManager::FeatureManager(const string& fss, int ef_mode)
+FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode): dictionary(d)
 {
 	// lookup the shortcuts
 	string x = TMP_get_fss(fss);
@@ -124,15 +125,6 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 		else
 			nodes[place] = base;
 	}
-	// then distances
-	for(decltype(distance_pairs)::const_iterator x = distance_pairs.begin(), int ii=0; x != distance_pairs.end(); x++, ii++){
-		int one = nodes[x->first];
-		int two = nodes[x->second];
-		if(one == NON_EXIST || two == NON_EXIST)
-			distances[ii] = NON_DIS;
-		else
-			distances[ii] = one-two;
-	}
 	// then labels
 	for(auto x: tlabels){
 		int one = nodes[x];
@@ -142,7 +134,43 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 			tlabels.push_back(s->get_rel_label(one));
 	}
 	// ok, record and return that -- use move
-	auto ret = new Feature(move(nodes), move(distances), move(tlabels));
+	auto ret = new Feature(move(nodes), move(tlabels));
 	records.push_back(ret);
+	return ret;
+}
+
+vector<int> FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
+{
+	vector<int> ret;
+	const vector<int>& vn = ff->getn();
+	const vector<int>& vl = ff->getl();
+	// word
+	for(unsigned i = 0; i < vn.size(); i++){
+		int cur = vn[i];
+		int range = spans[i];
+		for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
+			ret.push_back(settle_word(sent->get_index_w(j)));
+	}
+	// pos
+	for(unsigned i = 0; i < vn.size(); i++){
+		int cur = vn[i];
+		int range = spans[i];
+		for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
+			ret.push_back(settle_word(sent->get_index_p(j)));
+	}
+	// distance -- calculate now
+	for(unsigned i = 0; i < distance_pairs.size(); i++){
+		auto x = distance_pairs[i];
+		int one = vn[x.first];
+		int two = vn[x.second];
+		if(one == NON_EXIST || two == NON_EXIST)
+			ret.push_back(settle_distance(NON_DIS));
+		else
+			ret.push_back(settle_distance(one-two));
+	}
+	// relation
+	for(auto i: vl){
+		ret.push_back(settle_label(i));
+	}
 	return ret;
 }

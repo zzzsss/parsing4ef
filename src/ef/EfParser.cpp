@@ -17,7 +17,7 @@ void EfParser::train()
 	dict.index_dps(corpus_train);
 	dict.index_dps(corpus_dev);
 	dict.write(options.file_dict);
-	// 3. build Scorer
+	// 3. build Model
 	// 4. prepare others
 	//TODO
 	// 5. main training
@@ -32,7 +32,7 @@ void EfParser::test()
 	if(dict.empty())
 		dict.read(options.file_dict);
 	dict.index_dps(corpus_test);
-	// 3. read Scorer
+	// 3. read Model
 	// 4. prepare others
 	//TODO
 	// 5. testing

@@ -4,10 +4,12 @@
 #include "DpOptions.h"
 #include "DpSentence.h"
 #include "DpDictionary.h"
+#include "../components/FeatureManager.h"
+#include "../model/Model.h"
 
 // the class of main easy-first parser
 class EfParser{
-protected:
+private:
 	// 0. options
 	DpOptions options;
 	// 1. corpus
@@ -16,7 +18,8 @@ protected:
 	DPS_PTR corpus_test{nullptr};
 	// 2. essentials
 	DpDictionary dict;
-
+	FeatureManager* fm{nullptr};
+	Model* model{nullptr};
 	// sub-rountines
 
 public:
