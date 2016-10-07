@@ -4,6 +4,8 @@
 #include "../tools/DpTools.h"
 #include <sstream>
 
+const int State::NOPE_YET = -1;
+
 // 0. basics
 State* State::make_empty(DP_PTR s, int opt)
 {

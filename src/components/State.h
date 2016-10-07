@@ -23,7 +23,7 @@
 */
 class State{
 protected:
-	static const int NOPE_YET = -1;
+	static const int NOPE_YET;	//-1
 	// original sentence pointer
 	DP_PTR sentence;
 	// partial heads and rel-index for the tree, NOPE_YET means nope, also including dummy root node

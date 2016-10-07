@@ -18,6 +18,12 @@ namespace{
 	}
 }
 
+const int FeatureManager::INDEX_BIAS = 1;
+const int FeatureManager::INDEX_DIST_MAX = 50;
+const int FeatureManager::NON_EXIST = -1;
+const int FeatureManager::NON_DIS = 0;
+const int FeatureManager::NON_NOPELABEL = -2;
+
 // read from option
 FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode): dictionary(d)
 {

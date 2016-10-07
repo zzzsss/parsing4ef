@@ -28,12 +28,12 @@ Label:    l-<n>
 class FeatureManager{
 private:
 	// static for final index of nn
-	static const int INDEX_BIAS = 1;		// only one kind of non-exist
-	static const int INDEX_DIST_MAX = 50;	// NON_DIS as not-exist
+	static const int INDEX_BIAS;		// = 1;		// only one kind of non-exist
+	static const int INDEX_DIST_MAX;	// = 50;	// NON_DIS as not-exist
 	// 
-	static const int NON_EXIST = -1;//same as State::NOPE_YET
-	static const int NON_DIS = 0;	// only 0 is not used for distance
-	static const int NON_NOPELABEL = -2;	// label for no nodes
+	static const int NON_EXIST;			// = -1;	//same as State::NOPE_YET
+	static const int NON_DIS;			// = 0;		// only 0 is not used for distance
+	static const int NON_NOPELABEL;		// = -2;	// label for no nodes
 	//
 	DpDictionary* dictionary;
 	vector<Feature*> records;		//for final releasing

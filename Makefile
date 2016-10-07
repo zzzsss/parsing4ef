@@ -1,6 +1,6 @@
 CPP=g++-4.9
 CC=gcc-4.9
-CFLAGS=-O3 -std=c++11
+CFLAGS=-O3 -std=c++11 -Wall -g
 LFLAGS=-O3
 LD=g++-4.9
 
@@ -29,10 +29,14 @@ obj/%.o: src/tools/%.cpp
 	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
 obj/%.o: src/ef/%.cpp
 	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
+obj/%.o: src/components/%.cpp
+	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
+obj/%.o: src/model/%.cpp
+	$(CPP) $(CFLAGS) $(BLAS_DEFINE) -c $< -o $@
 
 include obj/depends
 
 .PHONY: clean
 clean:
-	rm -f obj/*.o nngdparser
+	rm -f obj/*.o obj/depends t
 	
