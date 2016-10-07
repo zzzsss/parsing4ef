@@ -1,6 +1,7 @@
 #include "State.h"
 #include "FeatureManager.h"
 #include "../ef/DpOptions.h"
+#include "../tools/DpTools.h"
 #include <sstream>
 
 // 0. basics
@@ -9,8 +10,9 @@ State* State::make_empty(DP_PTR s, int opt)
 	switch(opt){
 	case EF_STD:	return new EfstdState(s);
 	case EF_EAGER:	return new EfeagerState(s);
-	default:	throw runtime_error("Unkonw ef mode.");
+	default:	Logger::Error("Unkonw ef mode.");
 	}
+	return nullptr;
 }
 
 // 0.1 travels
@@ -56,13 +58,13 @@ int State::travel_lr(int i, int steps)
 }
 int EfstdState::travel_down(int i, int which, int steps)
 {
-	vector<int>* current_li;
+	vector<int>* current_li{nullptr};
 	switch(which){
 	case -1:	current_li = &ch_left;	break;
 	case -2:	current_li = &ch_left2;	break;
 	case 1:		current_li = &ch_right;	break;
 	case 2:		current_li = &ch_right2;break;
-	default:	throw runtime_error("Unimplemented travel_down for State.");
+	default:	Logger::Error("Unimplemented travel_down for State.");
 	}
 	return travel_list(current_li, i, steps);
 }
@@ -133,7 +135,7 @@ string EfstdState::get_repr(int mode, bool labeled)
 	case RECOMB_TOPC:	cdepth = 1; break;
 	case RECOMB_TOPC2:	use_c2 = true; cdepth = 1; break;
 	case RECOMB_TOP:	cdepth = 0; break;
-	default: throw runtime_error("Unkonw recomb mode."); break;
+	default: Logger::Error("Unkonw recomb mode."); break;
 	}
 	// get them
 	{

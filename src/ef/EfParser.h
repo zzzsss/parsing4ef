@@ -6,29 +6,28 @@
 #include "DpDictionary.h"
 #include "../components/FeatureManager.h"
 #include "../model/Model.h"
+#include "EfTRHelper.h"
 
 // the class of main easy-first parser
 class EfParser{
 private:
 	// 0. options
 	DpOptions options;
-	// 1. corpus
-	DPS_PTR corpus_train{nullptr};
-	DPS_PTR corpus_dev{nullptr};
-	DPS_PTR corpus_test{nullptr};
+	// 1. corpus ...
 	// 2. essentials
-	DpDictionary dict;
+	DpDictionary* dict{nullptr};
 	FeatureManager* fm{nullptr};
 	Model* model{nullptr};
 	// sub-rountines
-
+	void do_train(DPS_PTR train, EfTRHelper* h);
+	double do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold);	// return acc if dev
 public:
 	// all the confs are in the options, simple building
-	EfParser(int argc, char** argv): options(argc, argv){}
+	EfParser(int argc, char** argv);
 	~EfParser(){
-		delete corpus_train;
-		delete corpus_dev;
-		delete corpus_test;
+		delete dict;
+		delete fm;
+		delete model;
 	}
 	void run(){		// train & test
 		if(options.iftrain)

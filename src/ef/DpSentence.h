@@ -58,6 +58,8 @@ public:
 	bool is_correct(int m, int h){ return heads[m] == h; }
 	int get_head(int m){ return heads[m]; }
 	int get_rel(int m){ return index_rels[m]; }
+	int get_pred_head(int m){ return predict_heads[m]; }
+	int get_pred_rel(int m){ return index_predict_rels[m]; }
 	void assign(vector<int>& h, vector<int>& r);
 	int get_index_w(int i);
 	int get_index_p(int i);

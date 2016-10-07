@@ -24,7 +24,7 @@ void DpSentence::read_one(const vector<string>& them)
 		rels.emplace_back("<root-rel>");
 	}
 	if(dp_str2int(them[0]) != size())
-		throw runtime_error("Format-Error: wrong field[0].");
+		Logger::Error("Format-Error: wrong field[0].");
 	forms.emplace_back(them[1]);
 	// -- norm with re
 	string temp_norm = them[1];
@@ -109,7 +109,7 @@ DPS_PTR read_corpus(string file)
 	else
 		delete one;
 	fin.close();
-	cout << "-- Read file " << file << ": sentence " << dps->size() << "; tokens " << all_tokens << endl;
+	Logger::get_output() << "-- Read file " << file << ": sentence " << dps->size() << "; tokens " << all_tokens << endl;
 	return dps;
 }
 
@@ -126,7 +126,7 @@ void write_corpus(DPS_PTR instances, string file)
 // other interfaces
 void DpSentence::assign(vector<int>& h, vector<int>& r){
 	if(h.size() != heads.size() || r.size() != index_rels.size())
-		throw runtime_error("DpSentence assign not match.");
+		Logger::Error("DpSentence assign not match.");
 	predict_heads = h;
 	index_predict_rels = r;
 }

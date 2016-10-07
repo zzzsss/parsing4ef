@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <unordered_set>
 #include <cmath>
+#include "../tools/DpTools.h"
 
 namespace{
 	bool TMP_cmp(const StateTemp& i, const StateTemp& j){ return (i.get_score() > j.get_score()); }
@@ -31,7 +32,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	// 4. extract the highests for beam -- do recombination and gold finding
 	vector<State*> beam;
 	unordered_set<string> beam_repr;			// repr of states in beam
-	unordered_map<string, int> structure_num;	// number in the beam of same structure ignoring labels
+	unordered_map<string, unsigned> structure_num;	// number in the beam of same structure ignoring labels
 	bool no_gold_yet = true;					// no gold found before insertion
 	int first_gold = -1;						// fisrt gold in the beam (could be the later inserted one)
 	vector<State*> dropped_golds;				// collect dropped gold for training
@@ -161,7 +162,7 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 			}
 		}
 	default:
-		throw runtime_error("Unkonw update(backprop) mode.");
+		Logger::Error("Unkonw update(backprop) mode.");
 		break;
 	}
 	if(finished)
@@ -179,13 +180,13 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		div = 1;
 		break;
 	case UPDATEDIV_CUR:
-		div = ubeam[0]->get_numarc();
+		div = static_cast<REAL>(ubeam[0]->get_numarc());
 		break;
 	case UPDATEDIV_ALL:
-		div = ubeam[0]->get_sentence()->size();
+		div = static_cast<REAL>(ubeam[0]->get_sentence()->size());
 		break;
 	default:
-		throw runtime_error("Unkonw update-div mode.");
+		Logger::Error("Unkonw update-div mode.");
 		break;
 	}
 	// about the loss
@@ -204,7 +205,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			}
 		}
 		if(!gold)
-			throw runtime_error("Update need at least one gold.");
+			Logger::Error("Update need at least one gold.");
 		if(gold != best){
 			to_update = vector<State*>{best, gold};
 			to_grads = vector<REAL>{1 / div, -1 / div};
@@ -225,7 +226,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 				exp_gold += one_exp;
 		}
 		if(!exp_gold)
-			throw runtime_error("Update need at least one gold.");
+			Logger::Error("Update need at least one gold.");
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			if(ubeam[i]->is_correct())
 				to_grads[i] = to_grads[i] / exp_all - to_grads[i] / exp_gold;
@@ -236,10 +237,10 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 	}
 	case LOSS_SPECIAL:
 		// TODO: about this one??
-		throw runtime_error("Currently, LOSS_SPECIAL un-implemented.");
+		Logger::Error("Currently, LOSS_SPECIAL un-implemented.");
 		break;
 	default:
-		throw runtime_error("Unkonw loss mode.");
+		Logger::Error("Unkonw loss mode.");
 		break;
 	}
 	scer.backprop_them(to_update, to_grads);

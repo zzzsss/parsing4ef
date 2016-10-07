@@ -2,6 +2,7 @@
 #define _EF_COMP_STATE
 
 #include "../ef/DpSentence.h"
+#include "../tools/DpTools.h"
 #include "StateTemp.h"
 
 // State represent a partial tree, which needs further transitions
@@ -76,7 +77,7 @@ public:
 	int get_numarc() { return num_arc; }
 	void assignto(DP_PTR x){	// write back to sentence
 		if(!finished())
-			throw runtime_error("State: unfinished assign.");
+			Logger::Error("State: unfinished assign.");
 		x->assign(partial_heads, partial_rels);
 	}
 	int append_si(vector<Output*>& vo, vector<int>& vi){	

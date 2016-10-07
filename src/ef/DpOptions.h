@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
+#include <iostream>
 using namespace std;
 
 // option codes
@@ -39,11 +40,13 @@ public:
 	string file_train;
 	string file_dev;
 	string file_test;
-	string file_output_dev;		// temp outputs for dev
-	string file_output_test;	// output file for test
+	string file_output_dev{"dev-output.txt"};		// temp outputs for dev
+	string file_output_test{"test-output.txt"};		// output file for test
 	// 1.1. model files
 	string file_dict{"dictionary.txt"};	// to build for training or to load for testing
-	string file_tdict{""};	// to load for training (train-dict)
+	string file_tdict{""};				// to load for training (train-dict)
+	string file_model{"model.mach"};	// to build and save best for training and to load for testing
+	string file_tmodel{""};				// to load for training (train-init-model)
 	//2. about dictionary
 	int dict_remove{2};		//remove words appears < this times; [default 2 (remove 1 time)]
 	int dict_reorder{1};	//whether re-order the words according to frequency; [default True]
@@ -57,14 +60,25 @@ public:
 	int updatediv_mode{UPDATEDIV_ONE};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)
 	//4.2 beam sizes && recombination option
-	int beam_flabel{2};		// first filter for labels, which controls diversity on one beam
-	int beam_div{4};		// main diversity beam, controls diversity for same structure
-	int beam_all{16};		// final beam-size
+	unsigned beam_flabel{2};		// first filter for labels, which controls diversity on one beam
+	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure
+	unsigned beam_all{16};		// final beam-size
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
-	int gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
+	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
 	//5. about model
 	string mss{""};			//model specifier: see model/* for details
+	//6. about training
+	double tr_lrate{0.1};		// initial learning rate
+	double tr_lrmul{0.5};		// lr decay rate
+	double tr_wd{1e-5};			// weight decay
+	double tr_momentum{0.8};	// momentum alpha
+	int tr_iters{15};			// training iterations
+	double tr_cut{0.5};			// cutting rate for lr
+	int tr_cut_times{3};		// at least cut this times (so real iters maybe more than iter)
+	int tr_cut_iters{3};		// force cut if no cutting for how many iters
+	double tr_sample{0.95};		// sample rate, skip sentence randomly by (1-tr_sample)
+	int tr_minibatch{2};		// number of sentences before one update
 
 	// Initialization
 	DpOptions(int argc, char** argv);

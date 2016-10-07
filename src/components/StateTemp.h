@@ -11,6 +11,7 @@ class FeatureManager;
 // This can be seen as a light-weighted State, with one extra transition on the base of a State
 // -- when it remains in the beam, it can be later stablized to a new State
 // -- in fact, this class should be generalized to a Transition class maybe
+// !! this is the one that has strong semantic: two-stage (two inition ways) (bad design choice)
 class StateTemp{
 	// TODO: to eliminate this !! ok, have to use friend for this one
 	//friend void EfstdState::transform(StateTemp*, bool);

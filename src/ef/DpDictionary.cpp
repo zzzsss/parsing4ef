@@ -14,16 +14,17 @@ namespace{
 		auto z = m.find(s);
 		if(z == m.end()){
 			if(de < 0)	//throw an runtime
-				throw runtime_error("Lookup Error.");
+				Logger::Error("Lookup Error.");
 			else
 				return de;
 		}
 		else
 			return z->second;
+		return 0;
 	}
 }
 
-void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
+void DpDictionary::build_map(DPS_PTR corpus, const DpOptions& conf)
 {
 	// build all the maps
 	Recorder TMP_recorder{"build_map"};
@@ -55,9 +56,9 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 		}
 	}
 	// -- report before
-	cout << "-- Build_map before: word/pos/rel are " << (num_word()+map_freq.size()) << "/" << num_pos() << "/" << num_rel() << endl;
+	Logger::get_output() << "-- Build_map before: word/pos/rel are " << (num_word()+map_freq.size()) << "/" << num_pos() << "/" << num_rel() << endl;
 	// 3. cut the low frequency ones
-	cout << "-- Cut words less than " << conf.dict_remove << " times." << endl;
+	Logger::get_output() << "-- Cut words less than " << conf.dict_remove << " times." << endl;
 	if(conf.dict_reorder){
 		vector<pair<string, int>> temp_flist;
 		for(auto iter : map_freq)
@@ -77,7 +78,7 @@ void DpDictionary::build_map(DPS_PTR corpus, DpOptions& conf)
 				map_word.insert({iter.first, map_word.size()});
 	}
 	// -- report after
-	cout << "-- Build_map after: word/pos/rel are " << num_word() << "/" << num_pos() << "/" << num_rel() << endl;
+	Logger::get_output() << "-- Build_map after: word/pos/rel are " << num_word() << "/" << num_pos() << "/" << num_rel() << endl;
 	// 4. put them into the list
 	list_word.resize(num_word());
 	list_pos.resize(num_pos());
@@ -116,20 +117,18 @@ void DpDictionary::put_rels(DPS_PTR corpus)
 
 // -- IO: read and write
 // --- format: #words ... #pos ... #rel ...
-void DpDictionary::read(string file)
+DpDictionary* DpDictionary::read_init(const string& file)
 {
 	Recorder TMP_recorder{string{"Read maps "}+file};
 	// clear possibly
-	if(!empty())
-		clear();
 	ifstream fin;
 	fin.open(file);
 	if(!fin){
-		cerr << "Invalid dictionary file " << file << endl;
-		fin.close();
-		return;
+		return nullptr;
 	}
-	vector<pair<vector<string>*, unordered_map<string, int>*>> temp_maps{{&list_word, &map_word}, {&list_pos, &map_pos}, {&list_rel, &map_rel}};
+	DpDictionary* ret = new DpDictionary{};
+	vector<pair<vector<string>*, unordered_map<string, int>*>> temp_maps{
+		{&ret->list_word, &ret->map_word}, {&ret->list_pos, &ret->map_pos}, {&ret->list_rel, &ret->map_rel}};
 	for(auto x : temp_maps){
 		auto the_list = x.first;
 		auto the_map = x.second;
@@ -144,9 +143,17 @@ void DpDictionary::read(string file)
 			the_map->insert({tmp_str, tmp_index});
 		}
 		if(the_map->size() != the_list->size())
-			throw(runtime_error("Map read error."));
+			Logger::Error("Map read error.");
 	}
 	fin.close();
+	return ret;
+}
+
+DpDictionary* DpDictionary::newone_init(DPS_PTR dps, const DpOptions& op)
+{
+	DpDictionary* ret = new DpDictionary{};
+	ret->build_map(dps, op);
+	return ret;
 }
 
 void DpDictionary::write(string file)

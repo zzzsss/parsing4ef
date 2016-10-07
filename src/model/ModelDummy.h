@@ -2,6 +2,7 @@
 #define _MODEL_MODELDUMMY
 
 #include "Model.h"
+#include <fstream>
 
 // just a dummy testing stub
 
@@ -39,6 +40,12 @@ public:
 	}
 	void backward(const vector<Output*>& out, const vector<int>&index, const vector<REAL>&grad) override{}
 	void update(const REAL lr) override{}
+	void write(const string& file){
+		std::ofstream fout;
+		fout.open(file);
+		fout << out_dim;
+		fout.close();
+	}
 };
 
 #endif

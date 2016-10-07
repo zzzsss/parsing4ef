@@ -59,7 +59,7 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 	// check mode -- skip
 	// TODO: as a warning
 	// report
-	cout << "#nodes:" << num_nodes() << "#nodes-all:" << num_nodes_all() 
+	Logger::get_output() << "-- FeatureManager: #nodes:" << num_nodes() << "#nodes-all:" << num_nodes_all()
 		<< ", #distances:" << num_distances() << ", #labels:" << num_labels() << endl;
 }
 
@@ -115,7 +115,7 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 				base = s->travel_down(base, -1*reverse*num, 1);
 				break;
 			default:
-				throw runtime_error("Unkown fss.");
+				Logger::Error("Unkown fss.");
 			}
 			iter += 2;
 		}

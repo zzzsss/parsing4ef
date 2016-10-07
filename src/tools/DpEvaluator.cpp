@@ -17,7 +17,7 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 	DPS_PTR gold = read_corpus(act_file);
 	DPS_PTR pred = read_corpus(pred_file);
 	if(gold->size() != pred->size())
-		throw runtime_error("Not matching of #sent.");
+		Logger::Error("Not matching of #sent.");
 
 	int total = 0;
 	int total_root = 0;
@@ -49,7 +49,7 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 		DP_PTR& predInstance = pred->at(i);
 		int instanceLength = goldInstance->size();
 		if(instanceLength != predInstance->size())
-			throw runtime_error("Not matching of sent length.");
+			Logger::Error("Not matching of sent length.");
 
 		vector<int>* goldHeads = &goldInstance->heads;
 		vector<string>* goldLabels = &goldInstance->rels;

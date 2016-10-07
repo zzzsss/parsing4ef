@@ -21,6 +21,6 @@ int main(int argc, char** argv){
 	d.write(string(argv[2]));
 	DpDictionary d2{};
 	d2.read(string(argv[2]));
-	cout << d2.num_word() << "-" << d2.num_pos() << "-" << d2.num_rel() << endl;
+	Logger::get_output() << d2.num_word() << "-" << d2.num_pos() << "-" << d2.num_rel() << endl;
 }
 #endif // TEST_DICTIONARY

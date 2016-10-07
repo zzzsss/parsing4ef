@@ -17,17 +17,19 @@ private:
 	vector<string> list_word;
 	vector<string> list_pos;
 	vector<string> list_rel;
+	//
+	DpDictionary() = default;
+	void build_map(DPS_PTR, const DpOptions&);		// this is the initialization of the maps
 public:
 	// special reserved tokens indexes -- !! This has to coordinate with TEMP_SPE_*
 	enum{ WORD_START = 0, WORD_END, WORD_UNK };
 	enum{ POS_START = 0, POS_END, POS_UNK };
 	// main methods
-	DpDictionary()=default;
-	void build_map(DPS_PTR, DpOptions&);		// this is the initialization of the maps
 	void index_dps(DPS_PTR);		// complete some of the rest of the DpSentences
 	void put_rels(DPS_PTR);			// put back rel names for sentences
-	//io
-	void read(string file);
+	//init and io
+	static DpDictionary* read_init(const string& file);
+	static DpDictionary* newone_init(DPS_PTR dps, const DpOptions& op);
 	void write(string file);
 	//number -- should return the size of maps
 	unsigned num_word(){ return map_word.size(); }

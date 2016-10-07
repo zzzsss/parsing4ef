@@ -26,12 +26,11 @@ Who needs to know what options?
 4. beam and recombinition: Agenda
 5. gold-drop and criteria: Agenda
 */
-void Searcher::ef_search(DP_PTR one, int train, Model* m, FeatureManager* fm)
+void Searcher::ef_search(DP_PTR one)
 {
-	bool is_training = static_cast<bool>(train);
 	// helpers
 	ACCRECORDER_ONCE("Search-all");
-	Scorer the_scorer{m};
+	Scorer the_scorer{model};
 	FeatureManager& the_featurer = *fm;
 	Agenda the_agenda{is_training, options};
 	// the empty one for the start

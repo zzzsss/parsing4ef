@@ -5,13 +5,15 @@ AccRecorder global_recorder{};
 #endif
 
 // split string with deliminator of one char
-vector<string> dp_split(const string &s, char x)
+vector<string> dp_split(const string &s, char x, int cut_time)
 {
 	vector<string> ret;
 	string before;
+	int times = 0;
 	for(char one : s){
-		if(one == x){
+		if(one == x && times != cut_time){	// again NEGATIVE trick
 			ret.emplace_back(before);
+			times++;
 			before = "";
 		}
 		else
@@ -28,6 +30,6 @@ inline int dp_str2int(const string& x)
 	int y = 0;
 	tmp_str >> y;
 	if(y == 0 && x[0] != '0')
-		throw runtime_error("Int-Error: transfer to int.");
+		Logger::Error("Int-Error: transfer to int.");
 	return y;
 }

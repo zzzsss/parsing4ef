@@ -27,8 +27,27 @@ using namespace std::chrono;
 extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);
 
 // helpers
-extern vector<string> dp_split(const string &s, char x);
+extern vector<string> dp_split(const string &s, char x, int cut_time=-1);	// -1 means always
 extern int dp_str2int(const string& x);
+template<class T>
+string dp_num2str(T x){
+	stringstream tmp_str;
+	tmp_str << x;
+	string ss;
+	tmp_str >> ss;
+	return ss;
+}
+
+// Logger
+class Logger{
+public:
+	enum LOG_LEVEL{};
+	static ostream& get_output(int l=0){ return cout; }
+	static void Error(const string &x){
+		cerr << "Fatal error: " << x << endl;
+		throw runtime_error(x);
+	}
+};
 
 //Recorder (Temp): record time (RAII style)
 class Recorder{
@@ -38,21 +57,22 @@ private:
 public:
 	Recorder(string x): description{x}{ 
 		start = steady_clock::now();
-		cout << "- Start " << description << "." << endl; 
+		Logger::get_output() << "- Start " << description << "." << endl;
 	}
 	~Recorder(){
 		auto end = steady_clock::now();
-		cout << "- End " << description << ", which took " << duration_cast<milliseconds>(end-start).count() << " milliseconds." << endl;
+		Logger::get_output() << "- End " << description << ", which took " << duration_cast<milliseconds>(end-start).count() << " milliseconds." << endl;
 	}
-	static void report_time(){
+	static void report_time(const string& s){
 		std::time_t now;
 		std::time(&now);
+		Logger::get_output() << "- For " << s << " at ";
 #ifdef DP_USING_WINDOWS
 		char TMP_buf[64];
 		ctime_s(TMP_buf, sizeof(TMP_buf), &now);
-		cout << "- Current time: " << TMP_buf << '\n';
+		Logger::get_output() << " current time: " << TMP_buf << '\n';
 #else
-		cout << "- Current time: " << ctime(&now) << '\n';
+		Logger::get_output() << " current time: " << ctime(&now) << '\n';
 #endif
 	}
 };
@@ -87,7 +107,7 @@ public:
 	void end(const string& one){
 		auto z = started.find(one);
 		if(z == started.end() || !z->second)
-			throw runtime_error(string("AccRecorder have not started ")+one+".");
+			Logger::Error(string("AccRecorder have not started ")+one+".");
 		else{
 			// accumulate
 			auto cur = steady_clock::now();
@@ -98,9 +118,9 @@ public:
 	void report(const string& one){
 		auto z = times.find(one);
 		if(z == times.end())
-			throw runtime_error(string("AccRecorder have not started ") + one + ".");
+			Logger::Error(string("AccRecorder have not started ") + one + ".");
 		else
-			cout << "Record" << description << ": Acc time for " << one << ":" << z->second << " milliseconds." << endl;
+			Logger::get_output() << "Record" << description << ": Acc time for " << one << ":" << z->second << " milliseconds." << endl;
 	}
 	void report_all(){
 		for(auto& x : started)
@@ -130,7 +150,7 @@ template<class T>
 void CHECK_EQUAL(const T& a, const T& b)
 {
 	if(a != b)
-		throw runtime_error("Equality check failed.");
+		Logger::Error("Equality check failed.");
 }
 
 #endif

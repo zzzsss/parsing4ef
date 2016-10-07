@@ -9,20 +9,25 @@
 // the main class for EF search, both for training and testing
 // -- manage the whole searching process (with the help of other class)
 class Searcher{
-protected:
-	DpOptions* options;		//from outside: the options
+private:
+	//from outside: the options, model and fm
+	DpOptions* options;		
+	Model* model; 
+	FeatureManager* fm;
+	bool is_training;
 
 	int num_sent{0};
 	int num_token{0};
 	int num_steps{0};	//num of steps explored
 public:
-	Searcher(DpOptions* op): options(op){}
+	Searcher(DpOptions* op, bool t, Model* m, FeatureManager* f): 
+		options(op), is_training(t), model(m), fm(f){}
 	~Searcher(){}
 	void report_stat(ostream& out){
 		out << "#sent:" << num_sent << ";#token:" << num_token
 			<< ";#steps:" << num_steps << ";%cov:" << num_steps / (num_token + 0.0) << endl;
 	}
-	void ef_search(DP_PTR one, int train, Model* m, FeatureManager* fm);
+	void ef_search(DP_PTR one);
 };
 
 #endif
