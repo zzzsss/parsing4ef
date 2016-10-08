@@ -52,7 +52,7 @@ public:
 	int dict_reorder{1};	//whether re-order the words according to frequency; [default True]
 	//3. about transition & features
 	int ef_mode{EF_STD};		//ef_std or ef_eager or ... (State)
-	string fss{""};			//feature specifier: see FeatureManager for details (may repeat it and can overwrite)
+	string fss{"efstd"};			//feature specifier: see FeatureManager for details (may repeat it and can overwrite)
 	//4. about searching
 	//4.1 training schemes
 	double margin{0.0};		// margin for the scores

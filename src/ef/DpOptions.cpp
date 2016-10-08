@@ -43,7 +43,8 @@ DpOptions::DpOptions(int argc, char** argv)
 			fin >> buf;
 			if(buf[0] == '#') { fin.getline(line, DATA_LINE_LEN); continue; } // skip comments
 			auto them = dp_split(buf, ':', 1);
-			ps.emplace_back(std::make_pair(them[0], them[1]));
+			if(them.size()==2)
+				ps.emplace_back(std::make_pair(them[0], them[1]));
 		}
 		fin.close();
 	}

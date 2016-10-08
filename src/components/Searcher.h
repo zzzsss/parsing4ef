@@ -12,9 +12,9 @@ class Searcher{
 private:
 	//from outside: the options, model and fm
 	DpOptions* options;		
+	bool is_training;
 	Model* model; 
 	FeatureManager* fm;
-	bool is_training;
 
 	int num_sent{0};
 	int num_token{0};

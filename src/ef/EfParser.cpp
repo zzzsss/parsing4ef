@@ -30,11 +30,13 @@ void EfParser::train()
 	// 4. main training
 	EfTRHelper helper{&options};
 	while(helper.keepon()){
+		ACCRECORDER_RESET("training");
 		Recorder TMP_recorder{string("one-iter")};
 		do_train(corpus_train, &helper);
 		double cur_s = do_dev_test(corpus_dev, corpus_dev, options.file_output_dev, options.file_dev);
 		if(helper.end_iter(cur_s))
 			model->write(options.file_model);
+		ACCRECORDER_REPORT();
 	}
 }
 
@@ -52,7 +54,9 @@ void EfParser::test()
 	if(model == nullptr)
 		model = Model::read_init(options.file_model);	// read from best model
 	// 4. testing
+	ACCRECORDER_RESET("testing");
 	do_dev_test(corpus_test, nullptr, options.file_output_test, options.file_test);
+	ACCRECORDER_REPORT();
 }
 
 void EfParser::evaluate()

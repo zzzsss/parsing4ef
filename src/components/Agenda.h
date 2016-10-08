@@ -23,6 +23,7 @@ protected:
 		// clear the states
 		for(auto* s : records)
 			delete s;
+		records.clear();
 	}
 	// crucial step for updating and finishing when training
 	vector<State*> alter_beam(vector<State*>& curr_beam, bool no_gold, bool finished, Scorer& scer);
@@ -35,9 +36,9 @@ public:
 		clear();
 		records.push_back(start);
 		if(is_training){
-			last_beam = vector<State*>{start};
 			max_beam = vector<State*>{start};
 		}
+		last_beam = vector<State*>{start};
 		return vector<State*>{start};
 	}
 	// the main function -- ranking

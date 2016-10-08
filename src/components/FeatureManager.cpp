@@ -7,8 +7,8 @@ namespace{
 	inline string TMP_get_fss(const string& s){
 		string base_std = "m-5|mn1-3|mf1-3|mn2-3|mt1-3|mt2-1|mt3-1|h-5|hn1-3|hf1-3|hn2-3|ht1-3|ht2-1|ht3-1";
 		string base_eager = base_std + "|hp1|hp1n2|hp2";
-		string base_distance = "d-m-h";
-		string base_label = "l-mn1|l-hn1";
+		string base_distance = "|d-m-h|";
+		string base_label = "|l-mn1|l-hn1|";
 		if(s == "efstd")
 			return base_std + base_distance + base_label;
 		else if(s == "sfeager")
@@ -30,11 +30,13 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 	// lookup the shortcuts
 	string x = TMP_get_fss(fss);
 	// analyse them -- this procedure does not care about efficiency
-	auto them = dp_split(fss, '|');
+	auto them = dp_split(x, '|');
 	vector<string> fss_ds;
 	vector<string> fss_la;
 	for(auto& one : them){
-		if(one[0] == 'd')
+		if(one.empty())
+			continue;
+		else if(one[0] == 'd')
 			fss_ds.emplace_back(move(one));
 		else if(one[0] == 'l')
 			fss_la.emplace_back(move(one));
@@ -132,7 +134,7 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 			nodes[place] = base;
 	}
 	// then labels
-	for(auto x: tlabels){
+	for(auto x: labels){
 		int one = nodes[x];
 		if(one == NON_EXIST)
 			tlabels.push_back(NON_NOPELABEL);	// this should be different from State::NOPE_YET

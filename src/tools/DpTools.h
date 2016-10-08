@@ -47,6 +47,9 @@ public:
 		cerr << "Fatal error: " << x << endl;
 		throw runtime_error(x);
 	}
+	static void Warn(const string &x){
+		cerr << "Warning: " << x << endl;
+	}
 };
 
 //Recorder (Temp): record time (RAII style)
@@ -66,7 +69,7 @@ public:
 	static void report_time(const string& s){
 		std::time_t now;
 		std::time(&now);
-		Logger::get_output() << "- For " << s << " at ";
+		Logger::get_output() << "- For " << s << " at";
 #ifdef DP_USING_WINDOWS
 		char TMP_buf[64];
 		ctime_s(TMP_buf, sizeof(TMP_buf), &now);
@@ -100,8 +103,11 @@ public:
 			times.insert({one, 0});
 		}
 		else{
+			if(started[one])
+				Logger::Error(string("AccRecorder have not ended ") + one + ".");
 			// restart
-			start_points.insert({one, steady_clock::now()});
+			started[one] = true;
+			start_points[one] = steady_clock::now();
 		}
 	}
 	void end(const string& one){
@@ -111,7 +117,7 @@ public:
 		else{
 			// accumulate
 			auto cur = steady_clock::now();
-			started.insert({one, false});
+			started[one] = false;
 			times[one] += duration_cast<milliseconds>(cur - start_points[one]).count();
 		}
 	}
@@ -141,6 +147,7 @@ public:
 extern AccRecorder global_recorder; 
 #define ACCRECORDER_ONCE(x) AccRecorderWarpper TMP_rec_all{&global_recorder, x}
 #define ACCRECORDER_RESET(x) global_recorder.reset(x)
+#define ACCRECORDER_REPORT() global_recorder.report_all()
 #else
 #define ACCRECORDER_ONCE(x)
 #define ACCRECORDER_RESET(x)

@@ -74,6 +74,9 @@ void Searcher::ef_search(DP_PTR one)
 		end->assignto(one);
 	}
 	// possibly clean up
-	the_featurer.clear();
+	{
+		ACCRECORDER_ONCE("Search-clean");
+		the_featurer.clear();
+	}
 	return;
 }

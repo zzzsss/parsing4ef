@@ -40,7 +40,7 @@ protected:
 
 	// we only need these two for construction
 	State(DP_PTR s): sentence(s), partial_heads(s->size(), NOPE_YET), partial_rels(s->size(), NOPE_YET),
-		nb_left(s->size(), NOPE_YET), nb_right(s->size(), NOPE_YET), partial_sc(s->size(), nullptr){
+		partial_sc(s->size(), nullptr), nb_left(s->size(), NOPE_YET), nb_right(s->size(), NOPE_YET){
 		// linear structure at first
 		for(int i = 0; i < s->size(); i++){	
 			nb_left[i] = i - 1;

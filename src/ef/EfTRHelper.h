@@ -28,7 +28,7 @@ public:
 	EfTRHelper(DpOptions* op): lrate_init(op->tr_lrate), lrate_current(op->tr_lrate), iters_all(op->tr_iters),
 		tr_cut(op->tr_cut), tr_cut_times(op->tr_cut_times), tr_cut_iters(op->tr_cut_iters){}
 	bool keepon(){
-		return iters_current >= iters_all && total_cut_times >= tr_cut_times;
+		return iters_current < iters_all || total_cut_times < tr_cut_times;
 	}
 	bool end_iter(double s){	// s is the current dev score, return whether save model
 		// first for lrate

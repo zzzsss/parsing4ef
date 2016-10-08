@@ -8,6 +8,8 @@ AccRecorder global_recorder{};
 vector<string> dp_split(const string &s, char x, int cut_time)
 {
 	vector<string> ret;
+	if(s.empty())	// first check
+		return ret;
 	string before;
 	int times = 0;
 	for(char one : s){

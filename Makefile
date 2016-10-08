@@ -1,7 +1,9 @@
 CPP=g++-4.9
 CC=gcc-4.9
-CFLAGS=-O3 -std=c++11 -Wall -g
-LFLAGS=-O3
+#CFLAGS=-O3 -std=c++11 -Wall -g
+#LFLAGS=-O3
+CFLAGS=-std=c++11 -Wall -g
+LFLAGS=
 LD=g++-4.9
 
 #!!!specify the blas lib location and the blas lib, these may not be the same in different machines

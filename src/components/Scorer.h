@@ -20,6 +20,7 @@ public:
 		// clear the states
 		for(auto* s : records)
 			delete s;
+		records.clear();
 		cache.clear();	// bacause feature is related to specified sentence
 	}
 };

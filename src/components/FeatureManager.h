@@ -57,6 +57,7 @@ public:
 		// clear the states
 		for(auto* s : records)
 			delete s;
+		records.clear();
 	}
 	~FeatureManager(){ clear(); }
 	FeatureManager(const string& fss, DpDictionary* d, int ef_mode);		//ef_mode is only for checking

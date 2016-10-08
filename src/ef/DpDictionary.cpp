@@ -99,10 +99,10 @@ void DpDictionary::index_dps(DPS_PTR corpus)
 		for(auto& x : one->words_norm)
 			one->index_forms.emplace_back(TEMP_lookup(map_word, x, WORD_UNK));
 		for(auto& x : one->postags)
-			one->index_forms.emplace_back(TEMP_lookup(map_pos, x, POS_UNK));
-		one->index_forms.emplace_back(0);	// not important
+			one->index_postags.emplace_back(TEMP_lookup(map_pos, x, POS_UNK));
+		one->index_rels.emplace_back(0);	// not important
 		for(unsigned i = 1; i < one->rels.size(); i++)	// need special treatment
-			one->index_forms.emplace_back(TEMP_lookup(map_rel, one->rels[i], -1));
+			one->index_rels.emplace_back(TEMP_lookup(map_rel, one->rels[i], -1));
 	}
 }
 
@@ -110,8 +110,11 @@ void DpDictionary::put_rels(DPS_PTR corpus)
 {
 	// final step: predicted rel index -> rel strings
 	for(DP_PTR one : *corpus){
-		for(auto& x : one->index_predict_rels)
+		one->predict_rels.emplace_back("");
+		for(int i = 1; i < one->index_predict_rels.size(); i++){
+			int x = one->index_predict_rels[i];
 			one->predict_rels.emplace_back(list_rel.at(x));
+		}
 	}
 }
 

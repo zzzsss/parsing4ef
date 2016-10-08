@@ -9,7 +9,7 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	vector<int> indexes;
 	vector<Feature*> to_score;
 	// collect the ones to score
-	for(unsigned i = 0; i<=them.size(); i++){
+	for(unsigned i = 0; i < them.size(); i++){
 		Feature* ff = them[i].fetch_feature(nullptr);
 		auto iter = cache.find(*ff);	// will throw if no feature
 		if(iter == cache.end()){
@@ -21,12 +21,12 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	}
 	// score them by model
 	vector<vector<int>> feature_final;
-	for(unsigned i = 0; i <= indexes.size(); i++)
+	for(unsigned i = 0; i < indexes.size(); i++)
 		feature_final.emplace_back(fm.feature_expand(to_score[i], them[indexes[i]].get_sentence()));
 	auto inputs = model->make_input(feature_final);
 	auto outputs = model->forward(inputs);
 	// put them back
-	for(unsigned i = 0; i <= indexes.size(); i++){
+	for(unsigned i = 0; i < indexes.size(); i++){
 		Score* s = new Score(outputs[i]);
 		records.push_back(s);
 		cache[*(to_score[i])] = s;

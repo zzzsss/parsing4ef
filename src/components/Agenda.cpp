@@ -63,14 +63,14 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 			beam.push_back(one);
 			beam_repr.insert(one_repr);
 			auto ff = structure_num.find(one_repr_unlabel);
-			if(ff != structure_num.end())
+			if(ff == structure_num.end())
 				structure_num[one_repr_unlabel] = 1;
 			else
 				ff->second += 1;
 		}
 		// -- recording sth about gold only in training --
 		if(is_training && one->is_correct()){
-			if(opt->recomb_mode != RECOMB_NOPE && gold_repr.find(one_repr) != gold_repr.end()){	// also do recombination for golds
+			if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){	// also do recombination for golds
 				gold_repr.insert(one_repr);
 				if(drop)
 					dropped_golds.push_back(one);
@@ -97,22 +97,28 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 					records.push_back(one);		// store that
 					// only check for gold recombination
 					string one_repr = one->get_repr(opt->recomb_mode, true);
-					if(opt->recomb_mode != RECOMB_NOPE && gold_repr.find(one_repr) != gold_repr.end()){
+					if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){
 						gold_repr.insert(one_repr);
 						dropped_golds.push_back(one);	// append it to this list for convenience
 					}
 				}
+				iter++;
 			}
 			// insert them into the beam
 			if(opt->gold_inum > 0){	//notice that opt->gold_inum could be zero
-				first_gold = beam.size();
-				beam.insert(beam.end(), dropped_golds.begin(), dropped_golds.begin()+ opt->gold_inum);
+				if(dropped_golds.empty()){
+					//Logger::Warn("Currently no golds in beam.");
+				}
+				else{
+					first_gold = beam.size();
+					beam.insert(beam.end(), dropped_golds.begin(), dropped_golds.begin() + opt->gold_inum);
+				}
 			}
 		}
 	}
 	// 5. remember some states if training
+	last_beam = beam;
 	if(is_training){
-		last_beam = beam;
 		REAL violation_value = 0;
 		if(first_gold > 0)
 			violation_value = beam[0]->get_score() - beam[first_gold]->get_score();	// best - best_gold
@@ -204,11 +210,15 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 				break;
 			}
 		}
-		if(!gold)
-			Logger::Error("Update need at least one gold.");
-		if(gold != best){
-			to_update = vector<State*>{best, gold};
-			to_grads = vector<REAL>{1 / div, -1 / div};
+		if(!gold){
+			//Logger::Warn("Update need at least one gold, skip update.");
+			return;
+		}
+		else{
+			if(gold != best){
+				to_update = vector<State*>{best, gold};
+				to_grads = vector<REAL>{1 / div, -1 / div};
+			}
 		}
 		break;
 	}
@@ -225,13 +235,17 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			if(x->is_correct())
 				exp_gold += one_exp;
 		}
-		if(!exp_gold)
-			Logger::Error("Update need at least one gold.");
-		for(unsigned i = 0; i < ubeam.size(); i++){
-			if(ubeam[i]->is_correct())
-				to_grads[i] = to_grads[i] / exp_all - to_grads[i] / exp_gold;
-			else
-				to_grads[i] = to_grads[i] / exp_all;
+		if(!exp_gold){
+			//Logger::Warn("Update need at least one gold, skip update.");
+			return;
+		}
+		else{
+			for(unsigned i = 0; i < ubeam.size(); i++){
+				if(ubeam[i]->is_correct())
+					to_grads[i] = to_grads[i] / exp_all - to_grads[i] / exp_gold;
+				else
+					to_grads[i] = to_grads[i] / exp_all;
+			}
 		}
 		break;
 	}

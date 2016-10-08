@@ -3,6 +3,7 @@
 
 #include "Model.h"
 #include <fstream>
+#include <climits>
 
 // just a dummy testing stub
 
@@ -15,7 +16,7 @@ public:
 	vector<REAL> get_vec() override{
 		vector<REAL> ret;
 		for(int i = 0; i < num; i++)
-			ret.push_back(1.0f / rand());
+			ret.push_back(REAL(rand())/INT_MAX);
 		return ret;
 	}
 };
