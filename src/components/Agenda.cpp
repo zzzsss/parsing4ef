@@ -169,6 +169,7 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 					curr_beam.push_back(one);
 			}
 		}
+		break;
 	default:
 		Logger::Error("Unkonw update(backprop) mode.");
 		break;
@@ -251,7 +252,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		}
 		break;
 	}
-	case LOSS_SPECIAL:
+	case LOSS_IMRANK:		// calculate move-up/down scores and normalize with exponention, implicit ranking loss
 		// TODO: about this one??
 		Logger::Error("Currently, LOSS_SPECIAL un-implemented.");
 		break;

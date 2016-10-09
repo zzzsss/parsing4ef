@@ -44,6 +44,7 @@ void DpSentence::read_one(const vector<string>& them)
 void DpSentence::finish_one()
 {
 	// currently only build child
+	/* --- no use currently ---
 	int len = size();
 	childs = vector<vector<int>>(len);
 	lchilds = vector<vector<int>>(len);
@@ -56,6 +57,7 @@ void DpSentence::finish_one()
 		else
 			rchilds[h].insert(rchilds[h].begin(), i);
 	}
+	*/
 }
 
 void DpSentence::write_this(ostream & fout)

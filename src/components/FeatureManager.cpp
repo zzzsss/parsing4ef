@@ -4,21 +4,33 @@
 
 namespace{
 	// default options
-	inline string TMP_get_fss(const string& s){
+	inline string TMP_get_fss(const string& ss){
+		auto two = dp_split(ss, '|', 1);
+		string rest{""};
+		string s{""};
+		if(two.size() > 0){
+			s = two[0];
+			if(two.size() > 1)
+				rest = two[1];
+		}
+		// basic shortcuts
 		string base_std = "m-5|mn1-3|mf1-3|mn2-3|mt1-3|mt2-1|mt3-1|h-5|hn1-3|hf1-3|hn2-3|ht1-3|ht2-1|ht3-1";
 		string base_eager = base_std + "|hp1|hp1n2|hp2";
 		string base_distance = "|d-m-h|";
 		string base_label = "|l-mn1|l-hn1|";
+		string one;
 		if(s == "efstd")
-			return base_std + base_distance + base_label;
+			one = base_std + base_distance + base_label;
 		else if(s == "sfeager")
-			return base_eager + base_distance + base_label;
+			one = base_eager + base_distance + base_label;
 		else
-			return s;
+			one = s;
+		return one + '|' + rest;
 	}
 }
 
-const int FeatureManager::INDEX_BIAS = 1;
+const int FeatureManager::INDEX_BIAS_W = 1;
+const int FeatureManager::INDEX_BIAS_L = 2;
 const int FeatureManager::INDEX_DIST_MAX = 50;
 const int FeatureManager::NON_EXIST = -1;
 const int FeatureManager::NON_DIS = 0;
@@ -44,8 +56,8 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 			auto fields = dp_split(one, '-');
 			int one_span = dp_str2int(fields[1]);
 			string& one_name = fields[0];
-			//if(index.find(one_name) != index.end())	// may repeat and overwrite
-			//	throw runtime_error("Repeated fss.");
+			if(index.find(one_name) != index.end())	// may repeat and overwrite
+				Logger::Warn(string("Repeated fss one: " + one_name));
 			index[one_name] = spans.size();
 			spans.push_back(one_span);
 		}
@@ -76,8 +88,7 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 Feature* FeatureManager::make_feature(State* s, int m, int h)
 {
 	vector<int> nodes(num_nodes(), -10000);
-	vector<int> distances(num_distances(), -10000);
-	vector<int> tlabels(num_labels(), -10000);
+	vector<int> tlabels;
 	// firstly the nodes: for simplicity
 	for(decltype(index)::const_iterator x = index.begin(); x != index.end(); x++){
 		// 1. the basic

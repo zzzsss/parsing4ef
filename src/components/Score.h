@@ -15,6 +15,7 @@ public:
 		values = x->get_vec(); 
 		values_sorted = values; 
 		sort(values_sorted.begin(), values_sorted.end()); 
+		reverse(values_sorted.begin(), values_sorted.end());
 	}
 	Output* get_output(){ return mout; }
 	REAL get_one(int k){ return values[k]; }
@@ -25,7 +26,7 @@ public:
 		vector<int> ret;
 		REAL kvalue = values_sorted[k-1];
 		for(unsigned i = 0; i < values.size(); i++)
-			if(values[i] < kvalue)
+			if(values[i] >= kvalue)		// approximate
 				ret.push_back(i);
 		return ret;
 	}

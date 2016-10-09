@@ -28,7 +28,8 @@ Label:    l-<n>
 class FeatureManager{
 private:
 	// static for final index of nn
-	static const int INDEX_BIAS;		// = 1;		// only one kind of non-exist
+	static const int INDEX_BIAS_W;		// = 1;		// only one kind of non-exist for words and pos
+	static const int INDEX_BIAS_L;		// = 2;		// ... for label
 	static const int INDEX_DIST_MAX;	// = 50;	// NON_DIS as not-exist
 	// 
 	static const int NON_EXIST;			// = -1;	//same as State::NOPE_YET
@@ -43,7 +44,7 @@ private:
 	vector<pair<int, int>> distance_pairs;
 	vector<int> labels;
 	// settle the final indexes
-	int settle_word(int x){ return x + INDEX_BIAS; }
+	int settle_word(int x){ return x + INDEX_BIAS_W; }
 	int settle_distance(int x){		// [0, INDEX_DIST_MAX*2+1]
 		if(x < -INDEX_DIST_MAX)
 			x = -INDEX_DIST_MAX;
@@ -51,7 +52,7 @@ private:
 			x = INDEX_DIST_MAX;
 		return x + INDEX_DIST_MAX;
 	}
-	int settle_label(int x){ return x; }
+	int settle_label(int x){ return x + INDEX_BIAS_L; }
 public:
 	void clear(){
 		// clear the states

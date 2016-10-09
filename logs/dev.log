@@ -12,3 +12,4 @@
 2016.10.07<dev-c>(dev1.6) Ok, the one with ModelDummy, compile ok.
 2016.10.08<dev-c>(dev1.6.2) [fixing-bug] Still got problems (State.is_correct, too slow).
 2016.10.09<dev-c>(dev1.6.3) [fixing] Seems ok, (caculate destiny, -O3, memory-of-Model, small changes).
+2016.10.09<dev-c>(dev1.6.4) Some small changes, next really need to run through it and RankLoss.

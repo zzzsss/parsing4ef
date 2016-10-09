@@ -33,9 +33,11 @@ public:		// all public: all init and assign are default
 
 	//gold ones
 	vector<int> heads;
+	/* --- no use currently ---
 	vector<vector<int>> childs;		//for convenience
 	vector<vector<int>> lchilds;		//near to far
 	vector<vector<int>> rchilds;		//near to far
+	*/
 	vector<string> rels;
 
 	//predict ones

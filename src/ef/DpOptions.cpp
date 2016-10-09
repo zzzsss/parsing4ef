@@ -77,7 +77,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(dict_remove);
 		else TMP_assign_key(dict_reorder);
 		else TMP_assign_key(ef_mode);
-		else TMP_assign_key(fss);
+		else if(key == "fss") fss = fss + '|' + value;	// special one append
 		else TMP_assign_key(margin);
 		else TMP_assign_key(update_mode);
 		else TMP_assign_key(updatediv_mode);
@@ -87,7 +87,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(beam_all);
 		else TMP_assign_key(recomb_mode);
 		else TMP_assign_key(gold_inum);
-		else TMP_assign_key(mss);
+		else if(key == "mss") mss = mss + '|' + value;	// special one append
 		else TMP_assign_key(tr_lrate);
 		else TMP_assign_key(tr_lrmul);
 		else TMP_assign_key(tr_wd);
@@ -138,7 +138,7 @@ void DpOptions::check_and_report()
 	printer << "-4.2: searching-beam:" << beam_flabel << "/" << beam_div << "/" << beam_all << "/"
 		<< TMP_get_desc("recomb", recomb_mode) << endl;
 	printer << "-4.3: searching-insert:" << gold_inum << endl;
-	if(gold_inum <= 0 && loss_mode != LOSS_SPECIAL)
+	if(gold_inum <= 0 && loss_mode != LOSS_IMRANK)
 		errorer("For current loss, inum should >0.");
 	// 5. model
 	printer << "-5: model:" << mss << endl;

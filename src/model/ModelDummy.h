@@ -4,6 +4,7 @@
 #include "Model.h"
 #include <fstream>
 #include <climits>
+#include "../tools/DpTools.h"
 
 // just a dummy testing stub
 
@@ -24,6 +25,8 @@ public:
 
 class ModelDummy: public Model{
 private:
+	int num_forw{0};
+	int num_back{0};
 	int out_dim;
 	vector<Output*> records;
 public:
@@ -41,15 +44,22 @@ public:
 			ret.emplace_back(new OutputDummy{out_dim});
 			records.push_back(ret.back());
 		}
+		num_forw += in.size();
 		return ret;
 	}
-	void backward(const vector<Output*>& out, const vector<int>&index, const vector<REAL>&grad) override{}
+	void backward(const vector<Output*>& out, const vector<int>&index, const vector<REAL>&grad) override{
+		num_back += out.size();
+	}
 	void update(const REAL lr) override{}
 	void write(const string& file){
 		std::ofstream fout;
 		fout.open(file);
 		fout << out_dim;
 		fout.close();
+	}
+	void report_and_reset() override{
+		Logger::get_output() << "- this time f/b:" << num_forw << "/" << num_back << endl;
+		num_forw = num_back = 0;
 	}
 	void clear(){
 		for(auto r : records)

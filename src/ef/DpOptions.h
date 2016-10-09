@@ -10,8 +10,8 @@ using namespace std;
 // option codes
 // t0. the transition-system type
 enum EF_MODE{ EF_STD, EF_EAGER };
-// t1: obejct function for the training: perceptron, approximate CRF, special-losses
-enum LOSS_MODE{ LOSS_PERCEPTRON, LOSS_ACRF, LOSS_SPECIAL };
+// t1: obejct function for the training: perceptron, approximate CRF, implicit-ranking
+enum LOSS_MODE{ LOSS_PERCEPTRON, LOSS_ACRF, LOSS_IMRANK };
 // t2.1: the update strategy: till-the-end, max-violation, early-update, restart with one gold
 enum UPDATE_MODE{ UPDATE_END, UPDATE_MAXV, UPDATE_EU, UPDATE_RESTART };
 // t2.2: the divisor when updating (this influences lr): 1, current_len, sentence_len

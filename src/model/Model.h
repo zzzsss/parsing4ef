@@ -31,6 +31,7 @@ public:
 	virtual void update(const REAL lr) = 0;
 	virtual void write(const string& file) = 0;
 	virtual void clear() = 0;
+	virtual void report_and_reset() = 0;
 	static Model* read_init(const string& file);
 	static Model* newone_init(int outd);
 };

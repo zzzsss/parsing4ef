@@ -83,6 +83,7 @@ public:
 //Accumulated Recorder: record time for several lines
 class AccRecorder{
 private:	// recordings must be in all these maps
+	using TIME_GRAIN = microseconds;
 	string description;
 	unordered_map<string, bool> started;
 	unordered_map<string, time_point<steady_clock>> start_points;
@@ -118,7 +119,7 @@ public:
 			// accumulate
 			auto cur = steady_clock::now();
 			started[one] = false;
-			times[one] += duration_cast<milliseconds>(cur - start_points[one]).count();
+			times[one] += duration_cast<TIME_GRAIN>(cur - start_points[one]).count();
 		}
 	}
 	void report(const string& one){
@@ -126,7 +127,7 @@ public:
 		if(z == times.end())
 			Logger::Error(string("AccRecorder have not started ") + one + ".");
 		else
-			Logger::get_output() << "Record" << description << ": Acc time for " << one << ":" << z->second << " milliseconds." << endl;
+			Logger::get_output() << "Record" << description << ": Acc time for " << one << ":" << z->second << "." << endl;
 	}
 	void report_all(){
 		for(auto& x : started)
