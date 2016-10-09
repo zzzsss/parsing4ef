@@ -17,60 +17,6 @@ State* State::make_empty(DP_PTR s, int opt)
 	return nullptr;
 }
 
-// 0.1 travels
-int State::travel_list(vector<int>* li, int i, int steps)	//static helper
-{
-	for(int k = 0; k < steps; k++){
-		i = (*li)[i];
-		if(i == NOPE_YET)
-			break;
-	}
-	return i;
-}
-int State::travel_upmost(int i)
-{
-	while(1){	//may forever-loop if wrong data
-		int p = travel_up(i ,1);
-		if(p == NOPE_YET)
-			return i;
-		i = p;
-	}
-}
-int State::travel_up(int i, int steps)
-{
-	return travel_list(&partial_heads, i, steps);
-}
-int State::travel_downmost(int i, int which)
-{
-	while(1){	//may forever-loop if wrong data
-		int p = travel_down(i, which, 1);
-		if(p == NOPE_YET)
-			return i;
-		i = p;
-	}
-}
-int State::travel_lr(int i, int steps)
-{
-	vector<int>* current_li = &nb_right;
-	if(steps < 0){	// steps<0 means left, else right
-		current_li = &nb_left;
-		steps = 0 - steps;
-	}
-	return travel_list(current_li, i, steps);
-}
-int EfstdState::travel_down(int i, int which, int steps)
-{
-	vector<int>* current_li{nullptr};
-	switch(which){
-	case -1:	current_li = &ch_left;	break;
-	case -2:	current_li = &ch_left2;	break;
-	case 1:		current_li = &ch_right;	break;
-	case 2:		current_li = &ch_right2;break;
-	default:	Logger::Error("Unimplemented travel_down for State.");
-	}
-	return travel_list(current_li, i, steps);
-}
-
 // 1. expand: create the new candidates according to the current state
 // EasyFirst-Stdandard
 vector<StateTemp> EfstdState::expand()
@@ -117,7 +63,7 @@ vector<StateTemp> EfeagerState::expand()
 
 //2. get representation -- for recombination in searching
 // TODO: special decoding: assuming the sentence length is smaller than 255, and sometimes '0' as separator
-string EfstdState::get_repr(int mode, bool labeled)
+string State::get_repr(int mode, bool labeled)
 {
 	string tmp_str;
 	bool use_c2 = false;	// use second child?
@@ -176,7 +122,7 @@ string EfstdState::get_repr(int mode, bool labeled)
 }
 
 //3. transform: this is the friend method of StateTemp
-void EfstdState::transform(StateTemp* st, bool istraining)
+void State::transform(StateTemp* st, bool istraining)
 {
 	// with the power of friend for StateTemp
 	int mod = st->mod;
@@ -188,9 +134,6 @@ void EfstdState::transform(StateTemp* st, bool istraining)
 	// -- records
 	num_arc++;
 	partial_score = pscore;
-	if(istraining)		// only know this when training
-		if(!st->is_correct_cur())
-			num_wrong++;
 	// -- left-right for the mod if one top list, and nb_r/r[mod] has no meaning
 	if(travel_up(mod, 1) == NOPE_YET){
 		int left = nb_left[mod];
@@ -213,7 +156,58 @@ void EfstdState::transform(StateTemp* st, bool istraining)
 	partial_heads[mod] = head;
 	partial_rels[mod] = rel_index;
 	partial_sc[mod] = scores;
+	// final updating
+	if(istraining){		// only know this when training
+		if(!st->is_correct_cur())
+			num_wrong_cur++;
+		calculate_destiny();
+	}
 	return;
+}
+
+void EfstdState::calculate_destiny()
+{
+	// only need to check whether at the top-list
+	num_wrong_doomed = num_wrong_cur;
+	int cur = nb_right[0];
+	while(cur != NOPE_YET){
+		int real_head = sentence->get_head(cur);
+		if(partial_heads[real_head] != NOPE_YET)
+			num_wrong_doomed++;		// not reachable
+		cur = nb_right[cur];
+	}
+}
+
+void EfeagerState::calculate_destiny()
+{
+	// need to find the ones on the lr-spine
+	num_wrong_doomed = num_wrong_cur;
+	// find it in the lr-spine
+	vector<bool> rspine(sentence->size(), false);
+	for(int n = 0; n != NOPE_YET; n = ch_right[n])
+		rspine[n] = true;
+	vector<bool> lspine(sentence->size(), false);
+	int cur = 0;
+	int cur2 = nb_right[cur];
+	// left to right and find rightmost
+	while(cur2 != NOPE_YET){
+		int real_head = sentence->get_head(cur2);
+		if(real_head < cur2 && !rspine[real_head])
+			num_wrong_doomed++;		// not reachable
+		for(int n = cur2; n != NOPE_YET; n = ch_right[n])
+			rspine[n] = true;
+		cur = cur2;
+		cur2 = nb_right[cur];
+	}
+	// right to left (cur2 now no-use)
+	while(cur != NOPE_YET){
+		int real_head = sentence->get_head(cur);
+		if(real_head > cur && !lspine[real_head])
+			num_wrong_doomed++;		// not reachable
+		for(int n = cur; n != NOPE_YET; n = ch_left[n])
+			lspine[n] = true;
+		cur = nb_right[cur];
+	}
 }
 
 // others: StateTemp

@@ -73,9 +73,9 @@ public:
 #ifdef DP_USING_WINDOWS
 		char TMP_buf[64];
 		ctime_s(TMP_buf, sizeof(TMP_buf), &now);
-		Logger::get_output() << " current time: " << TMP_buf << '\n';
+		Logger::get_output() << " current time: " << TMP_buf << std::flush;
 #else
-		Logger::get_output() << " current time: " << ctime(&now) << '\n';
+		Logger::get_output() << " current time: " << ctime(&now) << std::flush;
 #endif
 	}
 };

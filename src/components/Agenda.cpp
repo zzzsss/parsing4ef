@@ -96,10 +96,12 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 					State* one = iter->stablize(is_training);
 					records.push_back(one);		// store that
 					// only check for gold recombination
-					string one_repr = one->get_repr(opt->recomb_mode, true);
-					if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){
-						gold_repr.insert(one_repr);
-						dropped_golds.push_back(one);	// append it to this list for convenience
+					if(one->is_correct()){		// check it again
+						string one_repr = one->get_repr(opt->recomb_mode, true);
+						if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){
+							gold_repr.insert(one_repr);
+							dropped_golds.push_back(one);	// append it to this list for convenience
+						}
 					}
 				}
 				iter++;
@@ -211,7 +213,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			}
 		}
 		if(!gold){
-			//Logger::Warn("Update need at least one gold, skip update.");
+			Logger::Warn("Update need at least one gold, skip update.");
 			return;
 		}
 		else{
@@ -236,7 +238,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 				exp_gold += one_exp;
 		}
 		if(!exp_gold){
-			//Logger::Warn("Update need at least one gold, skip update.");
+			Logger::Warn("Update need at least one gold, skip update.");
 			return;
 		}
 		else{

@@ -4,7 +4,7 @@
 #include <algorithm>
 
 namespace{
-	// !! This has to coordinate with DpDictionary's enums
+	// !! This has to coordinate with the enums SPEC_TOKEN*
 	const vector<string> TEMP_SPE_WORD = {"<w-s>", "<w-e>", "<w-unk>"};
 	const vector<string> TEMP_SPE_POS = {"<p-s>", "<p-e>", "<p-unk>"};
 
@@ -111,7 +111,7 @@ void DpDictionary::put_rels(DPS_PTR corpus)
 	// final step: predicted rel index -> rel strings
 	for(DP_PTR one : *corpus){
 		one->predict_rels.emplace_back("");
-		for(int i = 1; i < one->index_predict_rels.size(); i++){
+		for(unsigned i = 1; i < one->index_predict_rels.size(); i++){
 			int x = one->index_predict_rels[i];
 			one->predict_rels.emplace_back(list_rel.at(x));
 		}

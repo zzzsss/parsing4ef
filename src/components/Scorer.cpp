@@ -10,7 +10,7 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	vector<Feature*> to_score;
 	// collect the ones to score
 	for(unsigned i = 0; i < them.size(); i++){
-		Feature* ff = them[i].fetch_feature(nullptr);
+		Feature* ff = them[i].get_feature();
 		auto iter = cache.find(*ff);	// will throw if no feature
 		if(iter == cache.end()){
 			indexes.push_back(i);

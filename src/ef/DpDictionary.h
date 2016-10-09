@@ -21,9 +21,6 @@ private:
 	DpDictionary() = default;
 	void build_map(DPS_PTR, const DpOptions&);		// this is the initialization of the maps
 public:
-	// special reserved tokens indexes -- !! This has to coordinate with TEMP_SPE_*
-	enum{ WORD_START = 0, WORD_END, WORD_UNK };
-	enum{ POS_START = 0, POS_END, POS_UNK };
 	// main methods
 	void index_dps(DPS_PTR);		// complete some of the rest of the DpSentences
 	void put_rels(DPS_PTR);			// put back rel names for sentences

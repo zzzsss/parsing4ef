@@ -20,6 +20,10 @@ using namespace std;
 	4. put_rels: predict_rels
 */
 
+// special reserved tokens indexes -- !! This has to coordinate with TEMP_SPE_*
+enum SPEC_TOKENW{ WORD_START = 0, WORD_END, WORD_UNK };
+enum SPEC_TOKENP{ POS_START = 0, POS_END, POS_UNK };
+
 class DpSentence {
 public:		// all public: all init and assign are default
 	//basic ones --- for simplicity: "_" means nope
@@ -61,9 +65,26 @@ public:
 	int get_pred_head(int m){ return predict_heads[m]; }
 	int get_pred_rel(int m){ return index_predict_rels[m]; }
 	void assign(vector<int>& h, vector<int>& r);
-	int get_index_w(int i);
-	int get_index_p(int i);
+	inline int get_index_w(int i);
+	inline int get_index_p(int i);
 };
+
+inline int DpSentence::get_index_w(int i){
+	if(i < 0)
+		return WORD_START;
+	else if(i >= size())
+		return WORD_END;
+	else
+		return index_forms[i];
+}
+inline int DpSentence::get_index_p(int i){
+	if(i < 0)
+		return POS_START;
+	else if(i >= size())
+		return POS_END;
+	else
+		return index_postags[i];
+}
 
 // read and write them all -- again point to vector of pointers
 using DP_PTR = DpSentence*;

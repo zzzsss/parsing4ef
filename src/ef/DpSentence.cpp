@@ -130,19 +130,3 @@ void DpSentence::assign(vector<int>& h, vector<int>& r){
 	predict_heads = h;
 	index_predict_rels = r;
 }
-int DpSentence::get_index_w(int i){
-	if(i < 0)
-		return DpDictionary::WORD_START;
-	else if(i>size())
-		return DpDictionary::WORD_END;
-	else
-		return index_forms[i];
-}
-int DpSentence::get_index_p(int i){
-	if(i < 0)
-		return DpDictionary::POS_START;
-	else if(i>size())
-		return DpDictionary::POS_END;
-	else
-		return index_postags[i];
-}

@@ -22,6 +22,7 @@ public:
 			delete s;
 		records.clear();
 		cache.clear();	// bacause feature is related to specified sentence
+		model->clear();	// remember this for Input* and Output*
 	}
 };
 

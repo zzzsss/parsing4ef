@@ -15,7 +15,7 @@ class FeatureManager;
 class StateTemp{
 	// TODO: to eliminate this !! ok, have to use friend for this one
 	//friend void EfstdState::transform(StateTemp*, bool);
-	friend class EfstdState;
+	friend class State;
 private:
 	State* base;
 	// -- the new edge this time
@@ -35,7 +35,8 @@ public:
 	StateTemp(StateTemp&&) = default;
 	StateTemp& operator=(StateTemp&&) = default;
 	~StateTemp() = default;
-	Feature* fetch_feature(FeatureManager* fm);	// create if nope (both getter and setter)
+	Feature* fetch_feature(FeatureManager* fm);	// create if nope (setter)
+	Feature* get_feature(){ return feat; }		// return feat (getter)
 	// setter and getter
 	void set_score(Score* a){ scores = a; }
 	void set_pscore(REAL a){ partial_score = a; }

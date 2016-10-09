@@ -19,6 +19,7 @@ public:
 class Output{
 public:
 	virtual vector<REAL> get_vec() = 0;
+	virtual ~Output(){}
 };
 
 class Model{
@@ -29,6 +30,7 @@ public:
 	virtual void backward(const vector<Output*>& out, const vector<int>&index, const vector<REAL>&grad) = 0;
 	virtual void update(const REAL lr) = 0;
 	virtual void write(const string& file) = 0;
+	virtual void clear() = 0;
 	static Model* read_init(const string& file);
 	static Model* newone_init(int outd);
 };
