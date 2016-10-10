@@ -6,7 +6,7 @@
 #include "../tools/DpTools.h"
 
 namespace{
-	bool TMP_cmp(const StateTemp& i, const StateTemp& j){ return (i.get_score() > j.get_score()); }
+	bool TMP_cmp(const State* i, const State* j){ return (i->get_score() > j->get_score()); }
 }
 
 // one of the most important ones, deciding the beam at one time
@@ -16,16 +16,17 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 {
 	// !! for simplicity, just sort them all and extract
 	// 1. expand labels
-	vector<StateTemp> them_all;
+	vector<StateTemp> them_alltemp;
 	for(auto& x : them){
 		auto ones = StateTemp::expand_labels(x, opt->beam_flabel, is_training);		// surely add all gold when training
-		them_all.insert(them_all.end(), ones.begin(), ones.end());
+		them_alltemp.insert(them_alltemp.end(), ones.begin(), ones.end());
 	}
-	// 2. add margin if training
-	if(is_training){
-		for(auto x : them_all)
-			if(!x.is_correct_cur())
-				x.set_pscore(x.get_score() + static_cast<REAL>(opt->margin));		//!! penalties are accumulated
+	// 2. stabilize them all (for structured loss) and add margin if training
+	vector<State*> them_all;
+	for(auto &x: them_alltemp){
+		auto one = x.stablize(is_training, opt->margin);
+		them_all.push_back(one);
+		records.push_back(one);
 	}
 	// 3. sort them by score (high first)
 	std::sort(them_all.begin(), them_all.end(), TMP_cmp);
@@ -40,8 +41,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	// -- 4.1 first select to the beam size
 	auto iter = them_all.begin();
 	while(iter != them_all.end()){
-		State* one = iter->stablize(is_training);
-		records.push_back(one);		// store that
+		State* one = (*iter);
 		bool drop = false;
 		string one_repr = "";
 		string one_repr_unlabel = "";
@@ -92,16 +92,13 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 			// find more until gold_inum or end
 			// -- but there must be at least one (because StateTemp::expand_labels ensures this)
 			while(iter != them_all.end() && dropped_golds.size() < opt->gold_inum){
-				if(iter->is_correct_all()){		// only search for gold ones
-					State* one = iter->stablize(is_training);
-					records.push_back(one);		// store that
+				State* one = *iter;
+				if(one->is_correct()){		// only search for gold ones
 					// only check for gold recombination
-					if(one->is_correct()){		// check it again
-						string one_repr = one->get_repr(opt->recomb_mode, true);
-						if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){
-							gold_repr.insert(one_repr);
-							dropped_golds.push_back(one);	// append it to this list for convenience
-						}
+					string one_repr = one->get_repr(opt->recomb_mode, true);
+					if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){
+						gold_repr.insert(one_repr);
+						dropped_golds.push_back(one);	// append it to this list for convenience
 					}
 				}
 				iter++;
@@ -183,16 +180,16 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 {
 	// should we divide it or not?
-	REAL div;
+	int div;
 	switch(opt->updatediv_mode){
 	case UPDATEDIV_ONE:
 		div = 1;
 		break;
 	case UPDATEDIV_CUR:
-		div = static_cast<REAL>(ubeam[0]->get_numarc());
+		div = ubeam[0]->get_numarc();
 		break;
 	case UPDATEDIV_ALL:
-		div = static_cast<REAL>(ubeam[0]->get_sentence()->size());
+		div = ubeam[0]->get_sentence()->size();
 		break;
 	default:
 		Logger::Error("Unkonw update-div mode.");
@@ -220,7 +217,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		else{
 			if(gold != best){
 				to_update = vector<State*>{best, gold};
-				to_grads = vector<REAL>{1 / div, -1 / div};
+				to_grads = vector<REAL>{1, -1};
 			}
 		}
 		break;
@@ -253,13 +250,62 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		break;
 	}
 	case LOSS_IMRANK:		// calculate move-up/down scores and normalize with exponention, implicit ranking loss
-		// TODO: about this one??
-		Logger::Error("Currently, LOSS_SPECIAL un-implemented.");
+	{
+		// -- first distribution sort on real loss (doomed-error)
+		vector<int> distribution;
+		for(auto* x : ubeam){
+			unsigned doom = x->get_doomed();
+			while(doom <= distribution.size())
+				distribution.push_back(0);
+			distribution[doom] ++;
+		}
+		vector<int> place_up(distribution.size(), 0);
+		vector<int> place_down(distribution.size(), 0);
+		int accum = 0;	// next start
+		for(unsigned i = 0; i < distribution.size(); i++){
+			place_up[i] = accum;
+			accum += distribution[i];
+			place_down[i] = accum - 1;
+		}
+		// -- next collect the stats
+		vector<REAL> distance;
+		for(unsigned i = 0; i < ubeam.size(); i++){
+			// i is real place, [place_up[doom], place_down[doom]] is the target
+			unsigned doom = ubeam[i]->get_doomed();
+			unsigned p_r1 = place_up[doom];
+			unsigned p_r2 = place_down[doom];
+			if(i < p_r1)		// etimated high, it should go down
+				distance.push_back(ubeam[p_r1]->get_score() - ubeam[i]->get_score());
+			else if(i > p_r2)	// etimated low, it should add up
+				distance.push_back(ubeam[p_r2]->get_score() - ubeam[i]->get_score());
+			else
+				distance.push_back(0.0f);
+		}
+		// -- finally the gradient
+		REAL exp_all_plus = 0, exp_all_minus = 0;
+		for(auto r : distance){
+			if(r > 0)
+				exp_all_plus += exp(r);
+			else if(r < 0)
+				exp_all_minus += exp(0-r);
+		}
+		for(unsigned i = 0; i < ubeam.size(); i++){
+			REAL one = distance[i];
+			if(one > 0){
+				to_update.push_back(ubeam[i]);
+				to_grads.push_back(0 - exp(one) / exp_all_plus);
+			}
+			else if(one < 0){
+				to_update.push_back(ubeam[i]);
+				to_grads.push_back(exp(0-one) / exp_all_minus);
+			}
+		}
 		break;
+	}
 	default:
 		Logger::Error("Unkonw loss mode.");
 		break;
 	}
-	scer.backprop_them(to_update, to_grads);
+	scer.backprop_them(to_update, to_grads, div);
 	return;
 }

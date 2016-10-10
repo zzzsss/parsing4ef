@@ -35,7 +35,7 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	return;
 }
 
-void Scorer::backprop_them(vector<State*>& them, vector<REAL>& grad)
+void Scorer::backprop_them(vector<State*>& them, vector<REAL>& grad, int div)
 {
 	vector<Output*> vo;
 	vector<int> vi;
@@ -44,7 +44,7 @@ void Scorer::backprop_them(vector<State*>& them, vector<REAL>& grad)
 		int n = them[i]->append_si(vo, vi);
 		CHECK_EQUAL(n, them[i]->get_numarc());
 		for(int j = 0; j < n; j++)
-			vg.push_back(grad[i]);
+			vg.push_back(grad[i]/div);
 	}
 	model->backward(vo, vi, vg);
 }

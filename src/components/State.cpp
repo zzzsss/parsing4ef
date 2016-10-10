@@ -122,7 +122,7 @@ string State::get_repr(int mode, bool labeled)
 }
 
 //3. transform: this is the friend method of StateTemp
-void State::transform(StateTemp* st, bool istraining)
+void State::transform(StateTemp* st, bool istraining, double margin)
 {
 	// with the power of friend for StateTemp
 	int mod = st->mod;
@@ -133,7 +133,8 @@ void State::transform(StateTemp* st, bool istraining)
 	// add a new edge, currently simple
 	// -- records
 	num_arc++;
-	partial_score = pscore;
+	partial_score_base += pscore;
+	partial_score_all = partial_score_base;
 	// -- left-right for the mod if one top list, and nb_r/r[mod] has no meaning
 	if(travel_up(mod, 1) == NOPE_YET){
 		int left = nb_left[mod];
@@ -158,30 +159,32 @@ void State::transform(StateTemp* st, bool istraining)
 	partial_sc[mod] = scores;
 	// final updating
 	if(istraining){		// only know this when training
-		if(!st->is_correct_cur())
+		if(!sentence->is_correct(mod, head, rel_index))
 			num_wrong_cur++;
-		calculate_destiny();
+		num_wrong_doomed = calculate_destiny();
+		partial_score_all += num_wrong_doomed*margin;
 	}
 	return;
 }
 
-void EfstdState::calculate_destiny()
+int EfstdState::calculate_destiny()
 {
 	// only need to check whether at the top-list
-	num_wrong_doomed = num_wrong_cur;
+	int num_doomed = num_wrong_cur;
 	int cur = nb_right[0];
 	while(cur != NOPE_YET){
 		int real_head = sentence->get_head(cur);
 		if(partial_heads[real_head] != NOPE_YET)
-			num_wrong_doomed++;		// not reachable
+			num_doomed++;		// not reachable
 		cur = nb_right[cur];
 	}
+	return num_doomed;
 }
 
-void EfeagerState::calculate_destiny()
+int EfeagerState::calculate_destiny()
 {
 	// need to find the ones on the lr-spine
-	num_wrong_doomed = num_wrong_cur;
+	int num_doomed = num_wrong_cur;
 	// find it in the lr-spine
 	vector<bool> rspine(sentence->size(), false);
 	for(int n = 0; n != NOPE_YET; n = ch_right[n])
@@ -193,7 +196,7 @@ void EfeagerState::calculate_destiny()
 	while(cur2 != NOPE_YET){
 		int real_head = sentence->get_head(cur2);
 		if(real_head < cur2 && !rspine[real_head])
-			num_wrong_doomed++;		// not reachable
+			num_doomed++;		// not reachable
 		for(int n = cur2; n != NOPE_YET; n = ch_right[n])
 			rspine[n] = true;
 		cur = cur2;
@@ -203,11 +206,12 @@ void EfeagerState::calculate_destiny()
 	while(cur != NOPE_YET){
 		int real_head = sentence->get_head(cur);
 		if(real_head > cur && !lspine[real_head])
-			num_wrong_doomed++;		// not reachable
+			num_doomed++;		// not reachable
 		for(int n = cur; n != NOPE_YET; n = ch_left[n])
 			lspine[n] = true;
 		cur = nb_right[cur];
 	}
+	return num_doomed;
 }
 
 // others: StateTemp
@@ -236,18 +240,17 @@ vector<StateTemp> StateTemp::expand_labels(StateTemp& st, int k, bool iftraining
 	return ret;
 }
 
-State* StateTemp::stablize(bool istraining){	// ..., what a design !=_=
+State* StateTemp::stablize(bool istraining, double margin){	// ..., what a design !=_=
 	State* one = base->copy();
-	one->transform(this, istraining);
+	one->transform(this, istraining, margin);
 	return one;
 }
 
 // StateTemp -- have to be here
 StateTemp::StateTemp(State* s, int m, int h, int r, Feature* ff, Score* ss):
 	base(s), mod(m), head(h), rel_index(r), feat(ff), scores(ss){
-	partial_score = scores->get_one(r) + s->get_score();
+	partial_score = scores->get_one(r);
 }
-bool StateTemp::is_correct_all(){ return is_correct_cur() && base->is_correct(); }	// is all correct?
 DP_PTR StateTemp::get_sentence(){ return base->get_sentence(); }
 
 Feature* StateTemp::fetch_feature(FeatureManager* fm){	// create if nope (both getter and setter)

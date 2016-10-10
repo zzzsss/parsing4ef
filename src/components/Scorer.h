@@ -15,7 +15,7 @@ public:
 	Scorer(Model* m): model(m){}
 	~Scorer(){ clear(); }
 	void score_them(vector<StateTemp>& them, FeatureManager& fm);	//attach scores to them
-	void backprop_them(vector<State*>& them, vector<REAL>& grad);
+	void backprop_them(vector<State*>& them, vector<REAL>& grad, int div);
 	void clear(){
 		// clear the states
 		for(auto* s : records)

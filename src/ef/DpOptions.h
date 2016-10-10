@@ -75,7 +75,7 @@ public:
 	double tr_momentum{0.8};	// momentum alpha
 	int tr_iters{15};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
-	int tr_cut_times{3};		// at least cut this times (so real iters maybe more than iter)
+	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)
 	int tr_cut_iters{3};		// force cut if no cutting for how many iters
 	double tr_sample{0.95};		// sample rate, skip sentence randomly by (1-tr_sample)
 	int tr_minibatch{2};		// number of sentences before one update

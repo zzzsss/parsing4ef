@@ -12,6 +12,7 @@ class FeatureManager;
 // -- when it remains in the beam, it can be later stablized to a new State
 // -- in fact, this class should be generalized to a Transition class maybe
 // !! this is the one that has strong semantic: two-stage (two inition ways) (bad design choice)
+// !! now, StateTemp knows the doomed-error
 class StateTemp{
 	// TODO: to eliminate this !! ok, have to use friend for this one
 	//friend void EfstdState::transform(StateTemp*, bool);
@@ -21,10 +22,10 @@ private:
 	// -- the new edge this time
 	int mod;
 	int head;
-	int rel_index{-1};		//this one is treated in a tricky way, mainly for efficiency
-	Feature* feat{nullptr};	// -- the feature
+	int rel_index{-1};				//this one is treated in a tricky way, mainly for efficiency
+	Feature* feat{nullptr};			// -- the feature
 	Score* scores{nullptr};			// -- the scores, in fact it is a vector for all possible rels
-	REAL partial_score{-100000};	// base.partial_score + this_one
+	REAL partial_score{-10000};		//scores[rel_index]
 public:
 	// init1: from State::expand, only init those
 	StateTemp(State* s, int m, int h): base(s), mod(m), head(h){}	
@@ -39,15 +40,11 @@ public:
 	Feature* get_feature(){ return feat; }		// return feat (getter)
 	// setter and getter
 	void set_score(Score* a){ scores = a; }
-	void set_pscore(REAL a){ partial_score = a; }
-	REAL get_score() const{ return partial_score; }
 	DP_PTR get_sentence();
-	bool is_correct_cur(){ return get_sentence()->is_correct(mod, head, rel_index); }	// is current one correct?
-	bool is_correct_all(); // is all correct?
 	// !! using in Agenda.rank_them() !!
 	// expand the k-best labels and return labeled StateTemps (this may be bad design!!), ensuring add GOLD when training
 	static vector<StateTemp> expand_labels(StateTemp& st, int k, bool iftraining);
-	State* stablize(bool istraining);
+	State* stablize(bool istraining, double margin);
 };
 
 #endif

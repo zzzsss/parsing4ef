@@ -30,7 +30,7 @@ public:
 	bool keepon(){
 		return iters_current < iters_all || total_cut_times < tr_cut_times;
 	}
-	bool end_iter(double s){	// s is the current dev score, return whether save model
+	bool end_iter_save(double s){	// s is the current dev score, return whether save model
 		// first for lrate
 		bool this_cut = false;
 		bool this_best = false;
@@ -38,6 +38,7 @@ public:
 			lrate_current *= lrate_multiply;
 			last_cut_iter = iters_current;
 			this_cut = true;
+			total_cut_times++;
 		}
 		if(s > best_score){
 			best_iter = iters_current;
@@ -53,4 +54,3 @@ public:
 };
 
 #endif // !_EF_EFTRHELPER
-

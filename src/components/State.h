@@ -18,7 +18,7 @@
 => Agenda::rank_them(StateTemp)=>State {
 	1.extend labels and add gold if training;
 	2.calculate score (base->score+new_score+margin)
-	3.stablize (add one edge, change structure and recordings and scores(direct from StateTemp's partial_score))
+	3.stablize (add one edge, change structure and recordings and scores)
 }
 */
 class State{
@@ -38,13 +38,14 @@ protected:
 	vector<int> ch_right;		// rightmost child
 	vector<int> ch_left2;		// second leftmost child
 	vector<int> ch_right2;		// second rightmost child
-	// recordings
-	REAL partial_score{0};	//including penalty when training
+	// recordings --- !! all from StateTemp !!
+	REAL partial_score_base{0};		// base score
+	REAL partial_score_all{0};		// base score + margin*num_wrong_doomed
 	int num_arc{0};
 	int num_wrong_cur{0};		//only record when training
 	int num_wrong_doomed{0};	//doomed wrong arcs
 	// special
-	virtual void calculate_destiny() = 0;	// for num_wrong_doomed at the last step of transform
+	virtual int calculate_destiny() = 0;	// for num_wrong_doomed at the last step of transform
 
 	// we only need these two for construction
 	State(DP_PTR s): sentence(s), partial_heads(s->size(), NOPE_YET), partial_rels(s->size(), NOPE_YET),
@@ -75,11 +76,12 @@ public:
 	inline int travel_downmost(int i, int which);
 	inline int travel_lr(int i, int steps);	//(steps): left:-1,-2,..., right£º1,2,...
 	// process in the Agenda part
-	REAL get_score(){ return partial_score; }
-	bool is_correct(){ return num_wrong_doomed == 0; }	// both structure and labels
+	REAL get_score() const{ return partial_score_all; }		// return base+penalty score
+	int get_doomed() const { return num_wrong_doomed; }
+	bool is_correct() const{ return num_wrong_doomed == 0; }	// both structure and labels
 	// identifications for recombination
 	string get_repr(int mode, bool labeled);
-	void transform(StateTemp*, bool);
+	void transform(StateTemp*, bool, double margin);
 	virtual State* copy() = 0;	// copy myself
 	// others
 	bool finished(){ return num_arc == sentence->size()-1; }
@@ -106,7 +108,7 @@ public:
 // EasyFirst-Stdandard
 class EfstdState: public State{
 protected:
-	void calculate_destiny() override;
+	int calculate_destiny() override;
 public:
 	EfstdState(DP_PTR s): State(s){}
 	EfstdState(const EfstdState&) = default;
@@ -118,7 +120,7 @@ public:
 // EasyFirst-Eager
 class EfeagerState: public EfstdState{
 protected:
-	void calculate_destiny() override;
+	int calculate_destiny() override;
 public:
 	EfeagerState(DP_PTR s): EfstdState(s){}
 	EfeagerState(const EfeagerState&) = default;
