@@ -5,6 +5,9 @@
 #include <cmath>
 #include "../tools/DpTools.h"
 
+int Agenda::num_explore = 0;
+int Agenda::num_drop = 0;
+
 namespace{
 	bool TMP_cmp(const State* i, const State* j){ return (i->get_score() > j->get_score()); }
 }
@@ -80,6 +83,10 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 				}
 			}
 		}
+		// stat
+		num_explore++;
+		if(drop)
+			num_drop++;
 		// break if beam is full
 		iter++;
 		if(beam.size() >= opt->beam_all)

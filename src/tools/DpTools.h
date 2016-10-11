@@ -20,8 +20,8 @@ using namespace std::chrono;
 #define DP_USING_LINUX	//currently assume that
 #endif
 
-// Detailed Recording
-#define _VERBOSE_ACCRECORDER
+// Detailed Recording (for both recorders)
+//#define _VERBOSE_ACCRECORDER
 
 // evaluate
 extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);
@@ -58,13 +58,17 @@ private:
 	string description;
 	time_point<steady_clock> start;
 public:
-	Recorder(string x): description{x}{ 
+	Recorder(string x): description{x}{
+#ifdef _VERBOSE_ACCRECORDER
 		start = steady_clock::now();
 		Logger::get_output() << "- Start " << description << "." << endl;
+#endif
 	}
 	~Recorder(){
+#ifdef _VERBOSE_ACCRECORDER
 		auto end = steady_clock::now();
 		Logger::get_output() << "- End " << description << ", which took " << duration_cast<milliseconds>(end-start).count() << " milliseconds." << endl;
+#endif
 	}
 	static void report_time(const string& s){
 		std::time_t now;
@@ -152,6 +156,7 @@ extern AccRecorder global_recorder;
 #else
 #define ACCRECORDER_ONCE(x)
 #define ACCRECORDER_RESET(x)
+#define ACCRECORDER_REPORT()
 #endif
 
 template<class T>

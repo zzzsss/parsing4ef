@@ -28,6 +28,7 @@ public:
 			<< ";#steps:" << num_steps << ";%cov:" << num_steps / (num_token + 0.0) << endl;
 	}
 	void ef_search(DP_PTR one);
+	static void report_and_reset_all();
 };
 
 #endif

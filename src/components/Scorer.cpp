@@ -3,7 +3,11 @@
 #include "State.h"
 #include "../tools/DpTools.h"
 
+int Scorer::num_feature = 0;
+int Scorer::num_miss = 0;
+
 //attach scores to them, check cache first
+// -- analyse this one
 void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 {
 	vector<int> indexes;
@@ -11,7 +15,7 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	// collect the ones to score
 	for(unsigned i = 0; i < them.size(); i++){
 		Feature* ff = them[i].get_feature();
-		auto iter = cache.find(*ff);	// will throw if no feature
+		auto iter = cache.find(ff->get_ident());	// will throw if no feature
 		if(iter == cache.end()){
 			indexes.push_back(i);
 			to_score.push_back(ff);
@@ -29,9 +33,12 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 	for(unsigned i = 0; i < indexes.size(); i++){
 		Score* s = new Score(outputs[i]);
 		records.push_back(s);
-		cache[*(to_score[i])] = s;
+		cache[(to_score[i])->get_ident()] = s;
 		them[indexes[i]].set_score(s);
 	}
+	// stat
+	num_feature += them.size();
+	num_miss += indexes.size();
 	return;
 }
 

@@ -8,7 +8,9 @@
 // In fact, the most of the resposibility is on Agenda
 // -- This controls the process and know when to stop and back-prop, thus it will remember and book-keeping
 class Agenda{
-protected:
+	static int num_explore;
+	static int num_drop;
+private:
 	// --- states ---
 	vector<State*> records;		//for final releasing
 	// --- options ---
@@ -44,6 +46,10 @@ public:
 	// the main function -- ranking
 	vector<State*> rank_them(vector<StateTemp>& them, Scorer& scer);
 	State* get_best(){ return last_beam[0]; }
+	static void report_and_reset(){
+		Logger::get_output() << "- state drop/all:" << num_drop << "/" << num_explore << endl;
+		num_drop = num_explore = 0;
+	}
 };
 
 #endif

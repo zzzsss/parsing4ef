@@ -9,8 +9,8 @@ using std::string;
 // We aim to minimize the size of Feature, thus this one is coupled with FeatureManager
 class Feature{
 private:
-	friend class Feature_hasher;
-	friend bool operator ==(const Feature& x, const Feature& y);
+	//friend class Feature_hasher;
+	//friend bool operator ==(const Feature& x, const Feature& y);
 	vector<int> nodes;
 	// no-need here: vector<int> distances;
 	vector<int> labels;
@@ -25,8 +25,10 @@ public:
 	}
 	const vector<int>& getn(){ return nodes; }
 	const vector<int>& getl(){ return labels; }
+	const string& get_ident() const { return ident; }
 };
 
+/*
 inline bool operator ==(const Feature& x, const Feature& y){
 	return x.nodes == y.nodes && x.labels == y.labels;
 }
@@ -38,5 +40,6 @@ public:
 		return std::hash<string>{}(f.ident);
 	}
 };
+*/
 
 #endif

@@ -34,10 +34,12 @@ void EfParser::train()
 		Recorder TMP_recorder{string("one-iter")};
 		do_train(corpus_train, &helper);
 		model->report_and_reset();
+		Searcher::report_and_reset_all();
 		double cur_s = do_dev_test(corpus_dev, corpus_dev, options.file_output_dev, options.file_dev);
 		if(helper.end_iter_save(cur_s))
 			model->write(options.file_model);
 		model->report_and_reset();
+		Searcher::report_and_reset_all();
 		ACCRECORDER_REPORT();
 	}
 }
@@ -109,6 +111,7 @@ double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_
 void EfParser::do_train(DPS_PTR train, EfTRHelper* h)
 {
 	int acc_sent_num = 0;	// for update
+	Logger::get_output() << endl;
 	Recorder::report_time("training iter " + dp_num2str(h->get_iter()) + " with " + dp_num2str(h->get_lrate()));
 	Searcher se{&options, true, model, fm};
 	for(unsigned int i = 0; i < train->size(); i++){

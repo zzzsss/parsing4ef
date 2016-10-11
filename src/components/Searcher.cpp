@@ -80,3 +80,10 @@ void Searcher::ef_search(DP_PTR one)
 	}
 	return;
 }
+
+void Searcher::report_and_reset_all()
+{
+	// static methods, for reporting stat
+	Scorer::report_and_reset();
+	Agenda::report_and_reset();
+}
