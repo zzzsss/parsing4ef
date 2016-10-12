@@ -91,12 +91,12 @@ public:
 			Logger::Error("State: unfinished assign.");
 		x->assign(partial_heads, partial_rels);
 	}
-	int append_si(vector<Output*>& vo, vector<int>& vi){	
+	int append_si(vector<Input>& vo, vector<int>& vi){	
 		//append scores and index, for backprop; return number
 		int n = 0;
 		for(unsigned i = 0; i < partial_heads.size(); i++){
 			if(partial_heads[i] != NOPE_YET){
-				vo.push_back(partial_sc[i]->get_output());
+				vo.push_back(partial_sc[i]->get_input());
 				vi.push_back(partial_rels[i]);
 				n++;
 			}

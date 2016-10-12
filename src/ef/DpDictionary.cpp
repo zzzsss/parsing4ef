@@ -63,7 +63,7 @@ void DpDictionary::build_map(DPS_PTR corpus, const DpOptions& conf)
 		vector<pair<string, int>> temp_flist;
 		for(auto iter : map_freq)
 			temp_flist.push_back({iter.first, iter.second});
-		using TEMP_type = decltype(temp_flist.back());
+		using TEMP_type = pair<string, int>;
 		sort(temp_flist.begin(), temp_flist.end(), [](TEMP_type a, TEMP_type b){ return a.second > b.second; });
 		for(auto iter : temp_flist){
 			if(iter.second >= conf.dict_remove)

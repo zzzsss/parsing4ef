@@ -17,7 +17,7 @@ private:
 	// 2. essentials
 	DpDictionary* dict{nullptr};
 	FeatureManager* fm{nullptr};
-	Model* model{nullptr};
+	ModelZ* model{nullptr};
 	// sub-rountines
 	void do_train(DPS_PTR train, EfTRHelper* h);
 	double do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold);	// return acc if dev

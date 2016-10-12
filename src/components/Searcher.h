@@ -13,14 +13,14 @@ private:
 	//from outside: the options, model and fm
 	DpOptions* options;		
 	bool is_training;
-	Model* model; 
+	ModelZ* model;
 	FeatureManager* fm;
 
 	int num_sent{0};
 	int num_token{0};
 	int num_steps{0};	//num of steps explored
 public:
-	Searcher(DpOptions* op, bool t, Model* m, FeatureManager* f): 
+	Searcher(DpOptions* op, bool t, ModelZ* m, FeatureManager* f):
 		options(op), is_training(t), model(m), fm(f){}
 	~Searcher(){}
 	void report_stat(ostream& out){

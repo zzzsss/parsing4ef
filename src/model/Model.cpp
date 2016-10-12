@@ -1,20 +1,20 @@
 #include "Model.h"
 #include "ModelDummy.h"
+#include "ModelDynet.h"
 #include <fstream>
 using namespace std;
 
 // todo: specifying model
-Model* Model::read_init(const string& file)
+ModelZ* ModelZ::read_init(const string& file)
 {
-	ifstream fin;
-	fin.open(file);
-	int outd = 0;
-	fin >> outd;
-	fin.close();
-	return new ModelDummy{outd};
+#ifdef USE_MODEL_DYNET
+	return ModelDynet::read_init(file);
+#endif // USE_MODEL_DYNET
 }
 
-Model* Model::newone_init(int outd)
+ModelZ* ModelZ::newone_init(const string& mss)
 {
-	return new ModelDummy{outd};
+#ifdef USE_MODEL_DYNET
+	return ModelDynet::newone_init(mss);
+#endif // USE_MODEL_DYNET
 }

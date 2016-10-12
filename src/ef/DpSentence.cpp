@@ -23,7 +23,7 @@ void DpSentence::read_one(const vector<string>& them)
 		heads.emplace_back(-1);
 		rels.emplace_back("<root-rel>");
 	}
-	if(dp_str2int(them[0]) != size())
+	if(dp_str2num<int>(them[0]) != size())
 		Logger::Error("Format-Error: wrong field[0].");
 	forms.emplace_back(them[1]);
 	// -- norm with re
@@ -37,7 +37,7 @@ void DpSentence::read_one(const vector<string>& them)
 	words_norm.emplace_back(temp_norm);
 	// -- norm with re
 	postags.emplace_back(them[4]);
-	heads.emplace_back(dp_str2int(them[8]));
+	heads.emplace_back(dp_str2num<int>(them[8]));
 	rels.emplace_back(them[9]);
 }
 

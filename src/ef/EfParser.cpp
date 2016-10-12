@@ -24,9 +24,18 @@ void EfParser::train()
 	// 3. build FeatureManager and Model
 	fm = new FeatureManager{options.fss, dict, options.ef_mode};
 	if(options.file_tmodel != "")
-		model = Model::read_init(options.file_tmodel);
-	if(model == nullptr)
-		model = Model::newone_init(dict->num_rel());	// todo: specifying model
+		model = ModelZ::read_init(options.file_tmodel);
+	if(model == nullptr){
+		stringstream tempss;
+		tempss << "|e0-o" << options.dim_w << "-i" << fm->get_wind() << "-n" << fm->num_nodes_all()
+			<< "|e1-o" << options.dim_p << "-i" << fm->get_pind() << "-n" << fm->num_nodes_all()
+			<< "|e2-o" << options.dim_d << "-i" << fm->get_dind() << "-n" << fm->num_distances()
+			<< "|e3-o" << options.dim_l << "-i" << fm->get_lind() << "-n" << fm->num_labels()
+			<< "|h3-s" << dict->num_rel();
+		string mss_embed;
+		tempss >> mss_embed;
+		model = ModelZ::newone_init(options.mss+mss_embed);
+	}
 	// 4. main training
 	EfTRHelper helper{&options};
 	while(helper.keepon()){
@@ -56,7 +65,7 @@ void EfParser::test()
 	if(fm == nullptr)
 		fm = new FeatureManager{options.fss, dict, options.ef_mode};
 	if(model == nullptr)
-		model = Model::read_init(options.file_model);	// read from best model
+		model = ModelZ::read_init(options.file_model);	// read from best model
 	// 4. testing
 	ACCRECORDER_RESET("testing");
 	do_dev_test(corpus_test, nullptr, options.file_output_test, options.file_test);

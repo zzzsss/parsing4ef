@@ -26,23 +26,11 @@ using namespace std::chrono;
 // evaluate
 extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);
 
-// helpers
-extern vector<string> dp_split(const string &s, char x, int cut_time=-1);	// -1 means always
-extern int dp_str2int(const string& x);
-template<class T>
-string dp_num2str(T x){
-	stringstream tmp_str;
-	tmp_str << x;
-	string ss;
-	tmp_str >> ss;
-	return ss;
-}
-
 // Logger
 class Logger{
 public:
 	enum LOG_LEVEL{};
-	static ostream& get_output(int l=0){ return cout; }
+	static ostream& get_output(int l = 0){ return cout; }
 	static void Error(const string &x){
 		cerr << "Fatal error: " << x << endl;
 		throw runtime_error(x);
@@ -51,6 +39,28 @@ public:
 		cerr << "Warning: " << x << endl;
 	}
 };
+
+// helpers
+extern vector<string> dp_split(const string &s, char x, int cut_time=-1);	// -1 means always
+
+template<class T>
+T dp_str2num(const string& x){
+	stringstream tmp_str(x);
+	T y = 0;
+	tmp_str >> y;
+	if(y == 0 && x[0] != '0')
+		Logger::Error("Int-Error: transfer to num.");
+	return y;
+}
+
+template<class T>
+string dp_num2str(const T& x){
+	stringstream tmp_str;
+	tmp_str << x;
+	string ss;
+	tmp_str >> ss;
+	return ss;
+}
 
 //Recorder (Temp): record time (RAII style)
 class Recorder{

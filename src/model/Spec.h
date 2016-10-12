@@ -1,9 +1,38 @@
 #ifndef _MODEL_SPEC
 #define _MODEL_SPEC
 
-// the specifications for the model
-class Spec{
+#include <string>
+#include <vector>
+#include <iostream>
+using namespace std;
+using REAL = float;	// same as Model.h
 
+enum LAYER_ACT{ LINEAR, TANH };
+enum UPDATE_MODE{ SGD };
+
+// the specifications for the model
+// -- currently only support single digit, can overwrite, but must be sequential (h1 must follow h0)
+struct Spec{
+private:
+	Spec() = default;
+public:
+	// layers: h*-s<size>-d<drop>-a<act>-i<init>
+	vector<int> layer_size;			// size
+	vector<int> layer_act;			// activation
+	vector<REAL> layer_drop;	// dropout
+	vector<REAL> layer_init;	// [-init, init] for the weight and bias below the layer
+	// embeds: e*-o<outd>-i<ind>-n<num>
+	vector<int> embed_outd;	// dimension of embedding
+	vector<int> embed_ind;	// vocab's size
+	vector<int> embed_num;	// how many embed in one instance
+	// others(updates): o-<name>-value;
+	int update_mode{SGD};
+	REAL momemtum{0.8f};
+	REAL weight_decay{1e-5f};
+	//
+	Spec(const string& mss);	// plus default mss
+	void write(ostream& fout);
+	static Spec* read(istream& fin);
 };
 
 #endif // !_MODEL_SPEC

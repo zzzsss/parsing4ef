@@ -54,7 +54,7 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 			fss_la.emplace_back(move(one));
 		else{
 			auto fields = dp_split(one, '-');
-			int one_span = dp_str2int(fields[1]);
+			int one_span = dp_str2num<int>(fields[1]);
 			string& one_name = fields[0];
 			if(index.find(one_name) != index.end())	// may repeat and overwrite
 				Logger::Warn(string("Repeated fss one: " + one_name));
@@ -158,9 +158,11 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 	return ret;
 }
 
-vector<int> FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
+// create new one
+Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 {
-	vector<int> ret;
+	vector<int>* retp = new vector<int>();
+	vector<int>& ret = *retp;
 	const vector<int>& vn = ff->getn();
 	const vector<int>& vl = ff->getl();
 	// word
@@ -191,5 +193,5 @@ vector<int> FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 	for(auto i: vl){
 		ret.push_back(settle_label(i));
 	}
-	return ret;
+	return retp;
 }

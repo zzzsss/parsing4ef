@@ -7,6 +7,7 @@
 #include <vector>
 using namespace std;
 #include "../ef/DpDictionary.h"
+#include "../model/Model.h"
 
 class State;
 
@@ -45,7 +46,7 @@ private:
 	vector<int> labels;
 	// settle the final indexes
 	int settle_word(int x){ return x + INDEX_BIAS_W; }
-	int settle_distance(int x){		// [0, INDEX_DIST_MAX*2+1]
+	int settle_distance(int x){		// [0, INDEX_DIST_MAX*2]
 		if(x < -INDEX_DIST_MAX)
 			x = -INDEX_DIST_MAX;
 		else if(x > INDEX_DIST_MAX)
@@ -74,6 +75,11 @@ public:
 	}
 	int num_distances(){ return distance_pairs.size(); }
 	int num_labels(){ return labels.size(); }
+	// for mach
+	int get_wind(){ return dictionary->num_word() + INDEX_BIAS_W; }	// input dim, vocab's size + bias
+	int get_pind(){ return dictionary->num_pos() + INDEX_BIAS_W; }
+	int get_dind(){ return INDEX_DIST_MAX * 2 + 1; }
+	int get_lind(){ return dictionary->num_rel() + INDEX_BIAS_L; }
 
 	// for pretty-looking
 	void feature_them(vector<StateTemp>& them){
@@ -82,7 +88,7 @@ public:
 	}
 
 	// prepare expanded feature
-	vector<int> feature_expand(Feature* ff, DP_PTR sent);
+	Input feature_expand(Feature* ff, DP_PTR sent);
 };
 
 #endif

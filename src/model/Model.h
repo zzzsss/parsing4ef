@@ -11,29 +11,29 @@ using REAL = float;
 
 // The interface to the models
 // currently assuming simple feedforward model (simple input)
-class Input{
-public:
-};
+using Input = vector<int>*;
+using Output = vector<REAL>*;
 
-// vectored output
-class Output{
+// the abstract class
+// -- simplify this model, no caches
+class ModelZ{
 public:
-	virtual vector<REAL> get_vec() = 0;
-	virtual ~Output(){}
-};
-
-class Model{
-public:
-	virtual ~Model(){}
-	virtual vector<Input*> make_input(const vector<vector<int>>& x) = 0;		// this is the current one
-	virtual vector<Output*> forward(const vector<Input*>& in) = 0;
-	virtual void backward(const vector<Output*>& out, const vector<int>&index, const vector<REAL>&grad) = 0;
+	virtual ~ModelZ(){}
+	virtual vector<Output> forward(const vector<Input>& x) = 0;
+	virtual void backward(const vector<Input>& in, const vector<int>&index, const vector<REAL>&grad) = 0;
 	virtual void update(const REAL lr) = 0;
 	virtual void write(const string& file) = 0;
-	virtual void clear() = 0;
 	virtual void report_and_reset() = 0;
-	static Model* read_init(const string& file);
-	static Model* newone_init(int outd);
+	static ModelZ* read_init(const string& file);
+	static ModelZ* newone_init(const string& mss);
 };
+
+#define USE_MODEL_DYNET
+#define EIGEN_USE_MKL_ALL
+
+
+#ifdef USE_MODEL_DYNET
+#endif // USE_MODEL_DYNET
+
 
 #endif

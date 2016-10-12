@@ -23,7 +23,7 @@ enum RECOMB_MODE{ RECOMB_NOPE, RECOMB_STRICT, RECOMB_SPINE, RECOMB_SPINE2, RECOM
 	Explanation for the options:
 	1. Separated by <BLANK>: different options
 	2. Separated by ':": key:value
-	3. fss: '|','-'; mss: '|',
+	3. fss: '|','-'; mss: '|','-'. (Thankfully we don't have negative-valued options)
 */
 class DpOptions{	//TODO: the options
 private:
@@ -67,12 +67,14 @@ public:
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
 	//5. about model
-	string mss{""};			//model specifier: see model/* for details
+	string mss{""};			//model specifier: see model/Spec.h for details
+	int dim_w{50};			// dimensions of embedding for word,pos,distance,label
+	int dim_p{30};
+	int dim_d{30};
+	int dim_l{30};
 	//6. about training
 	double tr_lrate{0.1};		// initial learning rate
 	double tr_lrmul{0.5};		// lr decay rate
-	double tr_wd{1e-5};			// weight decay
-	double tr_momentum{0.8};	// momentum alpha
 	int tr_iters{15};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)

@@ -88,10 +88,12 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(recomb_mode);
 		else TMP_assign_key(gold_inum);
 		else if(key == "mss") mss = mss + '|' + value;	// special one append
+		else TMP_assign_key(dim_w);
+		else TMP_assign_key(dim_p);
+		else TMP_assign_key(dim_d);
+		else TMP_assign_key(dim_l);
 		else TMP_assign_key(tr_lrate);
 		else TMP_assign_key(tr_lrmul);
-		else TMP_assign_key(tr_wd);
-		else TMP_assign_key(tr_momentum);
 		else TMP_assign_key(tr_iters);
 		else TMP_assign_key(tr_cut);
 		else TMP_assign_key(tr_cut_times);
@@ -144,4 +146,5 @@ void DpOptions::check_and_report()
 	printer << "-5: model:" << mss << endl;
 	// 6. training
 	// ... skip
+	printer << "------------" << endl;
 }

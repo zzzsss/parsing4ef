@@ -24,14 +24,13 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 			them[i].set_score(iter->second);
 	}
 	// score them by model
-	vector<vector<int>> feature_final;
+	vector<Input> inputs;
 	for(unsigned i = 0; i < indexes.size(); i++)
-		feature_final.emplace_back(fm.feature_expand(to_score[i], them[indexes[i]].get_sentence()));
-	auto inputs = model->make_input(feature_final);
+		inputs.push_back(fm.feature_expand(to_score[i], them[indexes[i]].get_sentence()));
 	auto outputs = model->forward(inputs);
 	// put them back
 	for(unsigned i = 0; i < indexes.size(); i++){
-		Score* s = new Score(outputs[i]);
+		Score* s = new Score(inputs[i], outputs[i]);
 		records.push_back(s);
 		cache[(to_score[i])->get_ident()] = s;
 		them[indexes[i]].set_score(s);
@@ -44,7 +43,7 @@ void Scorer::score_them(vector<StateTemp>& them, FeatureManager& fm)
 
 void Scorer::backprop_them(vector<State*>& them, vector<REAL>& grad, int div)
 {
-	vector<Output*> vo;
+	vector<Input> vo;
 	vector<int> vi;
 	vector<REAL> vg;
 	for(unsigned i = 0; i < them.size(); i++){
