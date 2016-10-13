@@ -15,21 +15,22 @@ void ModelDynet::create_model()
 {
 	// 0. init
 	int argc = 5;
-	const char* argv[] = {"", "--dynet_mem", "4096", "--dynet-l2", dp_num2str(sp->weight_decay).c_str()};
+	string tmp_wd_one = dp_num2str(sp->weight_decay);	// this bug is really ...
+	const char* argv[] = {"", "--dynet_mem", sp->memory.c_str(), "--dynet-l2", tmp_wd_one.c_str()};
 	char** argv2 = const_cast<char**>(&argv[0]);
 	dynet::initialize(argc, argv2);
 	// 1. mach
 	mach = new typename dynet::Model();
 	for(unsigned i = 0; i < sp->embed_outd.size(); i++){
-		auto pi = ParameterInitUniform{sp->layer_init[0]};
+		auto pi = ParameterInitUniform{sp->layer_initb[0]};
 		auto one_param = mach->add_lookup_parameters(sp->embed_ind[i], {sp->embed_outd[i]});
 		pi.initialize_params(one_param.get()->all_values);
 		param_lookups.push_back(one_param);
 	}
 	for(unsigned i = 1; i < sp->layer_size.size(); i++){	// start with one
 		REAL fanio = std::sqrt((REAL)(sp->layer_size[i]+sp->layer_size[i - 1]));
-		param_w.push_back(mach->add_parameters({sp->layer_size[i], sp->layer_size[i-1]}, sp->layer_init[i] / fanio));
-		param_b.push_back(mach->add_parameters({sp->layer_size[i]}, sp->layer_init[i]));
+		param_w.push_back(mach->add_parameters({sp->layer_size[i], sp->layer_size[i-1]}, sp->layer_initw[i] / fanio));
+		param_b.push_back(mach->add_parameters({sp->layer_size[i]}, sp->layer_initb[i]));
 	}
 	// 2. trainer
 	switch(sp->update_mode){
@@ -173,6 +174,7 @@ vector<Output> ModelDynet::forward(const vector<Input>& x)
 		ret.push_back(one);
 		pointer += outdim;
 	}
+	num_forw += x.size();
 	return ret;
 }
 
@@ -194,6 +196,7 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 	cg.forward(loss);
 	cg.backward(loss);
 	delete the_grad;
+	num_back += in.size();
 }
 
 #endif // USE_MODEL_DYNET

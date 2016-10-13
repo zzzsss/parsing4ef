@@ -20,7 +20,8 @@ public:
 	vector<int> layer_size;			// size
 	vector<int> layer_act;			// activation
 	vector<REAL> layer_drop;	// dropout
-	vector<REAL> layer_init;	// [-init, init] for the weight and bias below the layer
+	vector<REAL> layer_initw;	// [-init, init] for the weight and bias below the layer
+	vector<REAL> layer_initb;	// bias and also for wv
 	// embeds: e*-o<outd>-i<ind>-n<num>
 	vector<int> embed_outd;	// dimension of embedding
 	vector<int> embed_ind;	// vocab's size
@@ -28,7 +29,8 @@ public:
 	// others(updates): o-<name>-value;
 	int update_mode{SGD};
 	REAL momemtum{0.8f};
-	REAL weight_decay{1e-5f};
+	REAL weight_decay{1e-8f};
+	string memory{"1024"};
 	//
 	Spec(const string& mss);	// plus default mss
 	void write(ostream& fout);

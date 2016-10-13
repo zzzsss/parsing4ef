@@ -130,7 +130,7 @@ void EfParser::do_train(DPS_PTR train, EfTRHelper* h)
 		auto* t = (*train)[i];
 		se.ef_search(t);
 		if(acc_sent_num >= options.tr_minibatch){
-			model->update(h->get_lrate());
+			model->update(h->get_lrate()/options.tr_minibatch);		// divide it by minibatch
 			acc_sent_num = 0;
 		}
 	}

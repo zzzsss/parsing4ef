@@ -7,7 +7,8 @@ namespace{
 	const string DEFAULT_MSS = "h0-s0|h1-s256-a1|h2-s128-a1|h3-s0";	// one embedding layer plus three hidden layer 
 	const int DEFAULT_ACT = LINEAR;
 	const REAL DEFAULT_DROP = 0.0f;
-	const REAL DEFAULT_INIT = 0.1f;
+	const REAL DEFAULT_INITW = 1.0f;
+	const REAL DEFAULT_INITB = 0.1f;
 }
 
 Spec::Spec(const string& mss)
@@ -28,7 +29,8 @@ Spec::Spec(const string& mss)
 				layer_size.push_back(0);
 				layer_act.push_back(DEFAULT_ACT);
 				layer_drop.push_back(DEFAULT_DROP);
-				layer_init.push_back(DEFAULT_INIT);
+				layer_initw.push_back(DEFAULT_INITW);
+				layer_initb.push_back(DEFAULT_INITB);
 			}
 			else if(which > layer_size.size())
 				Logger::Error(string("mss ERROR, oversize ") + s);
@@ -38,7 +40,8 @@ Spec::Spec(const string& mss)
 				case 's': layer_size[which] = dp_str2num<int>(fields[i].substr(1)); break;
 				case 'a': layer_act[which] = dp_str2num<int>(fields[i].substr(1)); break;
 				case 'd': layer_drop[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
-				case 'i': layer_init[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
+				case 'w': layer_initw[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
+				case 'b': layer_initb[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
 				default: Logger::Error(string("mss ERROR, unkown field ") + s);
 				}
 			}
@@ -70,6 +73,8 @@ Spec::Spec(const string& mss)
 		{
 			if(fields[1] == "momemtum")
 				momemtum = dp_str2num<REAL>(fields[2]);
+			else if(fields[1] == "memory")
+				memory = fields[2];
 			break;
 		}
 		default: Logger::Error(string("mss ERROR, unkown field") + s);
@@ -91,11 +96,11 @@ void Spec::write(ostream& fout)
 {
 	fout << layer_size.size() << '\n';
 	for(unsigned i = 0; i < layer_size.size(); i++)
-		fout << layer_size[i] << ' ' << layer_act[i] << ' ' << layer_drop[i] << ' ' << layer_init[i] << '\n';
+		fout << layer_size[i] << ' ' << layer_act[i] << ' ' << layer_drop[i] << ' ' << layer_initw[i] << layer_initb[i] << '\n';
 	fout << embed_outd.size() << '\n';
 	for(unsigned i = 0; i < embed_outd.size(); i++)
 		fout << embed_outd[i] << ' ' << embed_ind[i] << ' ' << embed_num[i] << '\n';
-	fout << update_mode << ' ' << momemtum << ' ' << weight_decay << '\n';
+	fout << update_mode << ' ' << momemtum << ' ' << weight_decay << ' ' << memory << '\n';
 }
 
 Spec* Spec::read(istream& fin)
@@ -106,17 +111,18 @@ Spec* Spec::read(istream& fin)
 	one->layer_size = vector<int>(lsize);
 	one->layer_act = vector<int>(lsize);
 	one->layer_drop = vector<REAL>(lsize);
-	one->layer_init = vector<REAL>(lsize);
+	one->layer_initw = vector<REAL>(lsize);
+	one->layer_initb = vector<REAL>(lsize);
 	for(int i = 0; i < lsize; i++)
-		fin >> one->layer_size[i] >> one->layer_act[i] >> one->layer_drop[i] >> one->layer_init[i];
+		fin >> one->layer_size[i] >> one->layer_act[i] >> one->layer_drop[i] >> one->layer_initw[i] >> one->layer_initb[i];
 	int esize = 0;
 	fin >> esize;
 	one->embed_outd = vector<int>(esize);
 	one->embed_ind = vector<int>(esize);
 	one->embed_num = vector<int>(esize);
 	for(int i = 0; i < esize; i++)
-		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i] >> one->layer_init[i];
-	fin >> one->update_mode >> one->momemtum >> one->weight_decay;
+		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i] >> one->layer_initw[i] >> one->layer_initb[i];
+	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;
 	one->write(Logger::get_output());	// report
 	return one;
 }

@@ -57,7 +57,7 @@ public:
 	//4.1 training schemes
 	double margin{0.0};		// margin for the scores
 	int update_mode{UPDATE_END};		// update strategies (Agenda)
-	int updatediv_mode{UPDATEDIV_ONE};	// what is the divisor for update
+	int updatediv_mode{UPDATEDIV_CUR};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)
 	//4.2 beam sizes && recombination option
 	unsigned beam_flabel{2};		// first filter for labels, which controls diversity on one beam
@@ -73,9 +73,9 @@ public:
 	int dim_d{30};
 	int dim_l{30};
 	//6. about training
-	double tr_lrate{0.1};		// initial learning rate
+	double tr_lrate{0.01};		// initial learning rate
 	double tr_lrmul{0.5};		// lr decay rate
-	int tr_iters{15};			// training iterations
+	int tr_iters{10};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)
 	int tr_cut_iters{3};		// force cut if no cutting for how many iters

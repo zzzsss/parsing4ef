@@ -205,7 +205,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 	// about the loss
 	vector<State*> to_update;
 	vector<REAL> to_grads;
-	switch(opt->updatediv_mode){	// the first two must need gold ones !!
+	switch(opt->update_mode){	// the first two must need gold ones !!
 	case LOSS_PERCEPTRON:	// loss = best - gold
 	{
 		// TODO: do we need to update for all the golds?

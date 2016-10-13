@@ -28,12 +28,9 @@ public:
 	static ModelZ* newone_init(const string& mss);
 };
 
+//#define USE_MODEL_CSNN2
 #define USE_MODEL_DYNET
-#define EIGEN_USE_MKL_ALL
-
-
-#ifdef USE_MODEL_DYNET
-#endif // USE_MODEL_DYNET
+//#define EIGEN_USE_MKL_ALL
 
 
 #endif
