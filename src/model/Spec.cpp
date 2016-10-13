@@ -37,8 +37,8 @@ Spec::Spec(const string& mss)
 			// modify those
 			for(unsigned i = 1; i < fields.size(); i++){
 				switch(fields[i][0]){
-				case 's': layer_size[which] = dp_str2num<int>(fields[i].substr(1)); break;
-				case 'a': layer_act[which] = dp_str2num<int>(fields[i].substr(1)); break;
+				case 's': layer_size[which] = dp_str2num<unsigned>(fields[i].substr(1)); break;
+				case 'a': layer_act[which] = dp_str2num<unsigned>(fields[i].substr(1)); break;
 				case 'd': layer_drop[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
 				case 'w': layer_initw[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
 				case 'b': layer_initb[which] = dp_str2num<REAL>(fields[i].substr(1)); break;
@@ -61,9 +61,9 @@ Spec::Spec(const string& mss)
 			// modify those
 			for(unsigned i = 1; i < fields.size(); i++){
 				switch(fields[i][0]){
-				case 'o': embed_outd[which] = dp_str2num<int>(fields[i].substr(1)); break;
-				case 'i': embed_ind[which] = dp_str2num<int>(fields[i].substr(1)); break;
-				case 'n': embed_num[which] = dp_str2num<int>(fields[i].substr(1)); break;
+				case 'o': embed_outd[which] = dp_str2num<unsigned>(fields[i].substr(1)); break;
+				case 'i': embed_ind[which] = dp_str2num<unsigned>(fields[i].substr(1)); break;
+				case 'n': embed_num[which] = dp_str2num<unsigned>(fields[i].substr(1)); break;
 				default: Logger::Error(string("mss ERROR, unkown field") + s);
 				}
 			}
@@ -108,8 +108,8 @@ Spec* Spec::read(istream& fin)
 	Spec* one = new Spec();
 	int lsize = 0;
 	fin >> lsize;
-	one->layer_size = vector<int>(lsize);
-	one->layer_act = vector<int>(lsize);
+	one->layer_size = vector<unsigned>(lsize);
+	one->layer_act = vector<unsigned>(lsize);
 	one->layer_drop = vector<REAL>(lsize);
 	one->layer_initw = vector<REAL>(lsize);
 	one->layer_initb = vector<REAL>(lsize);
@@ -117,9 +117,9 @@ Spec* Spec::read(istream& fin)
 		fin >> one->layer_size[i] >> one->layer_act[i] >> one->layer_drop[i] >> one->layer_initw[i] >> one->layer_initb[i];
 	int esize = 0;
 	fin >> esize;
-	one->embed_outd = vector<int>(esize);
-	one->embed_ind = vector<int>(esize);
-	one->embed_num = vector<int>(esize);
+	one->embed_outd = vector<unsigned>(esize);
+	one->embed_ind = vector<unsigned>(esize);
+	one->embed_num = vector<unsigned>(esize);
 	for(int i = 0; i < esize; i++)
 		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i] >> one->layer_initw[i] >> one->layer_initb[i];
 	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;

@@ -14,9 +14,9 @@ using dynet::MomentumSGDTrainer;
 void ModelDynet::create_model()
 {
 	// 0. init
-	int argc = 5;
+	int argc = 7;
 	string tmp_wd_one = dp_num2str(sp->weight_decay);	// this bug is really ...
-	const char* argv[] = {"", "--dynet_mem", sp->memory.c_str(), "--dynet-l2", tmp_wd_one.c_str()};
+	const char* argv[] = {"", "--dynet_mem", sp->memory.c_str(), "--dynet-l2", tmp_wd_one.c_str(), "--dynet-seed", "12345"};
 	char** argv2 = const_cast<char**>(&argv[0]);
 	dynet::initialize(argc, argv2);
 	// 1. mach
@@ -103,6 +103,18 @@ void ModelDynet::write(const string& file)
 
 using namespace dynet::expr;
 using dynet::Dim;
+using dynet::Reshape;
+using dynet::VariableIndex;
+/* ----------------------------------------------------- */
+// special one to fix the unbatched reshape problem
+// y = reshape(x_1, --> to)
+struct SpecialReshape: public Reshape {
+	explicit SpecialReshape(const std::initializer_list<VariableIndex>& a, const Dim& to):Reshape(a, to){}
+	bool supports_multibatch() const override { return true; }
+};
+Expression sreshape(const Expression& x, const Dim& d) { return Expression(x.pg, x.pg->add_function<SpecialReshape>({x.i}, d)); }
+/* ----------------------------------------------------- */
+
 Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
 {
 	vector<Expression> weights;
@@ -115,7 +127,7 @@ Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
 	vector<Expression> them;
 	{
 		// temp check
-		int su = 0;
+		unsigned su = 0;
 		for(auto k : sp->embed_num)
 			su += k;
 		if(su != x[0]->size())
@@ -136,14 +148,15 @@ Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
 	}
 	// 2. concate and reshape
 	auto c0 = concatenate(them);
-	//cout << c0.value().d << endl;
+	// -- auto r_c0 = cg.get_value(c0);
 	unsigned batch_size = x.size();
-	auto h0 = reshape(c0, Dim({(unsigned)sp->layer_size[0]}, batch_size));
-	//cout << h0.value().d << endl;
+	// -- this is the problem (change batch) !! fix with self defined one !!
+	auto h0 = sreshape(c0, Dim({(unsigned)sp->layer_size[0]}, batch_size));
+	// -- 
+	// -- auto r_h0 = cg.get_value(h0);
 	// 3. forward next
 	for(unsigned i = 0; i < param_w.size(); i++){
 		h0 = weights[i] * h0 + biases[i];
-		//cout << h0.value().d << endl;
 		// currently no dropout
 		switch(sp->layer_act[i + 1]){
 		case LINEAR:
@@ -169,7 +182,7 @@ vector<Output> ModelDynet::forward(const vector<Input>& x)
 	auto pointer = cg.forward(results).v;
 	int outdim = sp->layer_size.back();
 	vector<Output> ret;
-	for(auto t : x){	// copy them
+	for(unsigned i = 0; i < x.size(); i++){	// copy them
 		Output one = new vector<REAL>(pointer, pointer+outdim);
 		ret.push_back(one);
 		pointer += outdim;

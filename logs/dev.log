@@ -16,3 +16,4 @@
 2016.10.10<dev-c>(dev1.6.5) Big change on State and StateTemp, now stabilize everyone.
 2016.10.11<dev-c>(dev1.6.6) [move-on] Next on the Model to finish, too lazy to check the current.
 2016.10.12<dev-c>(dev1.7) [dynet] Can run with ModelDynet, let us see the bugs.
+2016.10.13<dev-c>(dev1.8) [60%+] Can run at 60% acc on dev after first iter with default+beam6, need more test.

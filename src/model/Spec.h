@@ -17,15 +17,15 @@ private:
 	Spec() = default;
 public:
 	// layers: h*-s<size>-d<drop>-a<act>-i<init>
-	vector<int> layer_size;			// size
-	vector<int> layer_act;			// activation
+	vector<unsigned> layer_size;			// size
+	vector<unsigned> layer_act;			// activation
 	vector<REAL> layer_drop;	// dropout
 	vector<REAL> layer_initw;	// [-init, init] for the weight and bias below the layer
 	vector<REAL> layer_initb;	// bias and also for wv
 	// embeds: e*-o<outd>-i<ind>-n<num>
-	vector<int> embed_outd;	// dimension of embedding
-	vector<int> embed_ind;	// vocab's size
-	vector<int> embed_num;	// how many embed in one instance
+	vector<unsigned> embed_outd;	// dimension of embedding
+	vector<unsigned> embed_ind;	// vocab's size
+	vector<unsigned> embed_num;	// how many embed in one instance
 	// others(updates): o-<name>-value;
 	int update_mode{SGD};
 	REAL momemtum{0.8f};
