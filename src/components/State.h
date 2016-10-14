@@ -64,6 +64,7 @@ public:
 	virtual ~State() = default;
 	DP_PTR get_sentence(){ return sentence; }	// mainly for feeding the Feature
 	int get_rel_label(int i){ return partial_rels[i]; }
+	int get_head(int i){ return partial_heads[i]; }
 	// init one
 	static State* make_empty(DP_PTR s, int opt);
 	// later ones are expanded and stabilized
@@ -78,6 +79,7 @@ public:
 	// process in the Agenda part
 	REAL get_score() const{ return partial_score_all; }		// return base+penalty score
 	int get_doomed() const { return num_wrong_doomed; }
+	int get_wrong() const { return num_wrong_cur; }
 	bool is_correct() const{ return num_wrong_doomed == 0; }	// both structure and labels
 	// identifications for recombination
 	string get_repr(int mode, bool labeled);

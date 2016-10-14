@@ -96,7 +96,7 @@ void Spec::write(ostream& fout)
 {
 	fout << layer_size.size() << '\n';
 	for(unsigned i = 0; i < layer_size.size(); i++)
-		fout << layer_size[i] << ' ' << layer_act[i] << ' ' << layer_drop[i] << ' ' << layer_initw[i] << layer_initb[i] << '\n';
+		fout << layer_size[i] << ' ' << layer_act[i] << ' ' << layer_drop[i] << ' ' << layer_initw[i] << ' ' << layer_initb[i] << '\n';
 	fout << embed_outd.size() << '\n';
 	for(unsigned i = 0; i < embed_outd.size(); i++)
 		fout << embed_outd[i] << ' ' << embed_ind[i] << ' ' << embed_num[i] << '\n';
@@ -121,7 +121,7 @@ Spec* Spec::read(istream& fin)
 	one->embed_ind = vector<unsigned>(esize);
 	one->embed_num = vector<unsigned>(esize);
 	for(int i = 0; i < esize; i++)
-		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i] >> one->layer_initw[i] >> one->layer_initb[i];
+		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i];
 	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;
 	one->write(Logger::get_output());	// report
 	return one;

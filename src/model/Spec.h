@@ -28,7 +28,7 @@ public:
 	vector<unsigned> embed_num;	// how many embed in one instance
 	// others(updates): o-<name>-value;
 	int update_mode{SGD};
-	REAL momemtum{0.8f};
+	REAL momemtum{0.6f};
 	REAL weight_decay{1e-8f};
 	string memory{"1024"};
 	//

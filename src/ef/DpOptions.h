@@ -73,8 +73,7 @@ public:
 	int dim_d{30};
 	int dim_l{30};
 	//6. about training
-	double tr_lrate{0.01};		// initial learning rate
-	double tr_lrmul{0.5};		// lr decay rate
+	double tr_lrate{0.04};		// initial learning rate
 	int tr_iters{10};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)

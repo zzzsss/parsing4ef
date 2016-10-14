@@ -7,6 +7,8 @@
 
 int Agenda::num_explore = 0;
 int Agenda::num_drop = 0;
+int Agenda::token_num = 0;
+int Agenda::token_correct = 0;
 
 namespace{
 	bool TMP_cmp(const State* i, const State* j){ return (i->get_score() > j->get_score()); }
@@ -186,6 +188,16 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 // do the backprop once, here we don't care about lrate, setting as 1.0/div
 void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 {
+	// check the best one
+	{
+		auto s = ubeam[0];
+		auto sent = s->get_sentence();
+		token_num += sent->size() - 1;
+		for(int i = 1; i < sent->size(); i++){
+			if(s->get_head(i) == sent->get_head(i))	// unlabeled
+				token_correct++;
+		}
+	}
 	// should we divide it or not?
 	int div;
 	switch(opt->updatediv_mode){

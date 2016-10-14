@@ -93,7 +93,6 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(dim_d);
 		else TMP_assign_key(dim_l);
 		else TMP_assign_key(tr_lrate);
-		else TMP_assign_key(tr_lrmul);
 		else TMP_assign_key(tr_iters);
 		else TMP_assign_key(tr_cut);
 		else TMP_assign_key(tr_cut_times);

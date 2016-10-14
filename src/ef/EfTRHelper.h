@@ -11,7 +11,6 @@ private:
 	//
 	double lrate_init;		// init lr
 	double lrate_current;	// current lr
-	double lrate_multiply;	// lr mulply-value
 	int iters_all;			// the upper setting for #iters
 	int iters_current{0};	// how many iters finished
 	vector<double> scores{};
@@ -35,7 +34,7 @@ public:
 		bool this_cut = false;
 		bool this_best = false;
 		if((!scores.empty() && s < scores.back()) || (iters_current-last_cut_iter)>=tr_cut_iters){
-			lrate_current *= lrate_multiply;
+			lrate_current *= tr_cut;
 			last_cut_iter = iters_current;
 			this_cut = true;
 			total_cut_times++;
