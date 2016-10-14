@@ -9,6 +9,7 @@ int Agenda::num_explore = 0;
 int Agenda::num_drop = 0;
 int Agenda::token_num = 0;
 int Agenda::token_correct = 0;
+int Agenda::best_dropped = 0;
 
 namespace{
 	bool TMP_cmp(const State* i, const State* j){ return (i->get_score() > j->get_score()); }
@@ -75,14 +76,17 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 		}
 		// -- recording sth about gold only in training --
 		if(is_training && one->is_correct()){
-			if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){	// also do recombination for golds
+			if(!drop){
 				gold_repr.insert(one_repr);
-				if(drop)
-					dropped_golds.push_back(one);
-				else if(first_gold < 0){		// first undropped gold
+				if(first_gold < 0){		// first undropped gold
 					first_gold = beam.size() - 1;
 					no_gold_yet = false;
 				}
+			}
+			// also do recombination for golds
+			else if(opt->recomb_mode == RECOMB_NOPE || gold_repr.find(one_repr) == gold_repr.end()){	
+				gold_repr.insert(one_repr);
+				dropped_golds.push_back(one);
 			}
 		}
 		// stat
@@ -119,7 +123,10 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 				}
 				else{
 					first_gold = beam.size();
-					beam.insert(beam.end(), dropped_golds.begin(), dropped_golds.begin() + opt->gold_inum);
+					for(auto oneg = dropped_golds.begin(); oneg < dropped_golds.begin() + opt->gold_inum; oneg++){
+						(*oneg)->set_dropped();		// set dropped here
+						beam.push_back(*oneg);
+					}
 				}
 			}
 		}
@@ -188,9 +195,17 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 // do the backprop once, here we don't care about lrate, setting as 1.0/div
 void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 {
-	// check the best one
+	// check the best (no-dropped) one
 	{
-		auto s = ubeam[0];
+		auto s = ubeam.back();
+		for(auto *ss : ubeam){
+			if(!ss->is_dropped()){
+				s = ss;
+				break;
+			}
+		}
+		if(s != ubeam[0])
+			best_dropped++;
 		auto sent = s->get_sentence();
 		token_num += sent->size() - 1;
 		for(int i = 1; i < sent->size(); i++){
@@ -217,11 +232,19 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 	// about the loss
 	vector<State*> to_update;
 	vector<REAL> to_grads;
-	switch(opt->update_mode){	// the first two must need gold ones !!
+	switch(opt->loss_mode){	// the first two must need gold ones !!
 	case LOSS_PERCEPTRON:	// loss = best - gold
 	{
-		// TODO: do we need to update for all the golds?
-		State* best = ubeam[0];
+		// need to find the undropped best !!
+		State* best = nullptr;
+		for(auto* x : ubeam){
+			if(!x->is_dropped()){
+				best = x;
+				break;
+			}
+		}
+		if(!best)	// what if all are from the dropped ones
+			best = ubeam[0];
 		State* gold = nullptr;
 		for(auto* x : ubeam){
 			if(x->is_correct()){
@@ -247,8 +270,13 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		to_grads = vector<REAL>{};
 		REAL exp_all = 0;
 		REAL exp_gold = 0;
+		REAL max_score = ubeam[0]->get_score();
 		for(auto* x : ubeam){
-			REAL one_exp = exp(x->get_score());
+			if(x->get_score() > max_score)
+				max_score = x->get_score();
+		}
+		for(auto* x : ubeam){
+			REAL one_exp = exp(x->get_score() - max_score);	// safe exp
 			to_grads.push_back(one_exp);
 			exp_all += one_exp;
 			if(x->is_correct())
@@ -274,7 +302,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		vector<int> distribution;
 		for(auto* x : ubeam){
 			unsigned doom = x->get_doomed();
-			while(doom <= distribution.size())
+			while(distribution.size() <= doom)
 				distribution.push_back(0);
 			distribution[doom] ++;
 		}

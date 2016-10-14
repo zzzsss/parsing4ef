@@ -44,6 +44,8 @@ void EfParser::train()
 		do_train(corpus_train, &helper);
 		model->report_and_reset();
 		Searcher::report_and_reset_all();
+		if(!options.file_model_curr_suffix.empty())
+			model->write(options.file_model + options.file_model_curr_suffix);
 		double cur_s = do_dev_test(corpus_dev, corpus_dev, options.file_output_dev, options.file_dev);
 		if(helper.end_iter_save(cur_s))
 			model->write(options.file_model);
@@ -51,6 +53,7 @@ void EfParser::train()
 		Searcher::report_and_reset_all();
 		ACCRECORDER_REPORT();
 	}
+	helper.report();
 }
 
 void EfParser::test()
@@ -80,7 +83,10 @@ void EfParser::evaluate()
 // init
 EfParser::EfParser(int argc, char** argv): options(argc, argv)
 {
-	srand(12345);	// fix this
+	srand(12345);	// fix this to a constant
+	for(int i = 0; i < argc; i++)
+		Logger::get_output() << argv[i] << '\t';
+	Logger::get_output() << endl;
 }
 
 double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold)

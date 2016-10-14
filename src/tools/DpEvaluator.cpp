@@ -205,6 +205,8 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 		printf("Labeled Accuracy No Punc Non Root: %.2lf%%\n", ((double)corrLNoPunc_non_root) * 100 / totalNoPunc_non_root);
 	}
 	*/
+	free_corpus(gold);
+	free_corpus(pred);
 	return ((double)corr) / total;
 }
 

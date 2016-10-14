@@ -8,7 +8,7 @@ using namespace std;
 using REAL = float;	// same as Model.h
 
 enum LAYER_ACT{ LINEAR, TANH };
-enum UPDATE_MODE{ SGD };
+enum UPDATE_MODE{ SGD, ADAGRAD };
 
 // the specifications for the model
 // -- currently only support single digit, can overwrite, but must be sequential (h1 must follow h0)

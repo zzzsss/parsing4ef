@@ -169,15 +169,27 @@ Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 	for(unsigned i = 0; i < vn.size(); i++){
 		int cur = vn[i];
 		int range = spans[i];
-		for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
-			ret.push_back(settle_word(sent->get_index_w(j)));
+		if(cur == NON_EXIST){	// !! [once a bug] remember to check this !!
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)
+				ret.push_back(settle_word(NON_EXIST));
+		}
+		else{
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
+				ret.push_back(settle_word(sent->get_index_w(j)));
+		}
 	}
 	// pos
 	for(unsigned i = 0; i < vn.size(); i++){
 		int cur = vn[i];
 		int range = spans[i];
-		for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
-			ret.push_back(settle_word(sent->get_index_p(j)));
+		if(cur == NON_EXIST){	// !! [once a bug] remember to check this !!
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)
+				ret.push_back(settle_word(NON_EXIST));
+		}
+		else{
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
+				ret.push_back(settle_word(sent->get_index_p(j)));
+		}
 	}
 	// distance -- calculate now
 	for(unsigned i = 0; i < distance_pairs.size(); i++){

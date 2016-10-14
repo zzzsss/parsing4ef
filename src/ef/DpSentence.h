@@ -93,5 +93,10 @@ using DP_PTR = DpSentence*;
 using DPS_PTR = vector<DP_PTR>*;
 extern DPS_PTR read_corpus(string file);
 extern void write_corpus(DPS_PTR instances, string file);
+inline void free_corpus(DPS_PTR f){
+	for(auto* p : *f)
+		delete p;
+	delete f;
+}
 
 #endif

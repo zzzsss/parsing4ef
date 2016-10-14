@@ -11,6 +11,7 @@
 using dynet::ParameterInitUniform;
 using dynet::SimpleSGDTrainer;
 using dynet::MomentumSGDTrainer;
+using dynet::AdagradTrainer;
 void ModelDynet::create_model()
 {
 	// 0. init
@@ -40,6 +41,11 @@ void ModelDynet::create_model()
 			trainer = new SimpleSGDTrainer(mach, 1);
 		else
 			trainer = new MomentumSGDTrainer(mach, 1, sp->momemtum);
+		break;
+	}
+	case ADAGRAD:
+	{
+		trainer = new AdagradTrainer(mach, 1);
 		break;
 	}
 	default:

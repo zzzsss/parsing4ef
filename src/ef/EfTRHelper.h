@@ -50,6 +50,13 @@ public:
 	}
 	double get_lrate(){ return lrate_current; }
 	int get_iter(){ return iters_current; }
+	void report(){
+		ostream& fout = Logger::get_output();
+		fout << "-- Finish training: Best/All:" << best_iter << "/" << iters_current << " [";
+		for(auto x : scores)
+			fout << x << ",";
+		fout << "]" << endl;
+	}
 };
 
 #endif // !_EF_EFTRHELPER

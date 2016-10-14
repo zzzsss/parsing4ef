@@ -12,6 +12,7 @@ class Agenda{
 	static int num_drop;
 	static int token_num;
 	static int token_correct;
+	static int best_dropped;	// only in learning, the best is originally dropped
 private:
 	// --- states ---
 	vector<State*> records;		//for final releasing
@@ -49,11 +50,14 @@ public:
 	vector<State*> rank_them(vector<StateTemp>& them, Scorer& scer);
 	State* get_best(){ return last_beam[0]; }
 	static void report_and_reset(){
+		if(token_num == 0)	// avoid div 0
+			token_num = 1;
 		double rate = (token_correct + 0.0) / token_num;
 		Logger::get_output() << "- state drop/all:" << num_drop << "/" << num_explore 
-			<< "[" << token_correct << " / " << token_num << " / " << rate << "]" << endl;
+			<< "-- [" << token_correct << " / " << token_num << " / " << rate << "] --bgd:" << best_dropped << endl;
 		num_drop = num_explore = 0;
 		token_num = token_correct = 0;
+		best_dropped = 0;
 	}
 };
 

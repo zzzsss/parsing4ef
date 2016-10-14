@@ -46,6 +46,7 @@ public:
 	string file_dict{"dictionary.txt"};	// to build for training or to load for testing
 	string file_tdict{""};				// to load for training (train-dict)
 	string file_model{"model.mach"};	// to build and save best for training and to load for testing
+	string file_model_curr_suffix{".curr"};		// "" if nope
 	string file_tmodel{""};				// to load for training (train-init-model)
 	//2. about dictionary
 	int dict_remove{2};		//remove words appears < this times; [default 2 (remove 1 time)]
@@ -74,7 +75,7 @@ public:
 	int dim_l{30};
 	//6. about training
 	double tr_lrate{0.04};		// initial learning rate
-	int tr_iters{10};			// training iterations
+	int tr_iters{12};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)
 	int tr_cut_iters{3};		// force cut if no cutting for how many iters

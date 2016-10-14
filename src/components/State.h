@@ -44,6 +44,8 @@ protected:
 	int num_arc{0};
 	int num_wrong_cur{0};		//only record when training
 	int num_wrong_doomed{0};	//doomed wrong arcs
+	// new one for recording dropped gold
+	bool dropped{false};		// whether it has been dropping (now only used for gold in training)
 	// special
 	virtual int calculate_destiny() = 0;	// for num_wrong_doomed at the last step of transform
 
@@ -105,6 +107,9 @@ public:
 		}
 		return n;
 	}
+	// dropped gold
+	bool is_dropped(){ return dropped; }
+	void set_dropped(){ dropped = true; }
 };
 
 // EasyFirst-Stdandard
