@@ -33,3 +33,4 @@
 	-- Add save curr model after each iteration.
 	-- [Problem]: unkown stop when dev-testing for a-crf loss (NAN problem).
 	-- [Fix]: exp too large, need to minus the largest one (safe exp).
+2016.10.15<dev-r>(dev1.10.1) Slightly change, add TE-WMU update mode.

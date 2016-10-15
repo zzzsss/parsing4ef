@@ -183,6 +183,10 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 			}
 		}
 		break;
+	case UPDATE_END_WMU:	// update at the end and gold-all-dropped time
+		if(finished || no_gold)
+			backp_beam(curr_beam, scer);
+		break;
 	default:
 		Logger::Error("Unkonw update(backprop) mode.");
 		break;

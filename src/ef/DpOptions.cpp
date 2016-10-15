@@ -8,7 +8,7 @@ namespace{
 	unordered_map<string, vector<string>> TMP_description = {
 		{"ef", vector<string>{"standard", "eager"}},
 		{"loss", vector<string>{"perceptron", "a-crf", "special"}},
-		{"update", vector<string>{"till-end", "max-violation", "early-update", "restart"}},
+		{"update", vector<string>{"till-end", "max-violation", "early-update", "restart", "till-end-WithMultiUpdates"}},
 		{"updatediv", vector<string>{"one", "current_len", "sentence_len"}},
 		{"recomb", vector<string>{"nope", "strict", "spine", "spine2", "topc", "topc2", "top"}}
 	};
