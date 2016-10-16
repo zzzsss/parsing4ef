@@ -28,5 +28,6 @@
 *.app
 
 .vs
-Debug
+Debug*
 parsing4ef.*
+src/dynet
