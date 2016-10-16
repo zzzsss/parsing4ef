@@ -1,0 +1,20 @@
+How to build with cuda and mkl:
+
+[plain/cuda]
+git clone https://github.com/clab/dynet.git
+hg clone https://bitbucket.org/eigen/eigen/
+cd dynet/
+mkdir build
+cd build
+cmake .. -DEIGEN3_INCLUDE_DIR=../eigen -DBACKEND=cuda
+make -j 2
+
+[mkl]
+cmake .. -DEIGEN3_INCLUDE_DIR=../eigen -DCMAKE_CXX_FLAGS=-DEIGEN_USE_MKL_ALL -DLIBS='-lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread'
+
+[on order machine]
+cmake .. -DEIGEN3_INCLUDE_DIR=../eigen -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_COMPILER=gcc-4.8
+
+
+g++-4.9 -I /home/zhangzs/bin/dynet/ -I /home/zhangzs/bin/eigen/ -std=c++11 src/*/*.cpp src/main.cpp -L /home/zhangzs/bin/dynet/build-mkl/dynet/ -ldynet -lboost_regex -lboost_program_options -lboost_serialization -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread 
+LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/zhangzs/bin/dynet/build-mkl/dynet/ ../../ef/a.out

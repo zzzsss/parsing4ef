@@ -30,4 +30,5 @@
 .vs
 Debug*
 parsing4ef.*
+obj/*.o
 src/dynet
