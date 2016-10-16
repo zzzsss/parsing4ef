@@ -51,8 +51,11 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 		bool drop = false;
 		string one_repr = "";
 		string one_repr_unlabel = "";
+		// -- force drop when training (only training has dropped ones in the beam)
+		if(opt->drop_is_drop > 0 && one->is_dropped())
+			drop = true;
 		// first check recombination -- with label
-		if(opt->recomb_mode != RECOMB_NOPE){
+		if(!drop && opt->recomb_mode != RECOMB_NOPE){
 			one_repr = one->get_repr(opt->recomb_mode, true);
 			if(beam_repr.find(one_repr) != beam_repr.end())
 				drop = true;
@@ -332,23 +335,32 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			else
 				distance.push_back(0.0f);
 		}
+		// -- safe exp, find max abs (both abs)
+		REAL max_positive = 0;
+		REAL max_negative = 0;
+		for(auto r : distance){
+			if(r > 0)
+				max_positive = std::max(max_positive, r);
+			else if(r < 0)
+				max_negative = std::max(max_negative, 0-r);
+		}
 		// -- finally the gradient
 		REAL exp_all_plus = 0, exp_all_minus = 0;
 		for(auto r : distance){
 			if(r > 0)
-				exp_all_plus += exp(r);
+				exp_all_plus += exp(r-max_positive);
 			else if(r < 0)
-				exp_all_minus += exp(0-r);
+				exp_all_minus += exp(0-r-max_negative);
 		}
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			REAL one = distance[i];
 			if(one > 0){
 				to_update.push_back(ubeam[i]);
-				to_grads.push_back(0 - exp(one) / exp_all_plus);
+				to_grads.push_back(0 - exp(one-max_positive) / exp_all_plus);
 			}
 			else if(one < 0){
 				to_update.push_back(ubeam[i]);
-				to_grads.push_back(exp(0-one) / exp_all_minus);
+				to_grads.push_back(exp(0-one-max_negative) / exp_all_minus);
 			}
 		}
 		break;

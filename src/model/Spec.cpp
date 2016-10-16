@@ -75,6 +75,10 @@ Spec::Spec(const string& mss)
 				momemtum = dp_str2num<REAL>(fields[2]);
 			else if(fields[1] == "memory")
 				memory = fields[2];
+			else if(fields[1] == "update_mode")
+				update_mode = dp_str2num<int>(fields[2]);
+			else
+				Logger::Error(string("mss ERROR, unkown field") + s);
 			break;
 		}
 		default: Logger::Error(string("mss ERROR, unkown field") + s);

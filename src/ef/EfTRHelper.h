@@ -45,6 +45,7 @@ public:
 			this_best = true;
 		}
 		Logger::get_output() << "- End of Iteration " << iters_current << ", cut/save-best: " << this_cut << "/" << this_best << endl;
+		scores.push_back(s);
 		iters_current++;
 		return this_best;
 	}

@@ -27,10 +27,16 @@
 2016.10.14<dev-c>(dev1.9) [90%+] Can run 90% at dev with early-update (before fixing the NON_EXIST bug).
 2016.10.15:
 	- Problem: with till_the_end+margin, can not learn at the first steps.(PERCP-update should with un-dropped best).
-2016.10.15<dev-r>(dev1.10) [rc1] RC1, seems some part is fine.
+2016.10.15<dev-c>(dev1.10) [loss here] Seems some part is fine.
 	-- Add is_dropped(), see could this help perceptron.
 	-- Seems ok with arc-std+strict-recomb+margin+*+perceptron, now testing.
 	-- Add save curr model after each iteration.
 	-- [Problem]: unkown stop when dev-testing for a-crf loss (NAN problem).
 	-- [Fix]: exp too large, need to minus the largest one (safe exp).
-2016.10.15<dev-r>(dev1.10.1) Slightly change, add TE-WMU update mode.
+2016.10.15<dev-c>(dev1.10.1) Slightly change, add TE-WMU update mode.
+2016.10.16:
+	-- Add an option of drop_is_drop, to force drop in training.
+	-- Current default hyper-params: margin1.0, udiv-cur, beam(2/4/8), recomb-strict, g-inum1, 50/30/30/30, 0.04-0.6-12-cut3-mb2, drop_is_drop:0
+	-- safe exp for loss-rank.
+	-- add iter-Changable options.
+2016.10.16<dev-r>(dev1.11) [RC1] now explore those (efstd may be ok).

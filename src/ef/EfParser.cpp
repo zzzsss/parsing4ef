@@ -41,6 +41,7 @@ void EfParser::train()
 	while(helper.keepon()){
 		ACCRECORDER_RESET("training");
 		Recorder TMP_recorder{string("one-iter")};
+		options.change_self(helper.get_iter());
 		do_train(corpus_train, &helper);
 		model->report_and_reset();
 		Searcher::report_and_reset_all();

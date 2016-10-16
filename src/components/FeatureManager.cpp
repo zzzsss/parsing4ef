@@ -15,13 +15,13 @@ namespace{
 		}
 		// basic shortcuts
 		string base_std = "m-5|mn1-3|mf1-3|mn2-3|mt1-3|mt2-1|mt3-1|h-5|hn1-3|hf1-3|hn2-3|ht1-3|ht2-1|ht3-1";
-		string base_eager = base_std + "|hp1|hp1n2|hp2";
+		string base_eager = base_std + "|hp1-3|hp1n2-1|hp2-1";
 		string base_distance = "|d-m-h|";
 		string base_label = "|l-mn1|l-hn1|";
 		string one;
-		if(s == "efstd")
+		if(s.empty() || s == "efstd")	// default
 			one = base_std + base_distance + base_label;
-		else if(s == "sfeager")
+		else if(s == "efeager")
 			one = base_eager + base_distance + base_label;
 		else
 			one = s;

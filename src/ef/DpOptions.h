@@ -53,7 +53,7 @@ public:
 	int dict_reorder{1};	//whether re-order the words according to frequency; [default True]
 	//3. about transition & features
 	int ef_mode{EF_STD};		//ef_std or ef_eager or ... (State)
-	string fss{"efstd"};			//feature specifier: see FeatureManager for details (may repeat it and can overwrite)
+	string fss{""};				//feature specifier: see FeatureManager for details (may repeat it and can overwrite)
 	//4. about searching
 	//4.1 training schemes
 	double margin{1.0};		// margin for the scores
@@ -67,6 +67,7 @@ public:
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
+	int drop_is_drop{0};		// force drop when training
 	//5. about model
 	string mss{""};			//model specifier: see model/Spec.h for details
 	int dim_w{50};			// dimensions of embedding for word,pos,distance,label
@@ -81,9 +82,13 @@ public:
 	int tr_cut_iters{3};		// force cut if no cutting for how many iters
 	double tr_sample{0.95};		// sample rate, skip sentence randomly by (1-tr_sample)
 	int tr_minibatch{2};		// number of sentences before one update
-
+	//7. changes
+	// string of changes (change at the beginning of iter): FORMAT: [change:<num>:c1|c2|...]
+	vector<string> iter_changes{};	
 	// Initialization
 	DpOptions(int argc, char** argv);
+	// change
+	void change_self(int iter);
 };
 
 #endif

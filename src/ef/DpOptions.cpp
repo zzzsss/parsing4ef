@@ -7,7 +7,7 @@ namespace{
 	// get description of modes, also checking (these will throw if wrong mode)
 	unordered_map<string, vector<string>> TMP_description = {
 		{"ef", vector<string>{"standard", "eager"}},
-		{"loss", vector<string>{"perceptron", "a-crf", "special"}},
+		{"loss", vector<string>{"perceptron", "a-crf", "reorder"}},
 		{"update", vector<string>{"till-end", "max-violation", "early-update", "restart", "till-end-WithMultiUpdates"}},
 		{"updatediv", vector<string>{"one", "current_len", "sentence_len"}},
 		{"recomb", vector<string>{"nope", "strict", "spine", "spine2", "topc", "topc2", "top"}}
@@ -77,7 +77,10 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(dict_remove);
 		else TMP_assign_key(dict_reorder);
 		else TMP_assign_key(ef_mode);
-		else if(key == "fss") fss = fss + '|' + value;	// special one append
+		else if(key == "fss"){
+			string x = fss.empty() ? "" : "|";
+			fss = fss + x + value;	// special one append
+		}
 		else TMP_assign_key(margin);
 		else TMP_assign_key(update_mode);
 		else TMP_assign_key(updatediv_mode);
@@ -87,7 +90,11 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(beam_all);
 		else TMP_assign_key(recomb_mode);
 		else TMP_assign_key(gold_inum);
-		else if(key == "mss") mss = mss + '|' + value;	// special one append
+		else TMP_assign_key(drop_is_drop);
+		else if(key == "mss"){
+			string x = mss.empty() ? "" : "|";
+			mss = mss + x + value;	// special one append
+		}
 		else TMP_assign_key(dim_w);
 		else TMP_assign_key(dim_p);
 		else TMP_assign_key(dim_d);
@@ -99,7 +106,9 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(tr_cut_iters);
 		else TMP_assign_key(tr_sample);
 		else TMP_assign_key(tr_minibatch);
-		else Logger::Error(string("Unknown key") + key + ":" + value);
+		else if(key == "changes")
+			iter_changes.push_back(value);
+		else Logger::Error(string("Unknown key ") + key + ":" + value);
 	}
 }
 
@@ -138,12 +147,52 @@ void DpOptions::check_and_report()
 		<< TMP_get_desc("updatediv", updatediv_mode) << "/" << TMP_get_desc("loss", loss_mode) << endl;
 	printer << "-4.2: searching-beam:" << beam_flabel << "/" << beam_div << "/" << beam_all << "/"
 		<< TMP_get_desc("recomb", recomb_mode) << endl;
-	printer << "-4.3: searching-insert:" << gold_inum << endl;
+	printer << "-4.3: searching-insert/drop:" << gold_inum << "/" << drop_is_drop << endl;
 	if(gold_inum <= 0 && loss_mode != LOSS_IMRANK)
 		errorer("For current loss, inum should >0.");
+	if(drop_is_drop > 0){	// check
+		switch(update_mode){
+		case UPDATE_EU: Logger::Warn("drop_is_drop will not affect EU."); break;
+		case UPDATE_RESTART: errorer("drop_is_drop should be off for UPDATE_RESTART."); break;
+		default: break;
+		}
+	}
 	// 5. model
 	printer << "-5: model:" << mss << endl;
 	// 6. training
+	printer << "-6: training: " << "lr/iter/cut-iter/mbatch " << tr_lrate << "/" << tr_iters 
+		<< "/" << tr_cut_iters << "/" << tr_minibatch << "/" << endl;
+	// 7. changes --- check them
+	printer << "-7: changes: ";
+	for(auto& s: iter_changes){
+		auto them = dp_split(s, ':', 1);
+		if(them.size() != 2)	
+			errorer(string("Illegal change: ") + s);
+		if(dp_str2num<int>(them[0]) >= tr_iters)
+			errorer(string("Illegal change iter: ") + them[0]);
+		printer << them[0] << "-c-" << them[1] << '\t';
+	}
 	// ... skip
 	printer << "------------" << endl;
+}
+
+// this only has effect for the options's own parameters, not for fss,mss,tr_*,
+// -- but, why change those
+void DpOptions::change_self(int iter)
+{
+	vector<pair<string, string>> ps;
+	for(auto& s : iter_changes){
+		auto them = dp_split(s, ':', 1);
+		int it = dp_str2num<int>(them[0]);
+		if(iter == it){	// hit
+			auto those = dp_split(them[1], '|');
+			for(auto& x : those){
+				auto one_split = dp_split(x, ':', 1);
+				ps.emplace_back(std::make_pair(one_split[0], one_split[1]));
+			}
+		}
+	}
+	for(auto& x : ps)
+		Logger::get_output() << "-- Change options at iter " << iter << ": " << x.first << "=>" << x.second << endl;
+	init(ps);
 }
