@@ -40,3 +40,6 @@
 	-- safe exp for loss-rank.
 	-- add iter-Changable options.
 2016.10.16<dev-r>(dev1.11) [RC1] now explore those (efstd may be ok).
+2016.10.17<dev-c>(dev1.11.1) Fix a small bug.
+	- Now let's see what are the strategies: (when gold drops or at the end) to update, to stop searching, alter beam (keep gold)
+	- update-strategy * loss * margin.
