@@ -60,6 +60,9 @@ public:
 	int update_mode{UPDATE_END};		// update strategies (Agenda)
 	int updatediv_mode{UPDATEDIV_CUR};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)
+	//4.1.1 about rloss --- exp(x^\alpha) [default: exp(x)]
+	int rloss_exp{1};
+	double rloss_alpha{1.0};
 	//4.2 beam sizes && recombination option
 	unsigned beam_flabel{2};		// first filter for labels, which controls diversity on one beam
 	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure

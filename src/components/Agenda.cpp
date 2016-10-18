@@ -13,6 +13,8 @@ int Agenda::best_dropped = 0;
 
 namespace{
 	bool TMP_cmp(const State* i, const State* j){ return (i->get_score() > j->get_score()); }
+	float TMP_function_exp(float r, float minus){return exp(r - minus); }
+	float TMP_function_nope(float r, float minus){return r; }
 }
 
 // one of the most important ones, deciding the beam at one time
@@ -305,7 +307,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 	}
 	case LOSS_IMRANK:		// calculate move-up/down scores and normalize with exponention, implicit ranking loss
 	{
-		// -- first distribution sort on real loss (doomed-error)
+		// -- 1. first distribution sort on real loss (doomed-error)
 		vector<int> distribution;
 		for(auto* x : ubeam){
 			unsigned doom = x->get_doomed();
@@ -321,7 +323,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			accum += distribution[i];
 			place_down[i] = accum - 1;
 		}
-		// -- next collect the stats
+		// -- 2. next collect the stats
 		vector<REAL> distance;
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			// i is real place, [place_up[doom], place_down[doom]] is the target
@@ -335,7 +337,17 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			else
 				distance.push_back(0.0f);
 		}
-		// -- safe exp, find max abs (both abs)
+		// -- 2.5, alpha
+		if(opt->rloss_alpha != 1.0){
+			for(unsigned i = 0; i < distance.size(); i++){
+				REAL one = distance[i];
+				if(one > 0)
+					distance[i] = static_cast<REAL>(std::pow(one, opt->rloss_alpha));
+				else if(one < 0)
+					distance[i] = static_cast<REAL>(-1*std::pow(-1*one, opt->rloss_alpha));
+			}
+		}
+		// -- 3. safe exp, find max abs (both abs)
 		REAL max_positive = 0;
 		REAL max_negative = 0;
 		for(auto r : distance){
@@ -344,23 +356,27 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			else if(r < 0)
 				max_negative = std::max(max_negative, 0-r);
 		}
-		// -- finally the gradient
+		// -- 4. finally the gradient
 		REAL exp_all_plus = 0, exp_all_minus = 0;
+		auto TMP_function = &TMP_function_nope;		// select which to use
+		if(opt->rloss_exp)
+			TMP_function = &TMP_function_exp;
+		// --
 		for(auto r : distance){
 			if(r > 0)
-				exp_all_plus += exp(r-max_positive);
+				exp_all_plus += (*TMP_function)(r, max_positive);
 			else if(r < 0)
-				exp_all_minus += exp(0-r-max_negative);
+				exp_all_minus += (*TMP_function)(-r, max_negative);
 		}
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			REAL one = distance[i];
 			if(one > 0){
 				to_update.push_back(ubeam[i]);
-				to_grads.push_back(0 - exp(one-max_positive) / exp_all_plus);
+				to_grads.push_back(0 - (*TMP_function)(one, max_positive) / exp_all_plus);
 			}
 			else if(one < 0){
 				to_update.push_back(ubeam[i]);
-				to_grads.push_back(exp(0-one-max_negative) / exp_all_minus);
+				to_grads.push_back((*TMP_function)(-one, max_negative) / exp_all_minus);
 			}
 		}
 		break;

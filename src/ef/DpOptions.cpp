@@ -85,6 +85,8 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(update_mode);
 		else TMP_assign_key(updatediv_mode);
 		else TMP_assign_key(loss_mode);
+		else TMP_assign_key(rloss_exp);
+		else TMP_assign_key(rloss_alpha);
 		else TMP_assign_key(beam_flabel);
 		else TMP_assign_key(beam_div);
 		else TMP_assign_key(beam_all);
@@ -145,6 +147,7 @@ void DpOptions::check_and_report()
 	// 4. searching
 	printer << "-4.1: searching-scheme:" << margin << "/" << TMP_get_desc("update", update_mode) << "/"
 		<< TMP_get_desc("updatediv", updatediv_mode) << "/" << TMP_get_desc("loss", loss_mode) << endl;
+	printer << "-4.1.1: rloss-mode:" << rloss_exp << "/" << rloss_alpha << endl;
 	printer << "-4.2: searching-beam:" << beam_flabel << "/" << beam_div << "/" << beam_all << "/"
 		<< TMP_get_desc("recomb", recomb_mode) << endl;
 	printer << "-4.3: searching-insert/drop:" << gold_inum << "/" << drop_is_drop << endl;
