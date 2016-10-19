@@ -3,6 +3,7 @@
 #include "../ef/DpOptions.h"
 #include "../tools/DpTools.h"
 #include <sstream>
+#include <queue>
 
 const int State::NOPE_YET = -1;
 
@@ -62,12 +63,12 @@ vector<StateTemp> EfeagerState::expand()
 }
 
 //2. get representation -- for recombination in searching
-// TODO: special decoding: assuming the sentence length is smaller than 255, and sometimes '0' as separator
+// TODO: special decoding: assuming the sentence length is smaller than 255, and sometimes '|' as separator
 string State::get_repr(int mode, bool labeled)
 {
 	string tmp_str;
 	bool use_c2 = false;	// use second child?
-	int cdepth = -1;		// -1 means whole spine, it can never go down to 0
+	int cdepth = 10000;		// large enough?
 	switch(mode){
 	case RECOMB_STRICT:
 	{
@@ -90,30 +91,37 @@ string State::get_repr(int mode, bool labeled)
 		int cur = 0;
 		while(cur != NOPE_YET){
 			tmp_str += cur;
-			// left or right
-			const int step = 2;
-			auto them = vector<vector<int>*>{&ch_left, &ch_left2, &ch_right, &ch_right2};
-			for(unsigned i = 0; i < them.size(); i+=step){
-				vector<int>& ch1 = *(them[i]);
-				vector<int>& ch2 = *(them[i+1]);
-				int tmp_depth = cdepth;
-				int iter = ch1[cur];
-				int iter2 = ch2[cur];
-				while(tmp_depth != 0 && iter != NOPE_YET){
-					tmp_str += iter;
-					if(use_c2)
-						tmp_str += iter2;
-					if(labeled){
-						tmp_str += partial_rels[iter];
-						if(use_c2)
-							tmp_str += partial_rels[iter2];
-					}
-					iter2 = ch2[iter];
-					iter = ch1[iter];
-					tmp_depth--;
+			// for left and right nodes
+			queue<pair<int, int>> qu;	// pair of <index, depth>
+			qu.push(make_pair(cur, 0));
+			if(ch_left[cur] != NOPE_YET)
+				qu.push(make_pair(ch_left[cur], 1));
+			if(ch_right[cur] != NOPE_YET)
+				qu.push(make_pair(ch_right[cur], 1));
+			while(!qu.empty()){
+				auto one = qu.front();
+				qu.pop();
+				// skip the childs
+				if(one.second >= cdepth)
+					continue;
+				// add 2 or 4
+				auto them = vector<int>{ch_left[one.first], ch_right[one.first]};
+				if(use_c2){
+					them.push_back(ch_left2[one.first]);
+					them.push_back(ch_right2[one.first]);
 				}
-				tmp_str += '0';		// as separator
+				for(auto x : them){
+					tmp_str += x;
+					if(labeled)
+						tmp_str += ((x == NOPE_YET) ? NOPE_YET : partial_rels[x]);
+				}
+				// next -- not for cur
+				if(one.first < cur && ch_left[one.first] != NOPE_YET)
+					qu.push(make_pair(ch_left[one.first], one.second+1));
+				else if(one.first > cur && ch_right[one.first] != NOPE_YET)
+					qu.push(make_pair(ch_right[one.first], one.second + 1));
 			}
+			tmp_str += '|';		// as separator
 			// move right
 			cur = nb_right[cur];
 		}
