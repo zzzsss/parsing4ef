@@ -51,6 +51,7 @@ public:
 		Logger::get_output() << "- this time f/b:" << num_forw << "/" << num_back << endl;
 		num_forw = num_back = 0;
 	};
+	void new_graph() override{}
 };
 
 

@@ -19,6 +19,7 @@ using Output = vector<REAL>*;
 class ModelZ{
 public:
 	virtual ~ModelZ(){}
+	virtual void new_graph() = 0;
 	virtual vector<Output> forward(const vector<Input>& x) = 0;
 	virtual void backward(const vector<Input>& in, const vector<int>&index, const vector<REAL>&grad) = 0;
 	virtual void update(const REAL lr) = 0;

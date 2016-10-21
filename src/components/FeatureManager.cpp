@@ -2,7 +2,10 @@
 #include "State.h"
 #include "../tools/DpTools.h"
 
+// trying some features
+extern unordered_map<string, string> TMP_TRYING_FSS;
 namespace{
+	
 	// default options
 	inline string TMP_get_fss(const string& ss){
 		auto two = dp_split(ss, '|', 1);
@@ -23,6 +26,8 @@ namespace{
 			one = base_std + base_distance + base_label;
 		else if(s == "efeager")
 			one = base_eager + base_distance + base_label;
+		else if(TMP_TRYING_FSS.find(s) != TMP_TRYING_FSS.end())
+			one = TMP_TRYING_FSS[s];
 		else
 			one = s;
 		return one + '|' + rest;

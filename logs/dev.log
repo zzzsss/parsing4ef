@@ -45,4 +45,5 @@
 	- update-strategy * loss * margin.
 2016.10.18<dev-c>(dev1.11.2) RankingLoss includes more functions.
 	- Now it can be exp(x^alpha) or x^alpha.
-2016.10.19<dev-c>(dev.1.11.3) Refine the recom-repr part.
+2016.10.19<dev-c>(dev1.11.3) Refine the recom-repr part.
+2016.10.21<dev-c>(dev1.11.4) Really need to tune the features a little?? Or need to add more complex nn??
