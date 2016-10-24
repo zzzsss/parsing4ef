@@ -8,7 +8,7 @@ using namespace std;
 using REAL = float;	// same as Model.h
 
 enum LAYER_ACT{ LINEAR, TANH };
-enum UPDATE_MODE{ SGD, ADAGRAD };
+enum TR_UPDATE_MODE{ SGD, ADAGRAD };
 
 // the specifications for the model
 // -- currently only support single digit, can overwrite, but must be sequential (h1 must follow h0)
@@ -31,6 +31,9 @@ public:
 	REAL momemtum{0.6f};
 	REAL weight_decay{1e-8f};
 	string memory{"1024"};
+	unsigned blstm_size{0};	// forward + backward: all size
+	unsigned blstm_layer{1};
+	int blstm_remainembed{1};	//remain original embed for words and pos?
 	//
 	Spec(const string& mss);	// plus default mss
 	void write(ostream& fout);

@@ -57,6 +57,9 @@ public:
 	//4. about searching
 	//4.1 training schemes
 	double margin{1.0};		// margin for the scores
+	int mloss_struct{2};
+	int mloss_labels{1};
+	int mloss_future{1};
 	int update_mode{UPDATE_END};		// update strategies (Agenda)
 	int updatediv_mode{UPDATEDIV_CUR};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)

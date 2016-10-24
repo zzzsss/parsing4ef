@@ -33,7 +33,8 @@ public:
 		// first for lrate
 		bool this_cut = false;
 		bool this_best = false;
-		if((!scores.empty() && s < scores.back()) || (iters_current-last_cut_iter)>=tr_cut_iters){
+		//<remove the first condition>if((!scores.empty() && s < scores.back()) || (iters_current-last_cut_iter)>=tr_cut_iters){
+		if((iters_current - last_cut_iter) >= tr_cut_iters){
 			lrate_current *= tr_cut;
 			last_cut_iter = iters_current;
 			this_cut = true;

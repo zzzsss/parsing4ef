@@ -37,6 +37,7 @@ void Searcher::ef_search(DP_PTR one)
 	State* start = State::make_empty(one, options->ef_mode);
 	vector<State*> beam = the_agenda.init(start);
 	// start the searching
+	the_scorer.build_sentence(one);		// for lstm repr.
 	num_sent++;
 	num_token += one->size() - 1;
 	while(!beam.empty()){
@@ -86,4 +87,10 @@ void Searcher::report_and_reset_all()
 	// static methods, for reporting stat
 	Scorer::report_and_reset();
 	Agenda::report_and_reset();
+}
+
+void Searcher::init_all(DpOptions* opt)
+{
+	// do some inits
+	State::init_loss(opt->mloss_struct, opt->mloss_labels, opt->mloss_future);
 }

@@ -310,7 +310,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		// -- 1. first distribution sort on real loss (doomed-error)
 		vector<int> distribution;
 		for(auto* x : ubeam){
-			unsigned doom = x->get_doomed();
+			unsigned doom = x->get_loss();
 			while(distribution.size() <= doom)
 				distribution.push_back(0);
 			distribution[doom] ++;
@@ -327,7 +327,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 		vector<REAL> distance;
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			// i is real place, [place_up[doom], place_down[doom]] is the target
-			unsigned doom = ubeam[i]->get_doomed();
+			unsigned doom = ubeam[i]->get_loss();
 			unsigned p_r1 = place_up[doom];
 			unsigned p_r2 = place_down[doom];
 			if(i < p_r1)		// etimated high, it should go down

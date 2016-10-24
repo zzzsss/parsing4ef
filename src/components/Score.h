@@ -18,7 +18,7 @@ public:
 		sort(values_sorted.begin(), values_sorted.end()); 
 		reverse(values_sorted.begin(), values_sorted.end());
 	}
-	~Score(){ delete min; delete mout; }
+	~Score(){ delete min.first; delete min.second; delete mout; }
 	Input get_input(){ return min; }
 	REAL get_one(int k){ return get_output()[k]; }
 	vector<int> kbest_index(unsigned k){	//called only when StateTemp::expand_labels

@@ -47,3 +47,7 @@
 	- Now it can be exp(x^alpha) or x^alpha.
 2016.10.19<dev-c>(dev1.11.3) Refine the recom-repr part.
 2016.10.21<dev-c>(dev1.11.4) Really need to tune the features a little?? Or need to add more complex nn??
+2016.10.23:
+	-- next missions: loss(label/structure), feature, lstm
+2016.10.24<dev-uc>(pre-dev1.12) [unchecked] add new ones
+	- loss(l/s), s-feature, blstm, dev-nocut

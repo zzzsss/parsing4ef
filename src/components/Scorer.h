@@ -25,6 +25,10 @@ public:
 			delete s;
 		records.clear();
 		cache.clear();	// bacause feature is related to specified sentence
+		model->end_sentence();
+	}
+	void build_sentence(DpSentence* sent){	// mainly for calculating lstm repr.
+		model->new_sentence({&sent->index_forms, &sent->index_postags});
 	}
 	static void report_and_reset(){
 		Logger::get_output() << "- features calculate/all:" << num_miss << "/" << num_feature << endl;

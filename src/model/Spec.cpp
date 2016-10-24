@@ -77,6 +77,12 @@ Spec::Spec(const string& mss)
 				memory = fields[2];
 			else if(fields[1] == "update_mode")
 				update_mode = dp_str2num<int>(fields[2]);
+			else if(fields[1] == "blstm_size")
+				blstm_size = dp_str2num<unsigned>(fields[2]);
+			else if(fields[1] == "blstm_layer")
+				blstm_layer = dp_str2num<unsigned>(fields[2]);
+			else if(fields[1] == "blstm_remainembed")
+				blstm_remainembed = dp_str2num<int>(fields[2]);
 			else
 				Logger::Error(string("mss ERROR, unkown field") + s);
 			break;
@@ -88,6 +94,11 @@ Spec::Spec(const string& mss)
 	int h0 = 0;
 	for(unsigned i = 0; i < embed_outd.size(); i++){
 		h0 += embed_outd[i] * embed_num[i];
+	}
+	h0 += blstm_size*embed_num[0];	// number of tokens
+	if(!blstm_remainembed){	// do not include WORD and POS embeddings
+		h0 -= embed_outd[0] * embed_num[0];
+		h0 -= embed_outd[1] * embed_num[1];
 	}
 	layer_size[0] = h0;
 	layer_act[0] = LINEAR;

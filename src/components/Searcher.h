@@ -29,6 +29,7 @@ public:
 	}
 	void ef_search(DP_PTR one);
 	static void report_and_reset_all();
+	static void init_all(DpOptions* opt);
 };
 
 #endif

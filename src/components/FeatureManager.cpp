@@ -124,7 +124,7 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 				break;
 			case 't':	//top nodes
 				base = s->travel_upmost(base);
-				base = s->travel_lr(base, -1*reverse*num);
+				base = s->travel_lr(base, -1*reverse, num);
 				break;
 			case 'l':	//absolute-left child
 				base = s->travel_down(base, -1 * num, 1);
@@ -137,6 +137,9 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 				break;
 			case 'f':	//far from 'other' node
 				base = s->travel_down(base, -1*reverse*num, 1);
+				break;
+			case 's':	// follow the spine up, parent or top nodes
+				base = s->travel_spine(base, -1*reverse, num);
 				break;
 			default:
 				Logger::Error("Unkown fss.");
@@ -167,9 +170,23 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 {
 	vector<int>* retp = new vector<int>();
+	vector<int>* retpi = new vector<int>();		// for index of the tokens
 	vector<int>& ret = *retp;
 	const vector<int>& vn = ff->getn();
 	const vector<int>& vl = ff->getl();
+	// get indexes
+	for(unsigned i = 0; i < vn.size(); i++){
+		int cur = vn[i];
+		int range = spans[i];
+		if(cur == NON_EXIST){	// !! [once a bug] remember to check this !!
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)
+				retpi->push_back(NONEXIST_INDEX);
+		}
+		else{
+			for(int j = cur - range / 2; j <= cur + range / 2; j++)	// inside the window
+				retpi->push_back(j);
+		}
+	}
 	// word
 	for(unsigned i = 0; i < vn.size(); i++){
 		int cur = vn[i];
@@ -210,5 +227,5 @@ Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 	for(auto i: vl){
 		ret.push_back(settle_label(i));
 	}
-	return retp;
+	return std::make_pair(retp, retpi);
 }

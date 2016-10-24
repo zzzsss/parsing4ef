@@ -6,8 +6,17 @@
 #include <queue>
 
 const int State::NOPE_YET = -1;
+int State::loss_struct = 2;
+int State::loss_labels = 1;
+int State::loss_future = 1;
 
 // 0. basics
+void State::init_loss(int ls, int ll, int lf)
+{
+	loss_struct = ls;
+	loss_labels = ll;
+	loss_future = lf;
+}
 State* State::make_empty(DP_PTR s, int opt)
 {
 	switch(opt){
@@ -169,16 +178,19 @@ void State::transform(StateTemp* st, bool istraining, double margin)
 	if(istraining){		// only know this when training
 		if(!sentence->is_correct(mod, head, rel_index))
 			num_wrong_cur++;
-		num_wrong_doomed = calculate_destiny();
-		partial_score_all += num_wrong_doomed*margin;
+		if(!sentence->is_correct(mod, head))	// structure wrong
+			num_wrong_struct++;
+		num_wrong_future = calculate_destiny();
+		partial_score_all += get_loss()*margin;
 	}
 	return;
 }
 
+// calculating future loss
 int EfstdState::calculate_destiny()
 {
 	// only need to check whether at the top-list
-	int num_doomed = num_wrong_cur;
+	int num_doomed = 0;
 	int cur = nb_right[0];
 	while(cur != NOPE_YET){
 		int real_head = sentence->get_head(cur);

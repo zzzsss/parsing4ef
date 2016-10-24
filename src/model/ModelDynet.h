@@ -8,12 +8,14 @@
 
 #include "dynet/dynet.h"
 #include "dynet/training.h"
+#include "dynet/lstm.h"
 
 using dynet::expr::Expression;
 using dynet::ComputationGraph;
 using dynet::Parameter;
 using dynet::LookupParameter;
 using dynet::Model;
+using dynet::LSTMBuilder;
 
 class ModelDynet: public ModelZ{
 private:
@@ -31,8 +33,15 @@ private:
 	vector<LookupParameter> param_lookups;	// sp->embed
 	vector<Parameter> param_w;				//sp->layers
 	vector<Parameter> param_b;
+	// for remembering the states, the expressions from lstm are build one per sentence
+	LSTMBuilder* lstm_forward{nullptr};
+	LSTMBuilder* lstm_backward{nullptr};
+	ComputationGraph* cg{nullptr};
+	vector<Expression> lstm_repr;	// [0, size-of-sentence)
+	enum LSTM_SPECIAL_REPR{ REPR_START, REPR_END, REPR_NOPE, REPR_MAX };
+	vector<Expression> lstm_repr_spe;	// special representations
 	//
-	Expression TMP_forward(ComputationGraph& cg, const vector<Input>& x);
+	Expression TMP_forward(const vector<Input>& x);
 public:
 	~ModelDynet(){ 
 		delete sp; 
@@ -51,7 +60,8 @@ public:
 		Logger::get_output() << "- this time f/b:" << num_forw << "/" << num_back << endl;
 		num_forw = num_back = 0;
 	};
-	void new_graph() override{}
+	void new_sentence(vector<vector<int>*>) override;
+	void end_sentence() override;
 };
 
 

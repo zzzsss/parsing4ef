@@ -14,4 +14,7 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	"|hp1-3|hp1n2-1|hp2-1|d-h-hp1|d-hp1-hp2|l-h|l-hp1|hc2-1|d-hc2-hn1|l-hc2"},
 	{"y2", "m-7|mn1-5|mn2-5|mf1-5|mf2-5|mt1-5|mt2-1|mt3-1|h-7|hn1-5|hn2-5|hf1-5|hf2-5|ht1-5|ht2-1|ht3-1|d-m-h|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-hn1|l-mf1|l-hf1|"
 	"|hp1-5|hp1n2-1|hp2-1|d-h-hp1|d-hp1-hp2|l-h|l-hp1|hc2-1|d-hc2-hn1|l-hc2"},
+	// how about the new features
+	{"y3", "m-1|mn1-1|mn2-1|mf1-1|mf2-1|mt1-1|mt2-1|mt3-1|h-1|hn1-1|hn2-1|hf1-1|hf2-1|ht1-1|ht2-1|ht3-1|d-m-h|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-hn1|l-mf1|l-hf1|"
+	"|hs1-1|hs2-1|hs3-1|hc2-1|hc3-1|d-hc2-hn1|d-h-hs1|l-h|l-hs1|l-hs2|l-hs3"},
 };

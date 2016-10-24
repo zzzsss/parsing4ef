@@ -31,10 +31,10 @@ void EfParser::train()
 			<< "|e1-o" << options.dim_p << "-i" << fm->get_pind() << "-n" << fm->num_nodes_all()
 			<< "|e2-o" << options.dim_d << "-i" << fm->get_dind() << "-n" << fm->num_distances()
 			<< "|e3-o" << options.dim_l << "-i" << fm->get_lind() << "-n" << fm->num_labels()
-			<< "|h3-s" << dict->num_rel();
+			<< "|h3-s" << dict->num_rel() << "|";
 		string mss_embed;
 		tempss >> mss_embed;
-		model = ModelZ::newone_init(options.mss+mss_embed);
+		model = ModelZ::newone_init(mss_embed+options.mss);
 	}
 	// 4. main training
 	EfTRHelper helper{&options};
@@ -88,6 +88,8 @@ EfParser::EfParser(int argc, char** argv): options(argc, argv)
 	for(int i = 0; i < argc; i++)
 		Logger::get_output() << argv[i] << '\t';
 	Logger::get_output() << endl;
+	// do some inits
+	Searcher::init_all(&options);
 }
 
 double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold)

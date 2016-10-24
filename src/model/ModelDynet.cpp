@@ -33,6 +33,13 @@ void ModelDynet::create_model()
 		param_w.push_back(mach->add_parameters({sp->layer_size[i], sp->layer_size[i-1]}, sp->layer_initw[i] / fanio));
 		param_b.push_back(mach->add_parameters({sp->layer_size[i]}, sp->layer_initb[i]));
 	}
+	// -- 1.5 blstm --
+	if(sp->blstm_size > 0){
+		unsigned lstm_input_dim = sp->embed_outd[0] + sp->embed_outd[1];
+		// default initialization for them ...
+		lstm_forward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// half of final output
+		lstm_backward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// another half
+	}
 	// 2. trainer
 	switch(sp->update_mode){
 	case SGD:
@@ -65,16 +72,7 @@ ModelZ* ModelDynet::read_init(const string& file)
 	// 2. init
 	ModelDynet* ret = new ModelDynet(sp);
 	// 3. read init
-	fin.open(file);
-	boost::archive::text_iarchive ia(fin);
-	ia >> ret->mach;
-	for(auto& x : ret->param_lookups)
-		ia >> x;
-	for(auto& x : ret->param_w)
-		ia >> x; 
-	for(auto& x : ret->param_b)
-		ia >> x;
-	fin.close();
+	dynet::load_dynet_model(file, ret->mach);
 	return ret;
 }
 ModelZ* ModelDynet::newone_init(const string& mss)
@@ -94,16 +92,7 @@ void ModelDynet::write(const string& file)
 	sp->write(fout);
 	fout.close();
 	// 2. write model
-	fout.open(file);
-	boost::archive::text_oarchive oa(fout);
-	oa << mach;
-	for(auto& x : param_lookups)
-		oa << x;
-	for(auto& x : param_w)
-		oa << x;
-	for(auto& x : param_b)
-		oa << x;
-	fout.close();
+	dynet::save_dynet_model(file, mach);
 	return;
 }
 
@@ -121,14 +110,14 @@ struct SpecialReshape: public Reshape {
 Expression sreshape(const Expression& x, const Dim& d) { return Expression(x.pg, x.pg->add_function<SpecialReshape>({x.i}, d)); }
 /* ----------------------------------------------------- */
 
-Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
+Expression ModelDynet::TMP_forward(const vector<Input>& x)
 {
 	vector<Expression> weights;
 	vector<Expression> biases;
 	for(unsigned i = 0; i < param_w.size(); i++)
-		weights.emplace_back(parameter(cg, param_w[i]));
+		weights.emplace_back(parameter(*cg, param_w[i]));
 	for(unsigned i = 0; i < param_b.size(); i++)
-		biases.emplace_back(parameter(cg, param_b[i]));
+		biases.emplace_back(parameter(*cg, param_b[i]));
 	// 1. collect all the lookups
 	vector<Expression> them;
 	{
@@ -136,17 +125,35 @@ Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
 		unsigned su = 0;
 		for(auto k : sp->embed_num)
 			su += k;
-		if(su != x[0]->size())
+		if(su != x[0].first->size())
 			Logger::Error("Unmatched token size for the input.");
 	}
-	for(auto* one: x){
+	for(auto one_pair: x){
+		// blstm ??
+		if(sp->blstm_size > 0){
+			// ---- special one ----
+			for(auto one_token : *(one_pair.second)){	
+				if(one_token == NONEXIST_INDEX)
+					them.emplace_back(lstm_repr_spe[REPR_NOPE]);
+				else if(one_token < 0)
+					them.emplace_back(lstm_repr_spe[REPR_START]);
+				else if(one_token >= (int)lstm_repr.size())
+					them.emplace_back(lstm_repr_spe[REPR_END]);
+				else
+					them.emplace_back(lstm_repr[one_token]);
+			}
+			// ---- special one ----
+		}
+		// other embeddings
+		const int GROUPS_BLSTM_INPUT = 2;	// words and pos
 		unsigned i = 0;
 		unsigned next = 0;
 		int which = 0;
 		for(auto k: sp->embed_num){
 			next += k;
 			while(i < next){
-				them.emplace_back(lookup(cg, param_lookups[which], (*one)[i]));
+				if(sp->blstm_remainembed || which >= GROUPS_BLSTM_INPUT)	// skip them ??
+					them.emplace_back(lookup(*cg, param_lookups[which], (*(one_pair.first))[i]));
 				i++;
 			}
 			which++;
@@ -181,11 +188,11 @@ Expression ModelDynet::TMP_forward(ComputationGraph& cg, const vector<Input>& x)
 // forward, backward
 vector<Output> ModelDynet::forward(const vector<Input>& x)
 {
+	cg->checkpoint();	// lstm info
 	if(x.size() <= 0)
 		return vector<Output>{};
-	ComputationGraph cg;
-	auto results = TMP_forward(cg, x);
-	auto pointer = cg.forward(results).v;
+	auto results = TMP_forward(x);
+	auto pointer = cg->forward(results).v;
 	int outdim = sp->layer_size.back();
 	vector<Output> ret;
 	for(unsigned i = 0; i < x.size(); i++){	// copy them
@@ -194,6 +201,7 @@ vector<Output> ModelDynet::forward(const vector<Input>& x)
 		pointer += outdim;
 	}
 	num_forw += x.size();
+	cg->revert();		// lstm info
 	return ret;
 }
 
@@ -201,21 +209,84 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 {
 	if(in.size() <= 0)
 		return;
-	ComputationGraph cg;
-	auto results = TMP_forward(cg, in);
+	cg->checkpoint();	// lstm info
+	auto results = TMP_forward(in);
 	// prepare gradients
 	unsigned batch_size = in.size();
 	unsigned outdim = sp->layer_size.back();
 	vector<REAL>* the_grad = new vector<REAL>(batch_size*outdim, 0);
 	for(unsigned i = 0; i < batch_size; i++)
 		(*the_grad)[i*outdim + index[i]] = grad[i];
-	auto expr_grad = input(cg, Dim({outdim}, batch_size), the_grad);
+	auto expr_grad = input(*cg, Dim({outdim}, batch_size), the_grad);
 	auto dotproduct = dot_product(results, expr_grad);
 	auto loss = sum_batches(dotproduct);
-	cg.forward(loss);
-	cg.backward(loss);
+	cg->forward(loss);
+	cg->backward(loss);
 	delete the_grad;
 	num_back += in.size();
+	cg->revert();		// lstm info
+}
+
+// build lstm repr
+#include "../components/FeatureManager.h"	// depends on the Magic numbers
+#include <algorithm>
+void ModelDynet::new_sentence(vector<vector<int>*> x)
+{
+	cg = new ComputationGraph();
+	//
+	Expression embed_start = concatenate(vector<Expression>{
+		lookup(*cg, param_lookups[0], FeatureManager::settle_word(WORD_START)),		// WORD
+		lookup(*cg, param_lookups[1], FeatureManager::settle_word(POS_START))		// POS
+	});
+	Expression embed_end = concatenate(vector<Expression>{
+		lookup(*cg, param_lookups[0], FeatureManager::settle_word(WORD_END)),		// WORD
+		lookup(*cg, param_lookups[1], FeatureManager::settle_word(POS_END))		// POS
+	});
+	//
+	vector<Expression> expr_l2r;
+	vector<Expression> expr_r2l;
+	int length = x[0]->size();
+	// forward lstm
+	lstm_forward->new_graph(*cg);
+	lstm_forward->start_new_sequence();
+	expr_l2r.emplace_back(lstm_forward->add_input(embed_start));
+	for(int i = 0; i < length; i++){
+		Expression embed_cur = concatenate(vector<Expression>{
+			lookup(*cg, param_lookups[0], FeatureManager::settle_word(x[0]->at(i))),		// WORD
+				lookup(*cg, param_lookups[1], FeatureManager::settle_word(x[1]->at(i)))		// POS
+		});
+		expr_l2r.emplace_back(lstm_forward->add_input(embed_cur));
+	}
+	expr_l2r.emplace_back(lstm_forward->add_input(embed_end));
+	// backward lstm
+	lstm_backward->new_graph(*cg);
+	lstm_backward->start_new_sequence();
+	expr_r2l.emplace_back(lstm_backward->add_input(embed_end));
+	for(int i = length-1; i >= 0; i--){
+		Expression embed_cur = concatenate(vector<Expression>{
+			lookup(*cg, param_lookups[0], FeatureManager::settle_word(x[0]->at(i))),		// WORD
+				lookup(*cg, param_lookups[1], FeatureManager::settle_word(x[1]->at(i)))		// POS
+		});
+		expr_r2l.emplace_back(lstm_backward->add_input(embed_cur));
+	}
+	expr_r2l.emplace_back(lstm_backward->add_input(embed_start));
+	std::reverse(expr_r2l.begin(), expr_r2l.end());
+	// combine them
+	lstm_repr.resize(length);
+	for(int i = 0; i < length; i++)
+		lstm_repr[i] = concatenate({expr_l2r[i+1], expr_r2l[i+1]});		// remember i+1
+	lstm_repr_spe.resize(REPR_MAX);
+	lstm_repr_spe[REPR_START] = concatenate({expr_l2r.front(), expr_r2l.front()});
+	lstm_repr_spe[REPR_END] = concatenate({expr_l2r.back(), expr_r2l.back()});
+	lstm_repr_spe[REPR_NOPE] = zeroes(*cg, Dim{sp->blstm_size});
+}
+
+void ModelDynet::end_sentence()
+{
+	delete cg;
+	cg = nullptr;
+	lstm_repr.clear();
+	lstm_repr_spe.clear();
 }
 
 #endif // USE_MODEL_DYNET

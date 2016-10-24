@@ -44,17 +44,18 @@ private:
 	vector<int> spans;					// size of the span in the origin surface string (default 1)
 	vector<pair<int, int>> distance_pairs;
 	vector<int> labels;
+public:
 	// settle the final indexes
-	int settle_word(int x){ return x + INDEX_BIAS_W; }
-	int settle_distance(int x){		// [0, INDEX_DIST_MAX*2]
+	static int settle_word(int x){ return x + INDEX_BIAS_W; }
+	static int settle_distance(int x){		// [0, INDEX_DIST_MAX*2]
 		if(x < -INDEX_DIST_MAX)
 			x = -INDEX_DIST_MAX;
 		else if(x > INDEX_DIST_MAX)
 			x = INDEX_DIST_MAX;
 		return x + INDEX_DIST_MAX;
 	}
-	int settle_label(int x){ return x + INDEX_BIAS_L; }
-public:
+	static int settle_label(int x){ return x + INDEX_BIAS_L; }
+
 	void clear(){
 		// clear the states
 		for(auto* s : records)
