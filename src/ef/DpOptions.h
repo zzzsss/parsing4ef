@@ -57,7 +57,7 @@ public:
 	//4. about searching
 	//4.1 training schemes
 	double margin{1.0};		// margin for the scores
-	int mloss_struct{2};
+	int mloss_struct{1};
 	int mloss_labels{1};
 	int mloss_future{1};
 	int update_mode{UPDATE_END};		// update strategies (Agenda)
@@ -67,7 +67,7 @@ public:
 	int rloss_exp{1};
 	double rloss_alpha{1.0};
 	//4.2 beam sizes && recombination option
-	unsigned beam_flabel{2};		// first filter for labels, which controls diversity on one beam
+	unsigned beam_flabel{4};		// first filter for labels, which controls diversity on one beam
 	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure
 	unsigned beam_all{8};		// final beam-size
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top

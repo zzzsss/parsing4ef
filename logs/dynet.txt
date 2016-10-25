@@ -19,6 +19,9 @@ cmake .. -DEIGEN3_INCLUDE_DIR=../eigen -DCMAKE_CXX_COMPILER=g++-4.8 -DCMAKE_C_CO
 g++-4.9 -I /home/zhangzs/bin/dynet/ -I /home/zhangzs/bin/eigen/ -std=c++11 src/*/*.cpp src/main.cpp -L /home/zhangzs/bin/dynet/build-mkl/dynet/ -ldynet -lboost_regex -lboost_program_options -lboost_serialization -lmkl_intel_lp64 -lmkl_intel_thread -lmkl_core -liomp5 -lpthread 
 LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/home/zhangzs/bin/dynet/build-mkl/dynet/ ../../ef/a.out
 
+
+g++-4.9 -I /home/zhangzs/bin/dynet/ -I /home/zhangzs/bin/eigen/ -std=c++11 /home/zhangzs/bin/dynet/dynet/[^c]*.cc /home/zhangzs/bin/dynet/dynet/cf*.cc src/*/*.cpp src/main.cpp -lboost_regex -lboost_program_options -lboost_serialization
+
 commit d6f5071cba86c98f520cfe9c27bc5f4a0879f850
 Date:   Mon Oct 10 22:12:13 2016 -0400
 https://github.com/clab/dynet/commit/d6f5071cba86c98f520cfe9c27bc5f4a0879f850

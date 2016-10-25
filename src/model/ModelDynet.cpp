@@ -108,6 +108,20 @@ struct SpecialReshape: public Reshape {
 	bool supports_multibatch() const override { return true; }
 };
 Expression sreshape(const Expression& x, const Dim& d) { return Expression(x.pg, x.pg->add_function<SpecialReshape>({x.i}, d)); }
+
+// fix the memory issue of cg-revert (!! this might be fixed in the newer version of dynet !!)
+namespace{
+	unsigned before_size = 0;
+	void TMP_cg_checkpoint(ComputationGraph* cg){
+		before_size = cg->nodes.size();
+		cg->checkpoint();
+	}
+	void TMP_cg_revert(ComputationGraph* cg){
+		for(unsigned i = before_size; i < cg->nodes.size(); i++)
+			delete cg->nodes[i];
+		cg->revert();
+	}
+}
 /* ----------------------------------------------------- */
 
 Expression ModelDynet::TMP_forward(const vector<Input>& x)
@@ -187,10 +201,10 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 
 // forward, backward
 vector<Output> ModelDynet::forward(const vector<Input>& x)
-{
-	cg->checkpoint();	// lstm info
+{	
 	if(x.size() <= 0)
 		return vector<Output>{};
+	TMP_cg_checkpoint(cg);	// lstm info
 	auto results = TMP_forward(x);
 	auto pointer = cg->forward(results).v;
 	int outdim = sp->layer_size.back();
@@ -200,8 +214,8 @@ vector<Output> ModelDynet::forward(const vector<Input>& x)
 		ret.push_back(one);
 		pointer += outdim;
 	}
-	num_forw += x.size();
-	cg->revert();		// lstm info
+	num_forw += x.size();			
+	TMP_cg_revert(cg);		// lstm info
 	return ret;
 }
 
@@ -209,7 +223,7 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 {
 	if(in.size() <= 0)
 		return;
-	cg->checkpoint();	// lstm info
+	TMP_cg_checkpoint(cg);	// lstm info
 	auto results = TMP_forward(in);
 	// prepare gradients
 	unsigned batch_size = in.size();
@@ -223,8 +237,8 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 	cg->forward(loss);
 	cg->backward(loss);
 	delete the_grad;
-	num_back += in.size();
-	cg->revert();		// lstm info
+	num_back += in.size();	
+	TMP_cg_revert(cg);		// lstm info
 }
 
 // build lstm repr
@@ -233,6 +247,10 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 void ModelDynet::new_sentence(vector<vector<int>*> x)
 {
 	cg = new ComputationGraph();
+	if(sp->blstm_size <= 0){
+		zeroes(*cg, Dim{1});	// add a dummy node, maybe for kindof dynet's bug
+		return;
+	}
 	//
 	Expression embed_start = concatenate(vector<Expression>{
 		lookup(*cg, param_lookups[0], FeatureManager::settle_word(WORD_START)),		// WORD
@@ -279,6 +297,7 @@ void ModelDynet::new_sentence(vector<vector<int>*> x)
 	lstm_repr_spe[REPR_START] = concatenate({expr_l2r.front(), expr_r2l.front()});
 	lstm_repr_spe[REPR_END] = concatenate({expr_l2r.back(), expr_r2l.back()});
 	lstm_repr_spe[REPR_NOPE] = zeroes(*cg, Dim{sp->blstm_size});
+	zeroes(*cg, Dim{1});	// add a dummy node, maybe for kindof dynet's bug
 }
 
 void ModelDynet::end_sentence()

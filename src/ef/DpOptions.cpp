@@ -91,7 +91,10 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(rloss_exp);
 		else TMP_assign_key(rloss_alpha);
 		else TMP_assign_key(beam_flabel);
-		else TMP_assign_key(beam_div);
+		else if(key == "beam_div"){		// bind them when setting beam_div
+			stringstream(value) >> beam_div;
+			beam_flabel = beam_div;
+		}
 		else TMP_assign_key(beam_all);
 		else TMP_assign_key(recomb_mode);
 		else TMP_assign_key(gold_inum);

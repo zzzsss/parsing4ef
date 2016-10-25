@@ -33,6 +33,7 @@ public:
 };
 
 #define USE_MODEL_DYNET
+// #define USE_MODEL_DUMMY
 //#define EIGEN_USE_MKL_ALL
 
 

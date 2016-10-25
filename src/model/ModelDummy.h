@@ -42,6 +42,8 @@ public:
 		num_forw = num_back = 0;
 	}
 	void clear(){}
+	void new_sentence(vector<vector<int>*>){}
+	void end_sentence(){}
 };
 
 #endif
