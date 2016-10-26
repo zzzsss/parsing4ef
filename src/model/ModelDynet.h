@@ -40,6 +40,7 @@ private:
 	vector<Expression> lstm_repr;	// [0, size-of-sentence)
 	enum LSTM_SPECIAL_REPR{ REPR_START, REPR_END, REPR_NOPE, REPR_MAX };
 	vector<Expression> lstm_repr_spe;	// special representations
+	Parameter param_lstm_nope;			// REPR_NOPE (learnable)
 	//
 	Expression TMP_forward(const vector<Input>& x);
 public:

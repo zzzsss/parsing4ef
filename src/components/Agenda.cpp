@@ -128,7 +128,8 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 				}
 				else{
 					first_gold = beam.size();
-					for(auto oneg = dropped_golds.begin(); oneg < dropped_golds.begin() + opt->gold_inum; oneg++){
+					for(auto oneg = dropped_golds.begin(); 
+							oneg != dropped_golds.end() && oneg < dropped_golds.begin() + opt->gold_inum; oneg++){
 						(*oneg)->set_dropped();		// set dropped here
 						beam.push_back(*oneg);
 					}

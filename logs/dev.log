@@ -52,3 +52,5 @@
 2016.10.24<dev-uc>(pre-dev1.12) [unchecked] add new ones
 	- loss(l/s), s-feature, blstm, dev-nocut
 2016.10.25<dev-uc>(pre2-dev1.12) [unchecked] Fix the issues (mainly memory issues)
+2016.10.26<dev-c>(dev1.12) [maybe] Small fixes.
+	- NOPE_repr in lstm, inum bug

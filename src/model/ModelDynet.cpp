@@ -39,6 +39,7 @@ void ModelDynet::create_model()
 		// default initialization for them ...
 		lstm_forward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// half of final output
 		lstm_backward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// another half
+		param_lstm_nope = mach->add_parameters({sp->blstm_size}, sp->layer_initb[0]);				// special NOPE node
 	}
 	// 2. trainer
 	switch(sp->update_mode){
@@ -165,7 +166,7 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 		int which = 0;
 		for(auto k: sp->embed_num){
 			next += k;
-			while(i < next){
+			while(i < next){	// this is a potential bug, but always set blstm_remainembed==1 when not using lstm.
 				if(sp->blstm_remainembed || which >= GROUPS_BLSTM_INPUT)	// skip them ??
 					them.emplace_back(lookup(*cg, param_lookups[which], (*(one_pair.first))[i]));
 				i++;
@@ -296,7 +297,7 @@ void ModelDynet::new_sentence(vector<vector<int>*> x)
 	lstm_repr_spe.resize(REPR_MAX);
 	lstm_repr_spe[REPR_START] = concatenate({expr_l2r.front(), expr_r2l.front()});
 	lstm_repr_spe[REPR_END] = concatenate({expr_l2r.back(), expr_r2l.back()});
-	lstm_repr_spe[REPR_NOPE] = zeroes(*cg, Dim{sp->blstm_size});
+	lstm_repr_spe[REPR_NOPE] = parameter(*cg, param_lstm_nope);
 	zeroes(*cg, Dim{1});	// add a dummy node, maybe for kindof dynet's bug
 }
 
