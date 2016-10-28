@@ -4,6 +4,7 @@
 #include "Model.h"
 #include "Spec.h"
 #include "../tools/DpTools.h"
+#include "../ef/DpDictionary.h"
 #ifdef USE_MODEL_DYNET
 
 #include "dynet/dynet.h"
@@ -21,6 +22,7 @@ class ModelDynet: public ModelZ{
 private:
 	int num_forw{0};
 	int num_back{0};
+	bool is_training{false};	// mainly for dropout
 	// init
 	void create_model();	// init with sp
 	ModelDynet(Spec* ss): sp(ss){ create_model(); }
@@ -63,6 +65,9 @@ public:
 	};
 	void new_sentence(vector<vector<int>*>) override;
 	void end_sentence() override;
+	void set_training(bool t) override{ is_training = t; }
+	// special
+	void init_embed(string CONF_embed_WL, string CONF_embed_EM, REAL CONF_embed_ISCALE, DpDictionary* dict);
 };
 
 

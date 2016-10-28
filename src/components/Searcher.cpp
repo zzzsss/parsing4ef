@@ -31,6 +31,7 @@ void Searcher::ef_search(DP_PTR one)
 	// helpers
 	ACCRECORDER_ONCE("Search-all");
 	Scorer the_scorer{model};
+	model->set_training(is_training);	// set it explicitly here
 	FeatureManager& the_featurer = *fm;
 	Agenda the_agenda{is_training, options};
 	// the empty one for the start

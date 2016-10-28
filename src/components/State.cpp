@@ -6,7 +6,7 @@
 #include <queue>
 
 const int State::NOPE_YET = -1;
-int State::loss_struct = 2;
+int State::loss_struct = 1;
 int State::loss_labels = 1;
 int State::loss_future = 1;
 
@@ -204,7 +204,7 @@ int EfstdState::calculate_destiny()
 int EfeagerState::calculate_destiny()
 {
 	// need to find the ones on the lr-spine
-	int num_doomed = num_wrong_cur;
+	int num_doomed = 0;
 	// find it in the lr-spine
 	vector<bool> rspine(sentence->size(), false);
 	for(int n = 0; n != NOPE_YET; n = ch_right[n])

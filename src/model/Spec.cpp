@@ -83,6 +83,10 @@ Spec::Spec(const string& mss)
 				blstm_layer = dp_str2num<unsigned>(fields[2]);
 			else if(fields[1] == "blstm_remainembed")
 				blstm_remainembed = dp_str2num<int>(fields[2]);
+			else if(fields[1] == "blstm_tillembed")
+				blstm_tillembed = dp_str2num<int>(fields[2]);
+			else if(fields[1] == "blstm_drop")
+				blstm_drop = dp_str2num<REAL>(fields[2]);
 			else
 				Logger::Error(string("mss ERROR, unkown field") + s);
 			break;
@@ -97,8 +101,8 @@ Spec::Spec(const string& mss)
 	}
 	h0 += blstm_size*embed_num[0];	// number of tokens
 	if(!blstm_remainembed){	// do not include WORD and POS embeddings
-		h0 -= embed_outd[0] * embed_num[0];
-		h0 -= embed_outd[1] * embed_num[1];
+		for(int i = 0; i < blstm_tillembed; i++)
+			h0 -= embed_outd[i] * embed_num[i];
 	}
 	layer_size[0] = h0;
 	layer_act[0] = LINEAR;
@@ -116,6 +120,7 @@ void Spec::write(ostream& fout)
 	for(unsigned i = 0; i < embed_outd.size(); i++)
 		fout << embed_outd[i] << ' ' << embed_ind[i] << ' ' << embed_num[i] << '\n';
 	fout << update_mode << ' ' << momemtum << ' ' << weight_decay << ' ' << memory << '\n';
+	fout << blstm_size << ' ' << blstm_layer << ' ' << blstm_remainembed << ' ' << blstm_tillembed << ' ' << blstm_drop << '\n';
 }
 
 Spec* Spec::read(istream& fin)
@@ -138,6 +143,7 @@ Spec* Spec::read(istream& fin)
 	for(int i = 0; i < esize; i++)
 		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i];
 	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;
+	fin >> one->blstm_size >> one->blstm_layer >> one->blstm_remainembed >> one->blstm_tillembed >> one->blstm_drop;
 	one->write(Logger::get_output());	// report
 	return one;
 }

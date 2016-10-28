@@ -4,6 +4,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <climits>
+#include "../model/ModelDynet.h"
 
 // sub-rountines of protected methods
 
@@ -35,6 +36,8 @@ void EfParser::train()
 		string mss_embed;
 		tempss >> mss_embed;
 		model = ModelZ::newone_init(mss_embed+options.mss);
+		if(ModelDynet* dy = dynamic_cast<ModelDynet*>(model))	// init from pre-trained embeddings
+			dy->init_embed(options.embed_wl, options.embed_em, options.embed_scale, dict);
 	}
 	// 4. main training
 	EfTRHelper helper{&options};

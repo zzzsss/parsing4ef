@@ -35,7 +35,9 @@ void ModelDynet::create_model()
 	}
 	// -- 1.5 blstm --
 	if(sp->blstm_size > 0){
-		unsigned lstm_input_dim = sp->embed_outd[0] + sp->embed_outd[1];
+		unsigned lstm_input_dim = 0;
+		for(int i = 0; i < sp->blstm_tillembed; i++)
+			lstm_input_dim += sp->embed_outd[i];
 		// default initialization for them ...
 		lstm_forward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// half of final output
 		lstm_backward = new LSTMBuilder(sp->blstm_layer, lstm_input_dim, sp->blstm_size/2, mach);	// another half
@@ -160,7 +162,7 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 			// ---- special one ----
 		}
 		// other embeddings
-		const int GROUPS_BLSTM_INPUT = 2;	// words and pos
+		const int GROUPS_BLSTM_INPUT = sp->blstm_tillembed;	// words or word+pos
 		unsigned i = 0;
 		unsigned next = 0;
 		int which = 0;
@@ -184,6 +186,13 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 	// -- auto r_h0 = cg.get_value(h0);
 	// 3. forward next
 	for(unsigned i = 0; i < param_w.size(); i++){
+		REAL this_drop = sp->layer_drop[i];
+		if(this_drop > 0){
+			if(is_training)	// not for the last layer
+				h0 = dropout(h0, this_drop);
+			else
+				h0 = h0 * (1 - this_drop);
+		}
 		h0 = weights[i] * h0 + biases[i];
 		// currently no dropout
 		switch(sp->layer_act[i + 1]){
@@ -245,6 +254,15 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 // build lstm repr
 #include "../components/FeatureManager.h"	// depends on the Magic numbers
 #include <algorithm>
+
+inline Expression TMP_concat(vector<Expression> x, int num)
+{
+	if(num == 1)
+		return x[0];
+	else
+		return concatenate(x);
+}
+
 void ModelDynet::new_sentence(vector<vector<int>*> x)
 {
 	cg = new ComputationGraph();
@@ -252,15 +270,26 @@ void ModelDynet::new_sentence(vector<vector<int>*> x)
 		zeroes(*cg, Dim{1});	// add a dummy node, maybe for kindof dynet's bug
 		return;
 	}
+	// dropout setting
+	if(sp->blstm_drop > 0){
+		if(is_training){
+			lstm_forward->set_dropout(sp->blstm_drop);
+			lstm_backward->set_dropout(sp->blstm_drop);
+		}
+		else{	// in fact, testing should multply sth, but
+			lstm_forward->disable_dropout();
+			lstm_backward->disable_dropout();
+		}
+	}
 	//
-	Expression embed_start = concatenate(vector<Expression>{
+	Expression embed_start = TMP_concat(vector<Expression>{
 		lookup(*cg, param_lookups[0], FeatureManager::settle_word(WORD_START)),		// WORD
 		lookup(*cg, param_lookups[1], FeatureManager::settle_word(POS_START))		// POS
-	});
-	Expression embed_end = concatenate(vector<Expression>{
+	}, sp->blstm_tillembed);
+	Expression embed_end = TMP_concat(vector<Expression>{
 		lookup(*cg, param_lookups[0], FeatureManager::settle_word(WORD_END)),		// WORD
 		lookup(*cg, param_lookups[1], FeatureManager::settle_word(POS_END))		// POS
-	});
+	}, sp->blstm_tillembed);
 	//
 	vector<Expression> expr_l2r;
 	vector<Expression> expr_r2l;
@@ -270,10 +299,10 @@ void ModelDynet::new_sentence(vector<vector<int>*> x)
 	lstm_forward->start_new_sequence();
 	expr_l2r.emplace_back(lstm_forward->add_input(embed_start));
 	for(int i = 0; i < length; i++){
-		Expression embed_cur = concatenate(vector<Expression>{
+		Expression embed_cur = TMP_concat(vector<Expression>{
 			lookup(*cg, param_lookups[0], FeatureManager::settle_word(x[0]->at(i))),		// WORD
 				lookup(*cg, param_lookups[1], FeatureManager::settle_word(x[1]->at(i)))		// POS
-		});
+		}, sp->blstm_tillembed);
 		expr_l2r.emplace_back(lstm_forward->add_input(embed_cur));
 	}
 	expr_l2r.emplace_back(lstm_forward->add_input(embed_end));
@@ -282,10 +311,10 @@ void ModelDynet::new_sentence(vector<vector<int>*> x)
 	lstm_backward->start_new_sequence();
 	expr_r2l.emplace_back(lstm_backward->add_input(embed_end));
 	for(int i = length-1; i >= 0; i--){
-		Expression embed_cur = concatenate(vector<Expression>{
+		Expression embed_cur = TMP_concat(vector<Expression>{
 			lookup(*cg, param_lookups[0], FeatureManager::settle_word(x[0]->at(i))),		// WORD
 				lookup(*cg, param_lookups[1], FeatureManager::settle_word(x[1]->at(i)))		// POS
-		});
+		}, sp->blstm_tillembed);
 		expr_r2l.emplace_back(lstm_backward->add_input(embed_cur));
 	}
 	expr_r2l.emplace_back(lstm_backward->add_input(embed_start));

@@ -80,6 +80,9 @@ public:
 	int dim_p{30};
 	int dim_d{30};
 	int dim_l{30};
+	string embed_wl{""};	// embed word-list
+	string embed_em{""};	// embed embed-file
+	float embed_scale{1.0f};	// scale value
 	//6. about training
 	double tr_lrate{0.04};		// initial learning rate
 	int tr_iters{12};			// training iterations

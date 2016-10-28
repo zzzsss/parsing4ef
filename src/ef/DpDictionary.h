@@ -42,6 +42,8 @@ public:
 	bool empty(){	// this check should be enough
 		return num_word() == 0;
 	}
+	// for init embed
+	const vector<string>& get_list_words(){ return list_word; }
 };
 
 #endif

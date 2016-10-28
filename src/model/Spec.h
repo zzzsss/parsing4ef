@@ -34,6 +34,8 @@ public:
 	unsigned blstm_size{0};	// forward + backward: all size
 	unsigned blstm_layer{1};
 	int blstm_remainembed{1};	//remain original embed for words and pos?
+	int blstm_tillembed{2};		//till which embed is the blstm's input (default 2: word and pos)
+	REAL blstm_drop{0.f};
 	//
 	Spec(const string& mss);	// plus default mss
 	void write(ostream& fout);
