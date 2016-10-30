@@ -58,6 +58,15 @@ void DpSentence::finish_one()
 			rchilds[h].insert(rchilds[h].begin(), i);
 	}
 	*/
+	// calculate spans
+	spans = vector<int>(size(), 0);
+	for(int i = 1; i < size(); i++){
+		int cur = i;
+		do{
+			spans[cur] ++;
+			cur = heads[cur];
+		} while(cur > 0);	// no count for root
+	}
 }
 
 void DpSentence::write_this(ostream & fout)

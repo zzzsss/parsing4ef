@@ -93,5 +93,5 @@ void Searcher::report_and_reset_all()
 void Searcher::init_all(DpOptions* opt)
 {
 	// do some inits
-	State::init_loss(opt->mloss_struct, opt->mloss_labels, opt->mloss_future);
+	State::init_loss(opt->mloss_struct, opt->mloss_labels, opt->mloss_future, opt->mloss_span);
 }

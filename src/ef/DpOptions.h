@@ -60,6 +60,7 @@ public:
 	int mloss_struct{1};
 	int mloss_labels{1};
 	int mloss_future{1};
+	int mloss_span{0};		// span of a word / sentence length * loss_span
 	int update_mode{UPDATE_END};		// update strategies (Agenda)
 	int updatediv_mode{UPDATEDIV_CUR};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)

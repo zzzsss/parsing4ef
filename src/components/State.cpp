@@ -6,16 +6,18 @@
 #include <queue>
 
 const int State::NOPE_YET = -1;
-int State::loss_struct = 1;
-int State::loss_labels = 1;
-int State::loss_future = 1;
+int State::loss_struct;
+int State::loss_labels;
+int State::loss_future;
+int State::loss_span;
 
 // 0. basics
-void State::init_loss(int ls, int ll, int lf)
+void State::init_loss(int ls, int ll, int lf, int lspan)
 {
 	loss_struct = ls;
 	loss_labels = ll;
 	loss_future = lf;
+	loss_span = lspan;
 }
 State* State::make_empty(DP_PTR s, int opt)
 {
@@ -178,8 +180,10 @@ void State::transform(StateTemp* st, bool istraining, double margin)
 	if(istraining){		// only know this when training
 		if(!sentence->is_correct(mod, head, rel_index))
 			num_wrong_cur++;
-		if(!sentence->is_correct(mod, head))	// structure wrong
+		if(!sentence->is_correct(mod, head)){	// structure wrong
 			num_wrong_struct++;
+			num_wrong_span += sentence->get_span(mod);
+		}
 		num_wrong_future = calculate_destiny();
 		partial_score_all += get_loss()*margin;
 	}

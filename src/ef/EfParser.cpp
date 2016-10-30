@@ -71,8 +71,9 @@ void EfParser::test()
 	// 3. build FeatureManager and read Model
 	if(fm == nullptr)
 		fm = new FeatureManager{options.fss, dict, options.ef_mode};
-	if(model == nullptr)
-		model = ModelZ::read_init(options.file_model);	// read from best model
+	delete model;
+	model = nullptr;
+	model = ModelZ::read_init(options.file_model);	// read from best model (memory-leak, but nevermind)
 	// 4. testing
 	ACCRECORDER_RESET("testing");
 	do_dev_test(corpus_test, nullptr, options.file_output_test, options.file_test);

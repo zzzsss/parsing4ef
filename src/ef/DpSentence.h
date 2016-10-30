@@ -38,6 +38,7 @@ public:		// all public: all init and assign are default
 	vector<vector<int>> lchilds;		//near to far
 	vector<vector<int>> rchilds;		//near to far
 	*/
+	vector<int> spans;	// the size for the subtree rooted at this one
 	vector<string> rels;
 
 	//predict ones
@@ -64,6 +65,7 @@ public:
 	bool is_correct(int m, int h){ return heads[m] == h; }
 	int get_head(int m){ return heads[m]; }
 	int get_rel(int m){ return index_rels[m]; }
+	int get_span(int m){ return spans[m]; }
 	int get_pred_head(int m){ return predict_heads[m]; }
 	int get_pred_rel(int m){ return index_predict_rels[m]; }
 	void assign(vector<int>& h, vector<int>& r);

@@ -28,6 +28,7 @@ protected:
 	static int loss_struct;
 	static int loss_labels;
 	static int loss_future;
+	static int loss_span;
 	// original sentence pointer
 	DP_PTR sentence;
 	// partial heads and rel-index for the tree, NOPE_YET means nope, also including dummy root node
@@ -47,6 +48,7 @@ protected:
 	REAL partial_score_all{0};		// base score + loss-penalty
 	int num_arc{0};
 	int num_wrong_cur{0};		//only record when training
+	int num_wrong_span{0};		// later div by sentence length (only structure wrongs)
 	int num_wrong_struct{0};	//the number of structure wrongs
 	int num_wrong_future{0};	//future wrong arcs (only structure ones)
 	// new one for recording dropped gold
@@ -74,7 +76,7 @@ public:
 	int get_head(int i){ return partial_heads[i]; }
 	// init one
 	static State* make_empty(DP_PTR s, int opt);
-	static void init_loss(int, int, int);
+	static void init_loss(int, int, int, int);
 	// later ones are expanded and stabilized
 	virtual vector<StateTemp> expand() = 0;
 	// travel on the structure -- return NEGATIVE if nope
@@ -87,8 +89,9 @@ public:
 	inline int travel_spine(int i, int which, int steps);	// first travel up, then travel top list
 	// process in the Agenda part
 	REAL get_score() const{ return partial_score_all; }		// return base+penalty score
-	int get_loss() const {	// three parts
-		return num_wrong_struct*loss_struct + (num_wrong_cur-num_wrong_struct)*loss_labels + num_wrong_future*loss_future; 
+	int get_loss() const {	// four parts
+		return num_wrong_struct*loss_struct + (num_wrong_cur-num_wrong_struct)*loss_labels 
+			+ num_wrong_future*loss_future + std::ceil(num_wrong_span*loss_span/(sentence->size()+0.0f));
 	}
 	bool is_correct() const{ return get_loss() == 0; }
 	// identifications for recombination

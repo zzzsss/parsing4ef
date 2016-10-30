@@ -85,6 +85,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(mloss_struct);
 		else TMP_assign_key(mloss_labels);
 		else TMP_assign_key(mloss_future);
+		else TMP_assign_key(mloss_span);
 		else TMP_assign_key(update_mode);
 		else TMP_assign_key(updatediv_mode);
 		else TMP_assign_key(loss_mode);
@@ -154,8 +155,8 @@ void DpOptions::check_and_report()
 	// 3. transition & features
 	printer << "-3: transition&feature:" << TMP_get_desc("ef", ef_mode) << "/" << fss << endl;
 	// 4. searching
-	printer << "-4.1: searching-scheme:(margin/lstrcut/llabels/lfuture)" 
-		<< margin << "/" << mloss_struct << "/" << mloss_labels << "/" << mloss_future << "/"
+	printer << "-4.1: searching-scheme:(margin/lstrcut/llabels/lfuture/span)" 
+		<< margin << "/" << mloss_struct << "/" << mloss_labels << "/" << mloss_future << "/" << mloss_span << "/"
 		<< TMP_get_desc("update", update_mode) << "/" << TMP_get_desc("updatediv", updatediv_mode) << "/" << TMP_get_desc("loss", loss_mode) << endl;
 	printer << "-4.1.1: rloss-mode:" << rloss_exp << "/" << rloss_alpha << endl;
 	printer << "-4.2: searching-beam:" << beam_flabel << "/" << beam_div << "/" << beam_all << "/"
