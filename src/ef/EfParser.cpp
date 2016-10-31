@@ -37,7 +37,7 @@ void EfParser::train()
 		tempss >> mss_embed;
 		model = ModelZ::newone_init(mss_embed+options.mss);
 		if(ModelDynet* dy = dynamic_cast<ModelDynet*>(model))	// init from pre-trained embeddings
-			dy->init_embed(options.embed_wl, options.embed_em, options.embed_scale, dict);
+			dy->init_embed(options.embed_wl, options.embed_em, options.embed_file, options.embed_scale, dict);
 	}
 	// 4. main training
 	EfTRHelper helper{&options};

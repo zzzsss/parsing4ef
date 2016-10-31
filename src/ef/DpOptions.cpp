@@ -110,6 +110,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(dim_l);
 		else TMP_assign_key(embed_wl);
 		else TMP_assign_key(embed_em);
+		else TMP_assign_key(embed_file);
 		else TMP_assign_key(embed_scale);
 		else TMP_assign_key(tr_lrate);
 		else TMP_assign_key(tr_iters);

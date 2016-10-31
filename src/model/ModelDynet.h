@@ -67,7 +67,7 @@ public:
 	void end_sentence() override;
 	void set_training(bool t) override{ is_training = t; }
 	// special
-	void init_embed(string CONF_embed_WL, string CONF_embed_EM, REAL CONF_embed_ISCALE, DpDictionary* dict);
+	void init_embed(string CONF_embed_WL, string CONF_embed_EM, string CONF_embed_f, REAL CONF_embed_ISCALE, DpDictionary* dict);
 };
 
 

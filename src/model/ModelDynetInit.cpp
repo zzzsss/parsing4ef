@@ -8,9 +8,10 @@ using namespace std;
 
 #ifdef USE_MODEL_DYNET
 #include "../components/FeatureManager.h"	// depends on the Magic numbers
-void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, REAL CONF_embed_ISCALE, DpDictionary* dict)
+void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, string CONF_embed_file, 
+	REAL CONF_embed_ISCALE, DpDictionary* dict)
 {
-	if(!(CONF_embed_WL.length()>0 && CONF_embed_EM.length()>0))	//nothing to do if not setting
+	if(CONF_embed_file.empty() && (CONF_embed_WL.empty() || CONF_embed_EM.empty()))	//nothing to do if not setting
 		return;
 
 	//temps
@@ -19,29 +20,54 @@ void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, REAL CON
 	vector<vector<REAL>> t_embeds;
 	vector<string> t_words;
 
-	cout << "--Init embedding from " << CONF_embed_WL << " and " << CONF_embed_EM << " with scale of" << CONF_embed_ISCALE << "\n";
-	ifstream fwl, fem;
-	fwl.open(CONF_embed_WL);
-	fem.open(CONF_embed_EM);
-	if(!fwl || !fem)
-		Logger::Error("Failed when opening embedding file.");
-	while(fwl){
-		if(!fem)
-			Logger::Error("No match with embedding files.");
-		string one_word;
-		fwl >> one_word;
-		t_embeds.emplace_back(vector<REAL>{});
-		for(unsigned i = 0; i<sp->embed_outd[0]; i++){	// only word embedding
-			REAL v = 0;
-			fem >> v;
-			v *= CONF_embed_ISCALE;
-			t_embeds.back().push_back(v);
+	// two ways
+	if(CONF_embed_file.empty()){
+		Logger::get_output() << "--Init embedding from " << CONF_embed_WL << " and " << CONF_embed_EM << " with scale of" << CONF_embed_ISCALE << "\n";
+		ifstream fwl, fem;
+		fwl.open(CONF_embed_WL);
+		fem.open(CONF_embed_EM);
+		if(!fwl || !fem)
+			Logger::Error("Failed when opening embedding file.");
+		while(fwl){
+			if(!fem)
+				Logger::Error("No match with embedding files.");
+			string one_word;
+			fwl >> one_word;
+			t_embeds.emplace_back(vector<REAL>{});
+			for(unsigned i = 0; i < sp->embed_outd[0]; i++){	// only word embedding
+				REAL v = 0;
+				fem >> v;
+				v *= CONF_embed_ISCALE;
+				t_embeds.back().push_back(v);
+			}
+			t_maps[one_word] = t_embeds.size() - 1;
+			t_words.push_back(one_word);
 		}
-		t_maps[one_word] = t_embeds.size()-1;
-		t_words.push_back(one_word);
+		fwl.close();
+		fem.close();
 	}
-	fwl.close();
-	fem.close();
+	else{
+		Logger::get_output() << "--Init embedding from " << CONF_embed_file << " with scale of" << CONF_embed_ISCALE << "\n";
+		ifstream fin;
+		fin.open(CONF_embed_file);
+		if(!fin)
+			Logger::Error("Failed when opening embedding file.");
+		while(fin){
+			string one_word;
+			fin >> one_word;
+			t_embeds.emplace_back(vector<REAL>{});
+			for(unsigned i = 0; i < sp->embed_outd[0]; i++){	// only word embedding
+				REAL v = 0;
+				fin >> v;
+				v *= CONF_embed_ISCALE;
+				t_embeds.back().push_back(v);
+			}
+			t_maps[one_word] = t_embeds.size() - 1;
+			t_words.push_back(one_word);
+		}
+		fin.close();
+	}
+	Logger::get_output() << "Read embeds of " << t_words.size() << endl;
 
 	//start
 	const vector<string>& word_list = dict->get_list_words();
@@ -69,6 +95,6 @@ void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, REAL CON
 			param_lookups[0].initialize(index, t_embeds[iter->second]);
 		}
 	}
-	cout << "-- Done, with " << n_all << "/" << n_check << "/" << n_icheck << '\n';
+	Logger::get_output() << "-- Done, with " << n_all << "/" << n_check << "/" << n_icheck << '\n';
 }
 #endif
