@@ -29,7 +29,7 @@ obj/%.o: src/%.cpp
 obj/%.o: src/tools/%.cpp
 	$(CPP) $(CFLAGS) -c $< -o $@
 obj/%.o: src/ef/%.cpp
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CPP) $(DYNET_INC_FLAG) $(CFLAGS) -c $< -o $@
 obj/%.o: src/components/%.cpp
 	$(CPP) $(CFLAGS) -c $< -o $@
 obj/%.o: src/model/%.cpp

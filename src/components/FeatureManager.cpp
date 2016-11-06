@@ -59,7 +59,9 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 			fss_la.emplace_back(move(one));
 		else{
 			auto fields = dp_split(one, '-');
-			int one_span = dp_str2num<int>(fields[1]);
+			int one_span = 1;	// default one
+			if(fields.size() > 1)
+				one_span = dp_str2num<int>(fields[1]);
 			string& one_name = fields[0];
 			if(index.find(one_name) != index.end())	// may repeat and overwrite
 				Logger::Warn(string("Repeated fss one: " + one_name));
@@ -140,6 +142,13 @@ Feature* FeatureManager::make_feature(State* s, int m, int h)
 				break;
 			case 's':	// follow the spine up, parent or top nodes
 				base = s->travel_spine(base, -1*reverse, num);
+				break;
+			// [a, b] of the span --- ignore num
+			case 'a':	// start of the span
+				base = s->travel_downmost(base, -1);
+				break;
+			case 'b':	// end of the span
+				base = s->travel_downmost(base, 1);
 				break;
 			default:
 				Logger::Error("Unkown fss.");

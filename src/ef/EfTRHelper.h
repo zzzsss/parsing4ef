@@ -58,6 +58,11 @@ public:
 		for(auto x : scores)
 			fout << x << ",";
 		fout << "]" << endl;
+		// for better grep
+		fout << "zzzzz ";
+		for(auto x : scores)
+			fout << x << " ";
+		fout << endl;
 	}
 };
 

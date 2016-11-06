@@ -32,10 +32,10 @@ void EfParser::train()
 			<< "|e1-o" << options.dim_p << "-i" << fm->get_pind() << "-n" << fm->num_nodes_all()
 			<< "|e2-o" << options.dim_d << "-i" << fm->get_dind() << "-n" << fm->num_distances()
 			<< "|e3-o" << options.dim_l << "-i" << fm->get_lind() << "-n" << fm->num_labels()
-			<< "|h3-s" << dict->num_rel() << "|";
+			<< "|hz-s" << dict->num_rel() << "|";
 		string mss_embed;
 		tempss >> mss_embed;
-		model = ModelZ::newone_init(mss_embed+options.mss);
+		model = ModelZ::newone_init(options.mss+mss_embed);
 		if(ModelDynet* dy = dynamic_cast<ModelDynet*>(model))	// init from pre-trained embeddings
 			dy->init_embed(options.embed_wl, options.embed_em, options.embed_file, options.embed_scale, dict);
 	}
