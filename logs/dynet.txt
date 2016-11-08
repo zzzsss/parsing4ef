@@ -25,3 +25,9 @@ g++-4.9 -I /home/zhangzs/bin/dynet/ -I /home/zhangzs/bin/eigen/ -std=c++11 /home
 commit d6f5071cba86c98f520cfe9c27bc5f4a0879f850
 Date:   Mon Oct 10 22:12:13 2016 -0400
 https://github.com/clab/dynet/commit/d6f5071cba86c98f520cfe9c27bc5f4a0879f850
+
+=========
+fixes for dynet:
+1. Reshape that supports_multibatch. (note: this has been fixed in the new version of dynet)
+2. delete nodes for checkpoint/revert
+3. cg->ee->invalidate(): num_nodes_evaluated should be init to 0. (this has problem only on some machines)

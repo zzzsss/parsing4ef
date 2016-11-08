@@ -254,6 +254,7 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 // build lstm repr
 #include "../components/FeatureManager.h"	// depends on the Magic numbers
 #include <algorithm>
+#include "dynet/exec.h"
 
 inline Expression TMP_concat(vector<Expression> x, int num)
 {
@@ -266,6 +267,7 @@ inline Expression TMP_concat(vector<Expression> x, int num)
 void ModelDynet::new_sentence(vector<vector<int>*> x)
 {
 	cg = new ComputationGraph();
+	cg->ee->invalidate();		// on some machine, the no-init of ee could be a bug ...
 	if(sp->blstm_size <= 0){
 		zeroes(*cg, Dim{1});	// add a dummy node, maybe for kindof dynet's bug
 		return;

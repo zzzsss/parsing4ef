@@ -58,3 +58,4 @@
 2016.10.30<dev-c>(dev1.12.2) Add mloss_span and fix test small bug.
 2016.10.31<dev-c>(dev1.12.3) Add combined embed init and some scripts.
 2016.11.6<dev-c>(dev1.12.4) Some small changes.
+2016.11.6<dev-c>(dev1.12.4.patches) Some fixes. [rc0.3]

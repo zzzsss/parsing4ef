@@ -32,6 +32,10 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	{"a3lr", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1"},
 	{"a3nflr", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|" 
-			"mn1|mn2|mf1|mf2|hn1|hn2|hf1|hf2|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-mf1|l-hn1|l-hf1"
-			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1"},
+			"mn1|mn2|mf1|mf2|hn1|hn2|hf1|hf2|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-mf1|l-hn1|l-hf1|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"},
+	// 4. min + top + childs-1 + span-end
+	{"a4", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|mr1|hl1|hr1|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0"},
 };
