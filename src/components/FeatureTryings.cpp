@@ -38,4 +38,8 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	{"a4", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"ml1|mr1|hl1|hr1|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
 			"ma0|mb0|ha0|hb0"},
+	// 5. a3lr + span-end
+	{"a5", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0"},
 };

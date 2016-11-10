@@ -86,6 +86,8 @@ Spec::Spec(const string& mss)
 				update_mode = dp_str2num<int>(fields[2]);
 			else if(fields[1] == "layer_del")
 				layer_del = dp_str2num<int>(fields[2]);		// how many layers to delete
+			else if(fields[1] == "param_num")
+				param_num = dp_str2num<int>(fields[2]);		// how many layers to delete
 			else if(fields[1] == "blstm_size")
 				blstm_size = dp_str2num<unsigned>(fields[2]);
 			else if(fields[1] == "blstm_layer")
@@ -139,7 +141,7 @@ void Spec::write(ostream& fout)
 		fout << embed_outd[i] << ' ' << embed_ind[i] << ' ' << embed_num[i] << '\n';
 	fout << update_mode << ' ' << momemtum << ' ' << weight_decay << ' ' << memory << '\n';
 	fout << blstm_size << ' ' << blstm_layer << ' ' << blstm_remainembed << ' ' << blstm_tillembed << ' ' << blstm_drop << '\n';
-	fout << layer_del << '\n';
+	fout << layer_del << ' ' << param_num << '\n';
 }
 
 Spec* Spec::read(istream& fin)
@@ -163,7 +165,7 @@ Spec* Spec::read(istream& fin)
 		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i];
 	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;
 	fin >> one->blstm_size >> one->blstm_layer >> one->blstm_remainembed >> one->blstm_tillembed >> one->blstm_drop;
-	fin >> one->layer_del;
+	fin >> one->layer_del >> one->param_num;
 	one->write(Logger::get_output());	// report
 	return one;
 }

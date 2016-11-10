@@ -44,6 +44,9 @@ private:
 	vector<int> spans;					// size of the span in the origin surface string (default 1)
 	vector<pair<int, int>> distance_pairs;
 	vector<int> labels;
+	// remember the places of special nodes
+	int sp_index_h{-10000};
+	int sp_index_m{-10000};
 public:
 	// settle the final indexes
 	static int settle_word(int x){ return x + INDEX_BIAS_W; }

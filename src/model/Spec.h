@@ -27,11 +27,14 @@ public:
 	vector<unsigned> embed_ind;	// vocab's size
 	vector<unsigned> embed_num;	// how many embed in one instance
 	// others(updates): o-<name>-value;
+	// --
 	int update_mode{SGD};
 	REAL momemtum{0.6f};
 	REAL weight_decay{1e-8f};
 	string memory{"1024"};
-	int layer_del{0};
+	int layer_del{0};	// delete how many layers
+	int param_num{1};	// how many groups of params (after the embedding layer)
+	// -- blstm
 	unsigned blstm_size{0};	// forward + backward: all size
 	unsigned blstm_layer{1};
 	int blstm_remainembed{1};	//remain original embed for words and pos?

@@ -59,3 +59,5 @@
 2016.10.31<dev-c>(dev1.12.3) Add combined embed init and some scripts.
 2016.11.6<dev-c>(dev1.12.4) Some small changes.
 2016.11.6<dev-c>(dev1.12.4.patches) Some fixes. [rc0.3]
+2016.11.10<dev-c>(dev1.13) Multiple groups of param.
+	- Currently for different directions.

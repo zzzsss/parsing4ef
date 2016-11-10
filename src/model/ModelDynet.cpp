@@ -28,10 +28,14 @@ void ModelDynet::create_model()
 		pi.initialize_params(one_param.get()->all_values);
 		param_lookups.push_back(one_param);
 	}
+	param_w = vector<vector<Parameter>>(sp->param_num);
+	param_b = vector<vector<Parameter>>(sp->param_num);
 	for(unsigned i = 1; i < sp->layer_size.size(); i++){	// start with one
-		REAL fanio = std::sqrt((REAL)(sp->layer_size[i]+sp->layer_size[i - 1]));
-		param_w.push_back(mach->add_parameters({sp->layer_size[i], sp->layer_size[i-1]}, sp->layer_initw[i] / fanio));
-		param_b.push_back(mach->add_parameters({sp->layer_size[i]}, sp->layer_initb[i]));
+		REAL fanio = std::sqrt((REAL)(sp->layer_size[i] + sp->layer_size[i - 1]));
+		for(int j = 0; j < sp->param_num; j++){
+			param_w[j].push_back(mach->add_parameters({sp->layer_size[i], sp->layer_size[i - 1]}, sp->layer_initw[i] / fanio));
+			param_b[j].push_back(mach->add_parameters({sp->layer_size[i]}, sp->layer_initb[i]));
+		}
 	}
 	// -- 1.5 blstm --
 	if(sp->blstm_size > 0){
@@ -127,14 +131,17 @@ namespace{
 }
 /* ----------------------------------------------------- */
 
-Expression ModelDynet::TMP_forward(const vector<Input>& x)
+Expression ModelDynet::TMP_forward(const vector<Input>& x, int which)
 {
+	// first for which param
+	const vector<Parameter>& param_wi = param_w[which];
+	const vector<Parameter>& param_bi = param_b[which];
 	vector<Expression> weights;
 	vector<Expression> biases;
-	for(unsigned i = 0; i < param_w.size(); i++)
-		weights.emplace_back(parameter(*cg, param_w[i]));
-	for(unsigned i = 0; i < param_b.size(); i++)
-		biases.emplace_back(parameter(*cg, param_b[i]));
+	for(unsigned i = 0; i < param_wi.size(); i++)
+		weights.emplace_back(parameter(*cg, param_wi[i]));
+	for(unsigned i = 0; i < param_bi.size(); i++)
+		biases.emplace_back(parameter(*cg, param_bi[i]));
 	// 1. collect all the lookups
 	vector<Expression> them;
 	{
@@ -145,7 +152,7 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 		if(su != x[0].first->size())
 			Logger::Error("Unmatched token size for the input.");
 	}
-	for(auto one_pair: x){
+	for(auto& one_pair: x){
 		// blstm ??
 		if(sp->blstm_size > 0){
 			// ---- special one ----
@@ -185,7 +192,7 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 	// -- 
 	// -- auto r_h0 = cg.get_value(h0);
 	// 3. forward next
-	for(unsigned i = 0; i < param_w.size(); i++){
+	for(unsigned i = 0; i < param_wi.size(); i++){
 		REAL this_drop = sp->layer_drop[i];
 		if(this_drop > 0){
 			if(is_training)	// not for the last layer
@@ -209,23 +216,42 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x)
 	return h0;
 }
 
+// return vector of vector of indexes
+vector<vector<int>> ModelDynet::TMP_select_input(const vector<Input>& x)
+{
+	vector<vector<int>> ret(sp->param_num);	
+	for(unsigned i = 0; i < x.size(); i++)
+		ret[(x[i].which % sp->param_num)].push_back(i);	// here use %
+	return ret;
+}
+
 // forward, backward
 vector<Output> ModelDynet::forward(const vector<Input>& x)
 {	
 	if(x.size() <= 0)
 		return vector<Output>{};
-	TMP_cg_checkpoint(cg);	// lstm info
-	auto results = TMP_forward(x);
-	auto pointer = cg->forward(results).v;
-	int outdim = sp->layer_size.back();
-	vector<Output> ret;
-	for(unsigned i = 0; i < x.size(); i++){	// copy them
-		Output one = new vector<REAL>(pointer, pointer+outdim);
-		ret.push_back(one);
-		pointer += outdim;
+	vector<Output> ret(x.size(), nullptr);
+	auto input_indexes = TMP_select_input(x);
+	for(unsigned ni = 0; ni < input_indexes.size(); ni++){
+		// prepare this input
+		vector<Input> this_x;
+		if(input_indexes[ni].empty())
+			continue;
+		for(int j : input_indexes[ni])
+			this_x.emplace_back(x[j]);
+		// real forward
+		TMP_cg_checkpoint(cg);	// lstm info
+		auto results = TMP_forward(this_x, ni);
+		auto pointer = cg->forward(results).v;
+		int outdim = sp->layer_size.back();
+		for(int j : input_indexes[ni]){	// copy them
+			Output one = new vector<REAL>(pointer, pointer + outdim);
+			ret[j] = one;
+			pointer += outdim;
+		}
+		TMP_cg_revert(cg);		// lstm info
 	}
-	num_forw += x.size();			
-	TMP_cg_revert(cg);		// lstm info
+	num_forw += x.size();
 	return ret;
 }
 
@@ -233,22 +259,35 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 {
 	if(in.size() <= 0)
 		return;
-	TMP_cg_checkpoint(cg);	// lstm info
-	auto results = TMP_forward(in);
-	// prepare gradients
-	unsigned batch_size = in.size();
-	unsigned outdim = sp->layer_size.back();
-	vector<REAL>* the_grad = new vector<REAL>(batch_size*outdim, 0);
-	for(unsigned i = 0; i < batch_size; i++)
-		(*the_grad)[i*outdim + index[i]] = grad[i];
-	auto expr_grad = input(*cg, Dim({outdim}, batch_size), the_grad);
-	auto dotproduct = dot_product(results, expr_grad);
-	auto loss = sum_batches(dotproduct);
-	cg->forward(loss);
-	cg->backward(loss);
-	delete the_grad;
+	auto input_indexes = TMP_select_input(in);
+	for(unsigned ni = 0; ni < input_indexes.size(); ni++){
+		// prepare this input
+		vector<Input> this_in;
+		if(input_indexes[ni].empty())
+			continue;
+		for(int j : input_indexes[ni])
+			this_in.emplace_back(in[j]);
+		// real forward & backward
+		TMP_cg_checkpoint(cg);	// lstm info
+		auto results = TMP_forward(this_in, ni);
+		// prepare gradients
+		unsigned batch_size = this_in.size();
+		unsigned outdim = sp->layer_size.back();
+		vector<REAL>* the_grad = new vector<REAL>(batch_size*outdim, 0);
+		for(unsigned i = 0; i < batch_size; i++){
+			int LOCAL_index = input_indexes[ni][i];
+			(*the_grad)[i*outdim + index[LOCAL_index]] = grad[LOCAL_index];
+		}
+		auto expr_grad = input(*cg, Dim({outdim}, batch_size), the_grad);
+		auto dotproduct = dot_product(results, expr_grad);
+		auto loss = sum_batches(dotproduct);
+		cg->forward(loss);
+		cg->backward(loss);
+		delete the_grad;
+		TMP_cg_revert(cg);		// lstm info
+	}
 	num_back += in.size();	
-	TMP_cg_revert(cg);		// lstm info
+	return;
 }
 
 // build lstm repr

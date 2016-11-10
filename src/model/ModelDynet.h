@@ -33,8 +33,8 @@ private:
 	typename dynet::Trainer* trainer{nullptr};
 	// parameters
 	vector<LookupParameter> param_lookups;	// sp->embed
-	vector<Parameter> param_w;				//sp->layers
-	vector<Parameter> param_b;
+	vector<vector<Parameter>> param_w;				//sp->layers
+	vector<vector<Parameter>> param_b;
 	// for remembering the states, the expressions from lstm are build one per sentence
 	LSTMBuilder* lstm_forward{nullptr};
 	LSTMBuilder* lstm_backward{nullptr};
@@ -44,7 +44,8 @@ private:
 	vector<Expression> lstm_repr_spe;	// special representations
 	Parameter param_lstm_nope;			// REPR_NOPE (learnable)
 	//
-	Expression TMP_forward(const vector<Input>& x);
+	Expression TMP_forward(const vector<Input>& x, int which);		// compute graph
+	vector<vector<int>> TMP_select_input(const vector<Input>& x);	// return vectors of indexes
 public:
 	~ModelDynet(){ 
 		delete sp; 

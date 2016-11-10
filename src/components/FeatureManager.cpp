@@ -83,6 +83,13 @@ FeatureManager::FeatureManager(const string& fss, DpDictionary* d, int ef_mode):
 		int li = index[l];	// throw if not found
 		labels.emplace_back(li);
 	}
+	// calculate special nodes
+	auto iter_sp_h = index.find("h");
+	auto iter_sp_m = index.find("m");
+	if(iter_sp_h==index.end() || iter_sp_m == index.end())
+		Logger::Error("In fss, m and h must be included.");
+	sp_index_h = iter_sp_h->second;
+	sp_index_m = iter_sp_m->second;
 	// check mode -- skip
 	// TODO: as a warning
 	// report
@@ -236,5 +243,7 @@ Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 	for(auto i: vl){
 		ret.push_back(settle_label(i));
 	}
-	return std::make_pair(retp, retpi);
+	// construct input with direction
+	int input_which = ((vn[sp_index_h]>vn[sp_index_m])?0:1);	// never mind which is which
+	return Input{retp, retpi, input_which};
 }

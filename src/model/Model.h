@@ -12,7 +12,13 @@ using REAL = float;
 
 // The interface to the models
 // currently assuming simple feedforward model (simple input)
-using Input = pair<vector<int>*, vector<int>*>;		// !! the second index is to the sentence, not embeddings
+// -- NOPE -- using Input = pair<vector<int>*, vector<int>*>;		// !! the second index is to the sentence, not embeddings
+struct Input{
+	vector<int>* first{nullptr};
+	vector<int>* second{nullptr};
+	int which{0};
+	Input(vector<int>* f, vector<int>* s, int w): first(f), second(s), which(w){}
+};
 using Output = vector<REAL>*;
 const int NONEXIST_INDEX = -100000;		// for specifying index for the token in a sentence
 
