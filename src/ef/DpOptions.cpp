@@ -98,6 +98,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		}
 		else TMP_assign_key(beam_all);
 		else TMP_assign_key(recomb_mode);
+		else TMP_assign_key(recomb_div);
 		else TMP_assign_key(gold_inum);
 		else TMP_assign_key(drop_is_drop);
 		else if(key == "mss"){

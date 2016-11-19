@@ -4,6 +4,7 @@
 #include "../tools/DpTools.h"
 #include <sstream>
 #include <queue>
+#include <cstdlib>
 
 const int State::NOPE_YET = -1;
 int State::loss_struct;
@@ -81,6 +82,14 @@ string State::get_repr(int mode, bool labeled)
 	bool use_c2 = false;	// use second child?
 	int cdepth = 10000;		// large enough?
 	switch(mode){
+	case RECOMB_NOPE:	// return random
+	{
+		const int RANDSTR_NUM = 32;
+		string random_str = "";
+		for(int i = 0; i < RANDSTR_NUM; i++)
+			random_str += (char)(std::rand() % 128);
+		return random_str;
+	}
 	case RECOMB_STRICT:
 	{
 		for(unsigned i = 1; i < partial_heads.size(); i++){

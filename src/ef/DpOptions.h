@@ -72,6 +72,7 @@ public:
 	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure
 	unsigned beam_all{8};		// final beam-size
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
+	int recomb_div{RECOMB_STRICT};		// unlabeled second beam recombination mode for structure diversity
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
 	int drop_is_drop{0};		// force drop when training

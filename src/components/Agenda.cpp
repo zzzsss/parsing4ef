@@ -64,7 +64,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 		}
 		// next check label-beam
 		if(!drop){
-			one_repr_unlabel = one->get_repr(RECOMB_STRICT, false);
+			one_repr_unlabel = one->get_repr(opt->recomb_div, false);
 			auto ff = structure_num.find(one_repr_unlabel);
 			if(ff != structure_num.end() && ff->second >= opt->beam_flabel)
 				drop = true;

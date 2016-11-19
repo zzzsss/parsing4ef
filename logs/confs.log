@@ -1,0 +1,43 @@
+To record the best scored confs:
+
+------------------------------------------
+[conf1] 2016.11.11 (dev1.13) -> 93.2
+
+file_train:../train.right
+file_dev:../dev.right
+file_test:../test.right
+update_mode:1
+drop_is_drop:1
+loss_mode:2
+rloss_exp:0
+rloss_alpha:2
+embed_wl:../w2v/words.lst
+embed_em:../w2v/embeddings.txt
+tr_lrate:0.1
+mss:o-blstm_size-100
+mss:o-blstm_remainembed-0
+margin:2
+fss:a5  
+mss:o-param_num-2       
+mss:o-layer_del-1
+------------------------------------------
+[conf2] 2016.11.17 -> 93.4
+(here fss is default "", and what might be changed? -> blstm_size:160, fss:a5, tr_iters:10)
+
+file_train:../train.right
+file_dev:../dev.right
+file_test:../test.right
+update_mode:1
+drop_is_drop:1
+loss_mode:2
+rloss_exp:0
+rloss_alpha:2
+embed_wl:../w2v/words.lst
+embed_em:../w2v/embeddings.txt
+tr_lrate:0.05
+mss:o-blstm_size-100
+mss:o-blstm_remainembed-0
+margin:2
+mss:o-param_num-2       
+mss:o-layer_del-1
+------------------------------------------

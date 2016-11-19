@@ -61,3 +61,4 @@
 2016.11.6<dev-c>(dev1.12.4.patches) Some fixes. [rc0.3]
 2016.11.10<dev-c>(dev1.13) Multiple groups of param.
 	- Currently for different directions.
+2016.11.19<dev-c>(dev1.13.1) Add and fix fss, recomb for beam_div, next trying efeager.

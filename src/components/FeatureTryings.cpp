@@ -42,4 +42,29 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	{"a5", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
 			"ma0|mb0|ha0|hb0"},
+	// 6. a5 + more-features
+	{"a6d", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0|"		// more distances
+			"d-mt4-mt3|d-mt3-mt2|d-mt2-mt1|d-mt1-m|d-ht3-ht4|d-ht2-ht3|d-ht1-ht2|d-h-ht1|"},
+	{"a6c", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0|"		// child of childs
+			"ml1l1|mr1r1|hl1l1|hr1r1|"},
+	{"a6l", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0|"
+			"d-ml2-m|d-mr2-m|d-hl2-h|d-hr2-h|l-ml2|l-mr2|l-hl2|l-hr2|"},	// more labels
+	{"a6t", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0|"
+			"mt1l1|mt1r1|ht1l1|ht1r1"},	// more top childs
+
+	// And next for ef-eager
+
+
+	// defaults
+	{"", "efstd"},
+	{"efstd", "a6d"},
+	{"efeager", ""},
 };
