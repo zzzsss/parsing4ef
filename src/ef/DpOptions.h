@@ -76,6 +76,7 @@ public:
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
 	int drop_is_drop{0};		// force drop when training
+	float drop_random{0};		// random drop for exploration when training
 	//5. about model
 	string mss{""};			//model specifier: see model/Spec.h for details
 	int dim_w{50};			// dimensions of embedding for word,pos,distance,label

@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <cmath>
 #include "../tools/DpTools.h"
+#include <climits>
 
 int Agenda::num_explore = 0;
 int Agenda::num_drop = 0;
@@ -79,6 +80,9 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 			else
 				ff->second += 1;
 		}
+		// random drop when training
+		if(is_training && opt->drop_random > 0)
+			drop = ((rand() + 0.0f) / INT_MAX < opt->drop_random);
 		// -- recording sth about gold only in training --
 		if(is_training && one->is_correct()){
 			if(!drop){
@@ -205,6 +209,7 @@ vector<State*> Agenda::alter_beam(vector<State*>& curr_beam, bool no_gold, bool 
 // do the backprop once, here we don't care about lrate, setting as 1.0/div
 void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 {
+	std::sort(ubeam.begin(), ubeam.end(), TMP_cmp);		//sort it back
 	// check the best (no-dropped) one
 	{
 		auto s = ubeam.back();

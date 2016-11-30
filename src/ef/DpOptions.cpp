@@ -101,6 +101,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(recomb_div);
 		else TMP_assign_key(gold_inum);
 		else TMP_assign_key(drop_is_drop);
+		else TMP_assign_key(drop_random);
 		else if(key == "mss"){
 			string x = mss.empty() ? "" : "|";
 			mss = mss + x + value;	// special one append

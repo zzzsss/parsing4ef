@@ -27,11 +27,11 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	{"b2", "m|h|hp1|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|d-h-hp1|l-h"},
 	{"b2s", "m|h|hp1|mt1|mt2|mt3|mt4|hs1|hs2|hs3|hs4|d-m-h|d-h-hp1|l-h"},
 	// 3. min + top + childs
-	{"a3nf", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|" 
+	{"a3nf", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"mn1|mn2|mf1|mf2|hn1|hn2|hf1|hf2|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-mf1|l-hn1|l-hf1"},
 	{"a3lr", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1"},
-	{"a3nflr", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|" 
+	{"a3nflr", "m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
 			"mn1|mn2|mf1|mf2|hn1|hn2|hf1|hf2|d-mn1-m|d-mf1-m|d-hn1-h|d-hf1-h|l-mn1|l-mf1|l-hn1|l-hf1|"
 			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"},
 	// 4. min + top + childs-1 + span-end
@@ -61,7 +61,11 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 			"mt1l1|mt1r1|ht1l1|ht1r1"},	// more top childs
 
 	// And next for ef-eager
-
+	{"b6p",	"m|h|mt1|mt2|mt3|mt4|ht1|ht2|ht3|ht4|d-m-h|"
+			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
+			"ma0|mb0|ha0|hb0|"
+			"d-mt4-mt3|d-mt3-mt2|d-mt2-mt1|d-mt1-m|d-ht3-ht4|d-ht2-ht3|d-ht1-ht2|d-h-ht1|"
+			"hp1|hp2|hp1n2|hp1f1|d-h-hp1|d-hp1-hp2|d-hp1n2-hp1|l-h|l-hp1|l-hp1n2"},	// add parent info
 
 	// defaults
 	{"", "efstd"},
