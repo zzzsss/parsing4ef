@@ -76,18 +76,21 @@ vector<StateTemp> EfeagerState::expand()
 
 //2. get representation -- for recombination in searching
 // TODO: special decoding: assuming the sentence length is smaller than 255, and sometimes '|' as separator
+static long long LOCAL_counting = 0;
 string State::get_repr(int mode, bool labeled)
 {
 	string tmp_str;
 	bool use_c2 = false;	// use second child?
 	int cdepth = 10000;		// large enough?
 	switch(mode){
-	case RECOMB_NOPE:	// return random
+	case RECOMB_NOPE:	// return sequence
 	{
-		const int RANDSTR_NUM = 32;
+		/*const int RANDSTR_NUM = 32;
 		string random_str = "";
-		for(int i = 0; i < RANDSTR_NUM; i++)
-			random_str += (char)(std::rand() % 128);
+		for(int i = 0; i < randstr_num; i++)
+			random_str += (char)(std::rand() % 128);*/
+		string random_str = "r-";
+		random_str += dp_num2str(LOCAL_counting++);
 		return random_str;
 	}
 	case RECOMB_STRICT:
@@ -99,6 +102,27 @@ string State::get_repr(int mode, bool labeled)
 		}
 		return tmp_str;		// directly return
 	}
+	case RECOMB_TOPC2_SPAN:
+	{
+		int cur = 0;
+		while(cur != NOPE_YET){
+			// top node
+			tmp_str += cur;
+			// four childs
+			vector<int> cur_childs = {ch_left[cur], ch_right[cur], ch_left2[cur], ch_right2[cur]};
+			for(int one : cur_childs){
+				tmp_str += one;
+				if(labeled)
+					tmp_str += ((one == NOPE_YET) ? NOPE_YET : partial_rels[one]);
+			}
+			// left and right
+			tmp_str += this->travel_downmost(cur, -1);
+			tmp_str += this->travel_downmost(cur, 1);
+			// move right
+			cur = nb_right[cur];
+		}
+		return tmp_str;
+	}
 	case RECOMB_SPINE:	break;
 	case RECOMB_SPINE2:	use_c2 = true; break;
 	case RECOMB_TOPC:	cdepth = 1; break;
@@ -108,6 +132,7 @@ string State::get_repr(int mode, bool labeled)
 	}
 	// get them
 	{
+		//Logger::Warn("!! Current recomb mode are somewhat deprecated and unknown, better avoid them.");
 		int cur = 0;
 		while(cur != NOPE_YET){
 			tmp_str += cur;

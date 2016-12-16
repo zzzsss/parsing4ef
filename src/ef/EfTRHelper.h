@@ -18,6 +18,7 @@ private:
 	double tr_cut;			// cutting rate for lr
 	int tr_cut_times;		// at least cut this times (so real iters maybe more than iter)
 	int tr_cut_iters;		// force cut if no cutting for how many iters
+	double tr_cut_sthres;		// if dev has not improved more than this, cut the lr
 	// records
 	int total_cut_times{0};
 	int last_cut_iter{-1};
@@ -25,7 +26,7 @@ private:
 	double best_score{0};
 public:
 	EfTRHelper(DpOptions* op): lrate_init(op->tr_lrate), lrate_current(op->tr_lrate), iters_all(op->tr_iters),
-		tr_cut(op->tr_cut), tr_cut_times(op->tr_cut_times), tr_cut_iters(op->tr_cut_iters){}
+		tr_cut(op->tr_cut), tr_cut_times(op->tr_cut_times), tr_cut_iters(op->tr_cut_iters), tr_cut_sthres(op->tr_cut_sthres){}
 	bool keepon(){
 		return iters_current < iters_all || total_cut_times < tr_cut_times;
 	}
@@ -33,8 +34,10 @@ public:
 		// first for lrate
 		bool this_cut = false;
 		bool this_best = false;
-		//<remove the first condition>if((!scores.empty() && s < scores.back()) || (iters_current-last_cut_iter)>=tr_cut_iters){
-		if((iters_current - last_cut_iter) >= tr_cut_iters){
+		//<remove the first condition>if( || (iters_current-last_cut_iter)>=tr_cut_iters){
+		bool cut_for_score = (!scores.empty() && (s-scores.back()) < tr_cut_sthres);
+		bool cut_for_time = ((iters_current - last_cut_iter) >= tr_cut_iters);
+		if(cut_for_score || cut_for_time){
 			lrate_current *= tr_cut;
 			last_cut_iter = iters_current;
 			this_cut = true;

@@ -70,5 +70,5 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 	// defaults
 	{"", "efstd"},
 	{"efstd", "a6d"},
-	{"efeager", ""},
+	{"efeager", "b6p"},
 };

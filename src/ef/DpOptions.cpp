@@ -10,7 +10,7 @@ namespace{
 		{"loss", vector<string>{"perceptron", "a-crf", "reorder"}},
 		{"update", vector<string>{"till-end", "max-violation", "early-update", "restart", "till-end-WithMultiUpdates"}},
 		{"updatediv", vector<string>{"one", "current_len", "sentence_len"}},
-		{"recomb", vector<string>{"nope", "strict", "spine", "spine2", "topc", "topc2", "top"}}
+		{"recomb", vector<string>{"nope", "strict", "spine", "spine2", "topc", "topc2", "top", "topc2+spanend"}}
 	};
 	string TMP_get_desc(string one, int mode){
 		return TMP_description.at(one).at(mode);
@@ -119,6 +119,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(tr_cut);
 		else TMP_assign_key(tr_cut_times);
 		else TMP_assign_key(tr_cut_iters);
+		else TMP_assign_key(tr_cut_sthres);
 		else TMP_assign_key(tr_sample);
 		else TMP_assign_key(tr_minibatch);
 		else if(key == "changes")

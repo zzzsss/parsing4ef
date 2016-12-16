@@ -17,7 +17,7 @@ enum UPDATE_MODE{ UPDATE_END, UPDATE_MAXV, UPDATE_EU, UPDATE_RESTART, UPDATE_END
 // t2.2: the divisor when updating (this influences lr): 1, current_len, sentence_len
 enum UPDATEDIV_MODE{ UPDATEDIV_ONE, UPDATEDIV_CUR, UPDATEDIV_ALL };
 // t3: recombination mode
-enum RECOMB_MODE{ RECOMB_NOPE, RECOMB_STRICT, RECOMB_SPINE, RECOMB_SPINE2, RECOMB_TOPC, RECOMB_TOPC2, RECOMB_TOP };
+enum RECOMB_MODE{ RECOMB_NOPE, RECOMB_STRICT, RECOMB_SPINE, RECOMB_SPINE2, RECOMB_TOPC, RECOMB_TOPC2, RECOMB_TOP, RECOMB_TOPC2_SPAN };
 
 /*
 	Explanation for the options:
@@ -93,6 +93,7 @@ public:
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)
 	int tr_cut_iters{3};		// force cut if no cutting for how many iters
+	double tr_cut_sthres{-1};	// score threshold, default -1 means never
 	double tr_sample{0.95};		// sample rate, skip sentence randomly by (1-tr_sample)
 	int tr_minibatch{2};		// number of sentences before one update
 	//7. changes

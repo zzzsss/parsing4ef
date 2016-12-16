@@ -27,7 +27,7 @@ void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, string C
 		fwl.open(CONF_embed_WL);
 		fem.open(CONF_embed_EM);
 		if(!fwl || !fem)
-			Logger::Error("Failed when opening embedding file.");
+			Logger::Warn("Failed when opening embedding file.");
 		while(fwl){
 			if(!fem)
 				Logger::Error("No match with embedding files.");
@@ -51,7 +51,7 @@ void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, string C
 		ifstream fin;
 		fin.open(CONF_embed_file);
 		if(!fin)
-			Logger::Error("Failed when opening embedding file.");
+			Logger::Warn("Failed when opening embedding file.");
 		while(fin){
 			string one_word;
 			fin >> one_word;

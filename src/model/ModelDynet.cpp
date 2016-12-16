@@ -194,11 +194,8 @@ Expression ModelDynet::TMP_forward(const vector<Input>& x, int which)
 	// 3. forward next
 	for(unsigned i = 0; i < param_wi.size(); i++){
 		REAL this_drop = sp->layer_drop[i];
-		if(this_drop > 0){
-			if(is_training)	// not for the last layer
-				h0 = dropout(h0, this_drop);
-			else
-				h0 = h0 * (1 - this_drop);
+		if(this_drop > 0 && is_training){	// not for the last layer
+			h0 = dropout(h0, this_drop);
 		}
 		h0 = weights[i] * h0 + biases[i];
 		// currently no dropout

@@ -90,7 +90,7 @@ EfParser::EfParser(int argc, char** argv): options(argc, argv)
 {
 	srand(12345);	// fix this to a constant
 	for(int i = 0; i < argc; i++)
-		Logger::get_output() << argv[i] << '\t';
+		Logger::get_output() << argv[i] << ' ';
 	Logger::get_output() << endl;
 	// do some inits
 	Searcher::init_all(&options);
