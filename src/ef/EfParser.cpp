@@ -132,6 +132,7 @@ double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_
 
 void EfParser::do_train(DPS_PTR train, EfTRHelper* h)
 {
+	const int SKIP_MAX_LENGTH = 150;
 	int acc_sent_num = 0;	// for update
 	Logger::get_output() << endl;
 	Recorder::report_time("training iter " + dp_num2str(h->get_iter()) + " with " + dp_num2str(h->get_lrate()));
@@ -139,9 +140,11 @@ void EfParser::do_train(DPS_PTR train, EfTRHelper* h)
 	for(unsigned int i = 0; i < train->size(); i++){
 		if(((rand()+0.0)/INT_MAX) > options.tr_sample)	// skip
 			continue;
-		acc_sent_num++;
 		auto* t = (*train)[i];
+		if(t->size() >= SKIP_MAX_LENGTH)
+			continue;
 		se.ef_search(t);
+		acc_sent_num++;
 		if(acc_sent_num >= options.tr_minibatch){
 			model->update(h->get_lrate()/options.tr_minibatch);		// divide it by minibatch
 			acc_sent_num = 0;
