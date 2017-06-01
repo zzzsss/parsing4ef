@@ -91,6 +91,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(loss_mode);
 		else TMP_assign_key(rloss_exp);
 		else TMP_assign_key(rloss_alpha);
+		else TMP_assign_key(rloss_confine);
 		else TMP_assign_key(beam_flabel);
 		else if(key == "beam_div"){		// bind them when setting beam_div
 			stringstream(value) >> beam_div;
@@ -98,7 +99,8 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		}
 		else TMP_assign_key(beam_all);
 		else TMP_assign_key(recomb_mode);
-		else TMP_assign_key(recomb_div);
+		else TMP_assign_key(recomb_divL);
+		else TMP_assign_key(recomb_divU);
 		else TMP_assign_key(gold_inum);
 		else TMP_assign_key(drop_is_drop);
 		else TMP_assign_key(drop_random);
@@ -115,6 +117,7 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(embed_file);
 		else TMP_assign_key(embed_scale);
 		else TMP_assign_key(tr_lrate);
+		else TMP_assign_key(tr_lrate_lbound);
 		else TMP_assign_key(tr_iters);
 		else TMP_assign_key(tr_cut);
 		else TMP_assign_key(tr_cut_times);

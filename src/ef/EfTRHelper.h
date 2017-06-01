@@ -9,6 +9,7 @@
 class EfTRHelper{
 private:
 	//
+	DpOptions* opt;
 	double lrate_init;		// init lr
 	double lrate_current;	// current lr
 	int iters_all;			// the upper setting for #iters
@@ -25,7 +26,7 @@ private:
 	int best_iter{0};
 	double best_score{0};
 public:
-	EfTRHelper(DpOptions* op): lrate_init(op->tr_lrate), lrate_current(op->tr_lrate), iters_all(op->tr_iters),
+	EfTRHelper(DpOptions* op): opt(op), lrate_init(op->tr_lrate), lrate_current(op->tr_lrate), iters_all(op->tr_iters),
 		tr_cut(op->tr_cut), tr_cut_times(op->tr_cut_times), tr_cut_iters(op->tr_cut_iters), tr_cut_sthres(op->tr_cut_sthres){}
 	bool keepon(){
 		return iters_current < iters_all || total_cut_times < tr_cut_times;
@@ -51,6 +52,11 @@ public:
 		Logger::get_output() << "- End of Iteration " << iters_current << ", cut/save-best: " << this_cut << "/" << this_best << endl;
 		scores.push_back(s);
 		iters_current++;
+		// lower bound for lrate
+		if(lrate_current < opt->tr_lrate_lbound){
+			Logger::get_output() << "Lrate too small, forced to the lbound." << endl;
+			lrate_current = opt->tr_lrate_lbound;
+		}
 		return this_best;
 	}
 	double get_lrate(){ return lrate_current; }

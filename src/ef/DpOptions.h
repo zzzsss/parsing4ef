@@ -67,12 +67,14 @@ public:
 	//4.1.1 about rloss --- exp(x^\alpha) [default: exp(x)]
 	int rloss_exp{1};
 	double rloss_alpha{1.0};
+	int rloss_confine{0};	// bool, whether confine rloss.
 	//4.2 beam sizes && recombination option
 	unsigned beam_flabel{4};		// first filter for labels, which controls diversity on one beam
 	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure
 	unsigned beam_all{8};		// final beam-size
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
-	int recomb_div{RECOMB_STRICT};		// unlabeled second beam recombination mode for structure diversity
+	int recomb_divL{RECOMB_STRICT};		// same effect as recomb_mode, allowing multiple mergers
+	int recomb_divU{RECOMB_STRICT};		// unlabeled second beam recombination mode for structure diversity
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
 	int drop_is_drop{0};		// force drop when training
@@ -89,6 +91,7 @@ public:
 	float embed_scale{1.0f};	// scale value
 	//6. about training
 	double tr_lrate{0.04};		// initial learning rate
+	double tr_lrate_lbound{0.0};	// no further cutting if lower than this
 	int tr_iters{12};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)

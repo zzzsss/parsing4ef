@@ -42,7 +42,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	// 4. extract the highests for beam -- do recombination and gold finding
 	vector<State*> beam;
 	unordered_set<string> beam_repr;			// repr of states in beam
-	unordered_map<string, unsigned> structure_num;	// number in the beam of same structure ignoring labels
+	unordered_map<string, unsigned> structure_numU, structure_numL;	// number in the beam of same structure ignoring labels
 	bool no_gold_yet = true;					// no gold found before insertion
 	int first_gold = -1;						// fisrt gold in the beam (could be the later inserted one)
 	vector<State*> dropped_golds;				// collect dropped gold for training
@@ -52,31 +52,45 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 	while(iter != them_all.end()){
 		State* one = (*iter);
 		bool drop = false;
+		bool drop_from_did = false;
 		string one_repr = "";
-		string one_repr_unlabel = "";
+		string one_reprU = "", one_reprL = "";
 		// -- force drop when training (only training has dropped ones in the beam)
-		if(opt->drop_is_drop > 0 && one->is_dropped())
+		if(opt->drop_is_drop > 0 && one->is_dropped()){
 			drop = true;
+			drop_from_did = true;
+		}
 		// first check recombination -- with label
 		if(!drop && opt->recomb_mode != RECOMB_NOPE){
 			one_repr = one->get_repr(opt->recomb_mode, true);
 			if(beam_repr.find(one_repr) != beam_repr.end())
 				drop = true;
 		}
-		// next check label-beam
+		// next check additional mergers
 		if(!drop){
-			one_repr_unlabel = one->get_repr(opt->recomb_div, false);
-			auto ff = structure_num.find(one_repr_unlabel);
-			if(ff != structure_num.end() && ff->second >= opt->beam_flabel)
+			one_reprU = one->get_repr(opt->recomb_divU, false);
+			auto ff = structure_numU.find(one_reprU);
+			if(ff != structure_numU.end() && ff->second >= opt->beam_flabel)
+				drop = true;
+		}
+		if(!drop){
+			one_reprL = one->get_repr(opt->recomb_divL, true);
+			auto ff = structure_numL.find(one_reprL);
+			if(ff != structure_numL.end() && ff->second >= opt->beam_flabel)
 				drop = true;
 		}
 		// insert into beam if no-drop
 		if(!drop){
 			beam.push_back(one);
 			beam_repr.insert(one_repr);
-			auto ff = structure_num.find(one_repr_unlabel);
-			if(ff == structure_num.end())
-				structure_num[one_repr_unlabel] = 1;
+			auto ff = structure_numU.find(one_reprU);
+			if(ff == structure_numU.end())
+				structure_numU[one_reprU] = 1;
+			else
+				ff->second += 1;
+			ff = structure_numL.find(one_reprL);
+			if(ff == structure_numL.end())
+				structure_numL[one_reprL] = 1;
 			else
 				ff->second += 1;
 		}
@@ -100,7 +114,7 @@ vector<State*> Agenda::rank_them(vector<StateTemp>& them, Scorer& scer)
 		}
 		// stat
 		num_explore++;
-		if(drop)
+		if(drop && !drop_from_did)	// not from the 'drop_is_drop'
 			num_drop++;
 		// break if beam is full
 		iter++;
@@ -374,6 +388,7 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 			else if(r < 0)
 				exp_all_minus += (*TMP_function)(-r, max_negative);
 		}
+		REAL confine_scale = 1.0f;	// for confinement
 		for(unsigned i = 0; i < ubeam.size(); i++){
 			REAL one = distance[i];
 			if(one > 0){
@@ -384,6 +399,14 @@ void Agenda::backp_beam(vector<State*>& ubeam, Scorer& scer)
 				to_update.push_back(ubeam[i]);
 				to_grads.push_back((*TMP_function)(-one, max_negative) / exp_all_minus);
 			}
+			if(one != 0)	// ensure gradient less than score, maybe some kind of confinement
+				confine_scale = std::max(confine_scale, -to_grads.back() / one);
+		}
+		confine_scale = std::min(confine_scale, 10.0f);		// !! magic number
+		// -- 5. possibly confine the gradients
+		if(opt->rloss_confine && confine_scale>1.0f){
+			for(unsigned i = 0; i < to_grads.size(); i++)
+				to_grads[i] /= confine_scale;
 		}
 		break;
 	}
