@@ -239,7 +239,7 @@ vector<Output> ModelDynet::forward(const vector<Input>& x)
 		// real forward
 		TMP_cg_checkpoint(cg);	// lstm info
 		auto results = TMP_forward(this_x, ni);
-		auto pointer = cg->forward(results).v;
+		auto pointer = cg->incremental_forward(results).v;
 		int outdim = sp->layer_size.back();
 		for(int j : input_indexes[ni]){	// copy them
 			Output one = new vector<REAL>(pointer, pointer + outdim);
@@ -278,7 +278,7 @@ void ModelDynet::backward(const vector<Input>& in, const vector<int>&index, cons
 		auto expr_grad = input(*cg, Dim({outdim}, batch_size), the_grad);
 		auto dotproduct = dot_product(results, expr_grad);
 		auto loss = sum_batches(dotproduct);
-		cg->forward(loss);
+		cg->incremental_forward(loss);
 		cg->backward(loss);
 		delete the_grad;
 		TMP_cg_revert(cg);		// lstm info
