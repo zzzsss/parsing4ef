@@ -8,7 +8,7 @@ using namespace std;
 using REAL = float;	// same as Model.h
 
 enum LAYER_ACT{ LINEAR, TANH };
-enum TR_UPDATE_MODE{ SGD, ADAGRAD };
+enum TR_UPDATE_MODE{ SGD, ADAGRAD, ADAM };
 
 // the specifications for the model
 // -- currently only support single digit, can overwrite, but must be sequential (h1 must follow h0)
@@ -30,21 +30,28 @@ public:
 	// --
 	int update_mode{SGD};
 	REAL momemtum{0.6f};
-	REAL weight_decay{1e-8f};
+	REAL weight_decay{0.f};
 	string memory{"1024"};
 	int layer_del{0};	// delete how many layers
-	int param_num{1};	// how many groups of params (after the embedding layer)
+	int param_num{2};	// how many groups of params (after the embedding layer)
 	// -- blstm
-	unsigned blstm_size{0};	// forward + backward: all size
-	unsigned blstm_layer{1};
-	int blstm_remainembed{1};	//remain original embed for words and pos?
+	unsigned blstm_size{512};	// forward + backward: all size
+	unsigned blstm_layer{2};
+	int blstm_remainembed{0};	//remain original embed for words and pos?
 	int blstm_tillembed{2};		//till which embed is the blstm's input (default 2: word and pos)
-	REAL blstm_drop{0.f};
+	REAL blstm_drop{0.2f};
+  unsigned blstm_fsize{100};  // another layer on the output of blstm
 	//
 	Spec(const string& mss);	// plus default mss
 	void write(ostream& fout);
 	static Spec* read(istream& fin);
+  //
+  unsigned get_blstm_outsize(){
+    if(blstm_fsize > 0)
+      return blstm_fsize;
+    else
+      return blstm_size;
+  }
 };
 
 #endif // !_MODEL_SPEC
-

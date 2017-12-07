@@ -69,8 +69,8 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 
 	// defaults
 	{"", "efstd"},
-	{"efstd", "a6d"},
-	{"efeager", "b6p"},
+	{"efstd", "zc0"},
+	{"efeager", "NOPE"},
 
 	// new exploration
 	{
@@ -85,4 +85,11 @@ unordered_map<string, string> TMP_TRYING_FSS = {
 			"ml1|ml2|mr1|mr2|hl1|hl2|hr1|hr2|d-ml1-m|d-mr1-m|d-hl1-h|d-hr1-h|l-ml1|l-mr1|l-hl1|l-hr1|"
 			"d-mt4-mt3|d-mt3-mt2|d-mt2-mt1|d-mt1-m|d-ht3-ht4|d-ht2-ht3|d-ht1-ht2|d-h-ht1|"
 	},
+
+  // 2017-2018 new explorations -> make it cross for the two nodes (todo)
+  {
+    //"zc0", "m|mt1|mt2|ml1|mr1|h|ht1|ht2|hl1|hr1|"
+    //       "l-ml1|l-mr1|l-hl1|l-hr1|d-mt1-m|d-ml1-m|d-mr1-m|d-h-ht1|d-hl1-h|d-hr1-h|d-m-h"
+    "zc0", "m|mt1|mt2|ml1|mr1|h|ht1|ht2|hl1|hr1|l-ml1|l-mr1|l-hl1|l-hr1|d-ml1-m|d-hl1-h|d-m-h"
+  },
 };

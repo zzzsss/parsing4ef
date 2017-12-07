@@ -196,6 +196,7 @@ Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 				retpi->push_back(j);
 		}
 	}
+  /* -- only using repr ones
 	// word
 	for(unsigned i = 0; i < vn.size(); i++){
 		int cur = vn[i];
@@ -222,20 +223,21 @@ Input FeatureManager::feature_expand(Feature* ff, DP_PTR sent)
 				ret.push_back(settle_word(sent->get_index_p(j)));
 		}
 	}
-	// distance -- calculate now
-	for(unsigned i = 0; i < distance_pairs.size(); i++){
-		auto x = distance_pairs[i];
-		int one = vn[x.first];
-		int two = vn[x.second];
-		if(one == NON_EXIST || two == NON_EXIST)
-			ret.push_back(settle_distance(NON_DIS));
-		else
-			ret.push_back(settle_distance(one-two));
-	}
+  */
 	// relation
 	for(auto i: vl){
 		ret.push_back(settle_label(i));
 	}
+  // distance -- calculate now
+  for(unsigned i = 0; i < distance_pairs.size(); i++){
+    auto x = distance_pairs[i];
+    int one = vn[x.first];
+    int two = vn[x.second];
+    if(one == NON_EXIST || two == NON_EXIST)
+      ret.push_back(settle_distance(NON_DIS));
+    else
+      ret.push_back(settle_distance(one - two));
+  }
 	// construct input with direction
 	int input_which = ((vn[sp_index_h]>vn[sp_index_m])?0:1);	// never mind which is which
 	return Input{retp, retpi, input_which};

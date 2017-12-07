@@ -14,9 +14,9 @@ using REAL = float;
 // currently assuming simple feedforward model (simple input)
 // -- NOPE -- using Input = pair<vector<int>*, vector<int>*>;		// !! the second index is to the sentence, not embeddings
 struct Input{
-	vector<int>* first{nullptr};
-	vector<int>* second{nullptr};
-	int which{0};
+	vector<int>* first{nullptr};    // first is the index of words
+	vector<int>* second{nullptr};   // second is the index of other features, like distance and labels
+	int which{0};                   // which is the dependency category, like left or right
 	Input(vector<int>* f, vector<int>* s, int w): first(f), second(s), which(w){}
 };
 using Output = vector<REAL>*;
@@ -39,7 +39,8 @@ public:
 	static ModelZ* newone_init(const string& mss);
 };
 
-#define USE_MODEL_DYNET
+//#define USE_MODEL_DYNET
+#define USE_MODEL_DYNET2 1
 // #define USE_MODEL_DUMMY
 //#define EIGEN_USE_MKL_ALL
 

@@ -61,23 +61,23 @@ public:
 	int mloss_labels{1};
 	int mloss_future{1};
 	int mloss_span{0};		// span of a word / sentence length * loss_span
-	int update_mode{UPDATE_END};		// update strategies (Agenda)
+	int update_mode{UPDATE_MAXV};		// update strategies (Agenda)
 	int updatediv_mode{UPDATEDIV_CUR};	// what is the divisor for update
 	int loss_mode{LOSS_PERCEPTRON};		// object when update (Agenda)
 	//4.1.1 about rloss --- exp(x^\alpha) [default: exp(x)]
-	int rloss_exp{1};
-	double rloss_alpha{1.0};
+	int rloss_exp{0};
+	double rloss_alpha{2.0};
 	int rloss_confine{0};	// bool, whether confine rloss.
 	//4.2 beam sizes && recombination option
 	unsigned beam_flabel{4};		// first filter for labels, which controls diversity on one beam
 	unsigned beam_div{4};		// main diversity beam, controls diversity for same structure
-	unsigned beam_all{8};		// final beam-size
+	unsigned beam_all{4};		// final beam-size
 	int recomb_mode{RECOMB_STRICT};		// recombination mode: 0: no recombination, 1: all-spine, 2: top+outside-child, 3: top
 	int recomb_divL{RECOMB_STRICT};		// same effect as recomb_mode, allowing multiple mergers
 	int recomb_divU{RECOMB_STRICT};		// unlabeled second beam recombination mode for structure diversity
 	//4.3 when gold falls out of beam (notice when update, we always select the best ones)
 	unsigned gold_inum{1};		// how many golds to insert when golds fall out of beam (could be less)
-	int drop_is_drop{0};		// force drop when training
+	int drop_is_drop{1};		// force drop when training
 	float drop_random{0};		// random drop for exploration when training
 	//5. about model
 	string mss{""};			//model specifier: see model/Spec.h for details
@@ -90,15 +90,17 @@ public:
 	string embed_file{""};		// redundant option, wl_ef
 	float embed_scale{1.0f};	// scale value
 	//6. about training
-	double tr_lrate{0.04};		// initial learning rate
+	double tr_lrate{0.1};		// initial learning rate
 	double tr_lrate_lbound{0.0};	// no further cutting if lower than this
-	int tr_iters{12};			// training iterations
+	int tr_iters{30};			// training iterations
 	double tr_cut{0.5};			// cutting rate for lr
 	int tr_cut_times{0};		// at least cut this times (so real iters maybe more than iter)
-	int tr_cut_iters{3};		// force cut if no cutting for how many iters
+  int tr_nocut_iters{0};   // no cutting for the first several iters
+	int tr_cut_iters{4};		// force cut if no cutting for how many iters
 	double tr_cut_sthres{-1};	// score threshold, default -1 means never
-	double tr_sample{0.95};		// sample rate, skip sentence randomly by (1-tr_sample)
+	double tr_sample{0.99};		// sample rate, skip sentence randomly by (1-tr_sample)
 	int tr_minibatch{2};		// number of sentences before one update
+  int tr_report_freq{5000};   // report speed for how many sentences
 	//7. changes
 	// string of changes (change at the beginning of iter): FORMAT: [change:<num>:c1|c2|...]
 	vector<string> iter_changes{};	

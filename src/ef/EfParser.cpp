@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include <sstream>
 #include <climits>
-#include "../model/ModelDynet.h"
+#include "../model/ModelDynet2.h"
 
 // sub-rountines of protected methods
 
@@ -30,13 +30,14 @@ void EfParser::train()
 		stringstream tempss;
 		tempss << "|e0-o" << options.dim_w << "-i" << fm->get_wind() << "-n" << fm->num_nodes_all()
 			<< "|e1-o" << options.dim_p << "-i" << fm->get_pind() << "-n" << fm->num_nodes_all()
-			<< "|e2-o" << options.dim_d << "-i" << fm->get_dind() << "-n" << fm->num_distances()
-			<< "|e3-o" << options.dim_l << "-i" << fm->get_lind() << "-n" << fm->num_labels()
+			<< "|e2-o" << options.dim_l << "-i" << fm->get_lind() << "-n" << fm->num_labels()
+      << "|e3-o" << options.dim_d << "-i" << fm->get_dind() << "-n" << fm->num_distances()
 			<< "|hz-s" << dict->num_rel() << "|";
 		string mss_embed;
 		tempss >> mss_embed;
 		model = ModelZ::newone_init(options.mss+mss_embed);
-		if(ModelDynet* dy = dynamic_cast<ModelDynet*>(model))	// init from pre-trained embeddings
+    // no embed init currently
+		if(ModelDynet2* dy = dynamic_cast<ModelDynet2*>(model))	// init from pre-trained embeddings
 			dy->init_embed(options.embed_wl, options.embed_em, options.embed_file, options.embed_scale, dict);
 	}
 	// 4. main training
@@ -149,6 +150,8 @@ void EfParser::do_train(DPS_PTR train, EfTRHelper* h)
 			model->update(h->get_lrate()/options.tr_minibatch);		// divide it by minibatch
 			acc_sent_num = 0;
 		}
+    // report
+    //if(i % options.tr_report_freq == 1);
 	}
 	se.report_stat(Logger::get_output());
 	return;

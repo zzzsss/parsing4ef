@@ -122,9 +122,11 @@ void DpOptions::init(vector<pair<string, string>>& ps)
 		else TMP_assign_key(tr_cut);
 		else TMP_assign_key(tr_cut_times);
 		else TMP_assign_key(tr_cut_iters);
+    else TMP_assign_key(tr_nocut_iters);
 		else TMP_assign_key(tr_cut_sthres);
 		else TMP_assign_key(tr_sample);
 		else TMP_assign_key(tr_minibatch);
+    else TMP_assign_key(tr_report_freq);
 		else if(key == "changes")
 			iter_changes.push_back(value);
 		else Logger::Error(string("Unknown key ") + key + ":" + value);

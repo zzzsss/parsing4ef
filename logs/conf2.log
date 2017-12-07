@@ -1,0 +1,155 @@
+# 1208_x70 (lstm size)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:h0-d0.1|h1-d0.1
+fss:zc0
+tr_iters:20
+mss:o-blstm_layer-1 mss:o-blstm_layer-2 mss:o-blstm_layer-3
+mss:o-blstm_size-100 mss:o-blstm_size-200 mss:o-blstm_size-300
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+dim_w:50 dim_w:100
+
+# 1208_x71 (lrate)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:h0-d0.1|h1-d0.1
+fss:zc0
+tr_iters:20
+mss:o-blstm_layer-1
+mss:o-blstm_size-200
+mss:o-blstm_drop-0.1
+dim_w:50
+mss:o-momemtum-0.6 mss:o-momemtum-0.7 mss:o-momemtum-0.8 mss:o-momemtum-0.9
+tr_cut_sthres:-1 tr_cut_sthres:0.0005
+tr_cut_iters:3 tr_cut_iters:4 tr_cut_iters:5
+tr_lrate:0.1 tr_lrate:0.05 tr_lrate:0.02 tr_lrate:0.01
+margin:1 margin:2
+
+# 1208_x56 (updating method)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:h0-d0.1|h1-d0.1
+fss:zc0
+tr_iters:20
+mss:o-blstm_layer-1
+mss:o-blstm_size-200
+mss:o-blstm_drop-0.1
+dim_w:50
+tr_lrate:0.01
+mss:o-update_mode-1
+
+## --------------------------
+# tune on 1214
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:h0-d0.1|h1-d0.1
+mss:o-update_mode-2
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_cut_iters:5 tr_cut_iters:10
+tr_lrate:0.001 tr_lrate:0.002
+mss:o-blstm_layer-1 mss:o-blstm_layer-2
+mss:o-blstm_size-160 mss:o-blstm_size-200 mss:o-blstm_size-300
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+margin:1 margin:2
+
+## -------------------------------
+# tune on 1218
+## adam
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:o-update_mode-2
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_lrate_lbound:0.0002
+mss:h0-d0.1|h1-d0.1 mss:h0-d0.2|h1-d0.2
+tr_cut_iters:5 tr_cut_iters:10
+tr_lrate:0.001 tr_lrate:0.002
+mss:o-blstm_layer-1 mss:o-blstm_layer-2
+mss:o-blstm_fsize-0 mss:o-blstm_fsize-100 mss:o-blstm_fsize-160
+mss:o-blstm_size-160 mss:o-blstm_size-200 mss:o-blstm_size-240
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+margin:1 margin:2
+
+## adagrad
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:o-update_mode-1
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_lrate_lbound:0.002
+mss:h0-d0.1|h1-d0.1 mss:h0-d0.2|h1-d0.2
+tr_cut_iters:4 tr_cut_iters:5
+tr_lrate:0.01 tr_lrate:0.02 tr_lrate:0.04
+mss:o-blstm_layer-1 mss:o-blstm_layer-2
+mss:o-blstm_fsize-0 mss:o-blstm_fsize-100 mss:o-blstm_fsize-160
+mss:o-blstm_size-160 mss:o-blstm_size-200 mss:o-blstm_size-240
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+margin:1 margin:2
+
+## sgd+momentum
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:o-update_mode-0
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_lrate_lbound:0.002
+mss:h0-d0.1|h1-d0.1 mss:h0-d0.2|h1-d0.2
+tr_cut_iters:4 tr_cut_iters:5
+tr_lrate:0.1 tr_lrate:0.05 tr_lrate:0.04
+mss:o-blstm_layer-1 mss:o-blstm_layer-2
+mss:o-blstm_fsize-0 mss:o-blstm_fsize-100 mss:o-blstm_fsize-160
+mss:o-blstm_size-160 mss:o-blstm_size-200 mss:o-blstm_size-240
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+margin:1 margin:2
+
+## glove init (later)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:o-update_mode-0
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_lrate_lbound:0.002
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0 embed_scale:0.1
+mss:h0-d0.1|h1-d0.1 mss:h0-d0.2|h1-d0.2
+tr_cut_iters:4 tr_cut_iters:5
+tr_lrate:0.1 tr_lrate:0.05 tr_lrate:0.04
+mss:o-blstm_layer-1 mss:o-blstm_layer-2
+mss:o-blstm_fsize-0 mss:o-blstm_fsize-100 mss:o-blstm_fsize-160
+mss:o-blstm_size-160 mss:o-blstm_size-200 mss:o-blstm_size-240
+mss:o-blstm_drop-0.1 mss:o-blstm_drop-0.2 mss:o-blstm_drop-0.3
+margin:1 margin:2
+#====
+#->
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+mss:o-update_mode-0
+fss:zc0
+tr_iters:25
+loss_mode:2
+tr_lrate_lbound:0.002
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0 embed_scale:0.1
+mss:h0-d0.1|h1-d0.1
+tr_cut_iters:4
+tr_lrate:0.05 tr_lrate:0.1
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0 mss:o-blstm_fsize-100
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.1
+margin:2

@@ -1,4 +1,3 @@
-#include "ModelDynet.h"
 #include <unordered_map>
 #include <fstream>
 #include <iostream>
@@ -6,9 +5,12 @@
 #include <string>
 using namespace std;
 
-#ifdef USE_MODEL_DYNET
+#include "ModelDynet2.h"
+
+#if USE_MODEL_DYNET
+#elif USE_MODEL_DYNET2 
 #include "../components/FeatureManager.h"	// depends on the Magic numbers
-void ModelDynet::init_embed(string CONF_embed_WL, string CONF_embed_EM, string CONF_embed_file, 
+void ModelDynet2::init_embed(string CONF_embed_WL, string CONF_embed_EM, string CONF_embed_file, 
 	REAL CONF_embed_ISCALE, DpDictionary* dict)
 {
 	if(CONF_embed_file.empty() && (CONF_embed_WL.empty() || CONF_embed_EM.empty()))	//nothing to do if not setting

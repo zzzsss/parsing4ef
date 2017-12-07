@@ -130,7 +130,7 @@ class TaskPool:
     def run(self):
         self._add_file(self.config_file)
         while self._loop():
-            time.sleep(0.1)
+            time.sleep(1.0)
         self.reader.end()
         print("OK")
 

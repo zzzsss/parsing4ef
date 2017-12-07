@@ -13,7 +13,7 @@ namespace{
 // some routines for DpSentence
 void DpSentence::read_one(const vector<string>& them)
 {
-	//In fact, add one line and in CoNLL 08 format
+	//In fact, add one line and in CoNLL-U format
 	//1,index; 2,word; 3,pos; 4,head; 5,rel
 	if(size() == 0){
 		//append the root node
@@ -36,9 +36,9 @@ void DpSentence::read_one(const vector<string>& them)
 	}
 	words_norm.emplace_back(temp_norm);
 	// -- norm with re
-	postags.emplace_back(them[4]);
-	heads.emplace_back(dp_str2num<int>(them[8]));
-	rels.emplace_back(them[9]);
+	postags.emplace_back(them[3]);
+	heads.emplace_back(dp_str2num<int>(them[6]));
+	rels.emplace_back(them[7]);
 }
 
 void DpSentence::finish_one()
@@ -75,8 +75,8 @@ void DpSentence::write_this(ostream & fout)
 	//Print out predicted values
 	int len = size();
 	for(int i = 1; i < len; i++){
-		fout << i << "\t" << forms[i] << "\t_\t_\t" << postags[i] << "\t_\t_\t_\t" 
-			<< predict_heads[i] << "\t" << predict_rels[i] << "\n";
+		fout << i << "\t" << forms[i] << "\t_\t" << postags[i] << "\t_\t_\t" 
+			<< predict_heads[i] << "\t" << predict_rels[i] << "\t_\t_\n";
 	}
 	fout << "\n";
 }

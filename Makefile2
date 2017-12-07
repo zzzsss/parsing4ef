@@ -7,8 +7,8 @@
 CPP=g++
 CC=gcc
 LD=g++
-CFLAGS=-O3 -std=c++11 -Wall -g
-LFLAGS=-O3 -g
+CFLAGS=-std=c++11 -Wall -g
+LFLAGS=-g
 
 #!!!specify the blas lib location and the blas lib, these may not be the same in different machines
 #BLAS_LIBS_LOCATION=-L/usr/lib/atlas-blas
@@ -26,13 +26,14 @@ DYNET_LINK_FLAG=-L$(ZZ)/libs/dynet/cbuild/dynet/ -ldynet
 SRCS=$(wildcard src/*/*.cpp) $(wildcard src/*.cpp)
 OBJS=$(patsubst %.cpp,obj/%.o,$(notdir $(SRCS)))
 
-td: obj/depends $(OBJS)
+t: obj/depends $(OBJS)
 #	$(LD) $(LFLAGS) $(OBJS) -o nngdparser $(BLAS_LIBS_LOCATION) -lboost_regex -lboost_program_options $(BLAS_LIBS)
 	$(LD) $(LFLAGS) $(OBJS) $(DYNET_LINK_FLAG) -o t
 
 obj/depends:
 	$(CPP) $(DYNET_INC_FLAG) $(CFLAGS) $(BLAS_DEFINE) -MM $(SRCS) > $@
     
+# warning: if change *.h, then the rules are not specified here?
 obj/%.o: src/%.cpp
 	$(CPP) $(CFLAGS) -c $< -o $@
 obj/%.o: src/tools/%.cpp

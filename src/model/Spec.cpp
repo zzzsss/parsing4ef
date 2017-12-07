@@ -4,7 +4,7 @@
 // Simple feed-forward nn with embedding as the first layer(h0)
 
 namespace{
-	const string DEFAULT_MSS = "h0-s0|h1-s256-a1|h2-s128-a1|h3-s0";	// one embedding layer plus three hidden layer 
+	const string DEFAULT_MSS = "h0-s0|h1-s200-a1|h2-s0";
 	const int DEFAULT_ACT = LINEAR;
 	const REAL DEFAULT_DROP = 0.0f;
 	const REAL DEFAULT_INITW = 1.0f;
@@ -92,8 +92,10 @@ Spec::Spec(const string& mss)
 				blstm_size = dp_str2num<unsigned>(fields[2]);
 			else if(fields[1] == "blstm_layer")
 				blstm_layer = dp_str2num<unsigned>(fields[2]);
-			else if(fields[1] == "blstm_remainembed")
-				blstm_remainembed = dp_str2num<int>(fields[2]);
+      else if(fields[1] == "blstm_fsize")
+        blstm_fsize = dp_str2num<unsigned>(fields[2]);
+			//else if(fields[1] == "blstm_remainembed")
+			//	blstm_remainembed = dp_str2num<int>(fields[2]);
 			else if(fields[1] == "blstm_tillembed")
 				blstm_tillembed = dp_str2num<int>(fields[2]);
 			else if(fields[1] == "blstm_drop")
@@ -110,7 +112,7 @@ Spec::Spec(const string& mss)
 	for(unsigned i = 0; i < embed_outd.size(); i++){
 		h0 += embed_outd[i] * embed_num[i];
 	}
-	h0 += blstm_size*embed_num[0];	// number of tokens
+	h0 += get_blstm_outsize()*embed_num[0];	// number of tokens
 	if(!blstm_remainembed){	// do not include WORD and POS embeddings
 		for(int i = 0; i < blstm_tillembed; i++)
 			h0 -= embed_outd[i] * embed_num[i];
@@ -140,7 +142,7 @@ void Spec::write(ostream& fout)
 	for(unsigned i = 0; i < embed_outd.size(); i++)
 		fout << embed_outd[i] << ' ' << embed_ind[i] << ' ' << embed_num[i] << '\n';
 	fout << update_mode << ' ' << momemtum << ' ' << weight_decay << ' ' << memory << '\n';
-	fout << blstm_size << ' ' << blstm_layer << ' ' << blstm_remainembed << ' ' << blstm_tillembed << ' ' << blstm_drop << '\n';
+	fout << blstm_size << ' ' << blstm_layer << ' ' << blstm_remainembed << ' ' << blstm_tillembed << ' ' << blstm_drop << ' ' << blstm_fsize << '\n';
 	fout << layer_del << ' ' << param_num << '\n';
 }
 
@@ -164,7 +166,7 @@ Spec* Spec::read(istream& fin)
 	for(int i = 0; i < esize; i++)
 		fin >> one->embed_outd[i] >> one->embed_ind[i] >> one->embed_num[i];
 	fin >> one->update_mode >> one->momemtum >> one->weight_decay >> one->memory;
-	fin >> one->blstm_size >> one->blstm_layer >> one->blstm_remainembed >> one->blstm_tillembed >> one->blstm_drop;
+	fin >> one->blstm_size >> one->blstm_layer >> one->blstm_remainembed >> one->blstm_tillembed >> one->blstm_drop >> one->blstm_fsize;
 	fin >> one->layer_del >> one->param_num;
 	one->write(Logger::get_output());	// report
 	return one;
