@@ -4,7 +4,7 @@
 #include <cstdio>
 #include <stdexcept>
 
-double dp_evaluate(string act_file, string pred_file, bool labeled)
+EVAL_RES_TYPE dp_evaluate(string act_file, string pred_file, bool labeled)
 {
 	set<string> punctSet = set<string>();
 	punctSet.insert("''");
@@ -205,9 +205,19 @@ double dp_evaluate(string act_file, string pred_file, bool labeled)
 		printf("Labeled Accuracy No Punc Non Root: %.2lf%%\n", ((double)corrLNoPunc_non_root) * 100 / totalNoPunc_non_root);
 	}
 	*/
+  // one sentence results
+  auto result_uas = ((double)corrNoPunc) * 100 / totalNoPunc;
+  const char* result_str = "NOPE";
+  if(labeled){
+    char* result_tmp = new char[100];   // memory leak
+    sprintf(result_tmp, "zres: UAS=%.2lf,LAS=%.2lf,EM=%.2lf,ROOT=%.2lf",
+      ((double)corrNoPunc) * 100 / totalNoPunc, ((double)corrLNoPunc) * 100 / totalNoPunc,
+      ((double)corrsentNoPunc) * 100 / numsent, ((double)corr_root) * 100 / total_root);
+    printf("%s\n", result_tmp);
+    result_str = result_tmp;
+  }
 	free_corpus(gold);
 	free_corpus(pred);
-	return ((double)corr) / total;
+	return std::make_pair(result_uas, result_str);
 }
-
 

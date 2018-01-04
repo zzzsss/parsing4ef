@@ -51,7 +51,7 @@ void EfParser::train()
 		Searcher::report_and_reset_all();
 		if(!options.file_model_curr_suffix.empty())
 			model->write(options.file_model + options.file_model_curr_suffix);
-		double cur_s = do_dev_test(corpus_dev, corpus_dev, options.file_output_dev, options.file_dev);
+		auto cur_s = do_dev_test(corpus_dev, corpus_dev, options.file_output_dev, options.file_dev);
 		if(helper.end_iter_save(cur_s))
 			model->write(options.file_model);
 		model->report_and_reset();
@@ -97,7 +97,7 @@ EfParser::EfParser(int argc, char** argv): options(argc, argv)
 	Searcher::init_all(&options);
 }
 
-double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold)
+EVAL_RES_TYPE EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold)
 {
 	int token_num = 0;	//token number
 	int token_correct = 0;
@@ -117,18 +117,18 @@ double EfParser::do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_
 		}
 	}
 	se.report_stat(Logger::get_output());
-	double rate = (token_correct + 0.0) / token_num;
+	/*double rate = (token_correct + 0.0) / token_num;
 	{
 		stringstream tmpss;
 		string tmps;
 		tmpss << "finish-testing[" << token_correct << "/" << token_num << "/" << rate << "]";
 		tmpss >> tmps;
 		Recorder::report_time(tmps);
-	}
+	}*/
 	dict->put_rels(test);
 	write_corpus(test, f_out);
-	dp_evaluate(f_gold, f_out);
-	return rate;
+	auto res = dp_evaluate(f_gold, f_out);
+	return res;
 }
 
 void EfParser::do_train(DPS_PTR train, EfTRHelper* h)

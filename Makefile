@@ -55,4 +55,4 @@ clean:
 zt:
 	$(CPP) -O3 -std=c++11 -Wall src/*.cpp src/*/*.cpp $(DYNET_INC_FLAG) $(DYNET_LINK_FLAG) -o zt 
 gzt:
-	$(CPP) -g -std=c++11 -Wall src/*.cpp src/*/*.cpp $(DYNET_INC_FLAG) $(DYNET_LINK_FLAG) -o gzt 
+	$(CPP) -g -std=c++11 -Wall src/*.cpp src/*/*.cpp $(DYNET_INC_FLAG) $(DYNET_LINK_FLAG) -lrt -o gzt 

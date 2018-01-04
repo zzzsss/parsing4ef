@@ -24,7 +24,8 @@ using namespace std::chrono;
 //#define _VERBOSE_ACCRECORDER
 
 // evaluate
-extern double dp_evaluate(string act_file, string pred_file, bool labeled = true);
+typedef std::pair<double, const char*> EVAL_RES_TYPE;
+extern EVAL_RES_TYPE dp_evaluate(string act_file, string pred_file, bool labeled = true);
 
 // Logger
 class Logger{
@@ -48,8 +49,9 @@ T dp_str2num(const string& x){
 	stringstream tmp_str(x);
 	T y = 0;
 	tmp_str >> y;
-	if(y == 0 && x[0] != '0')
-		Logger::Error("Int-Error: transfer to num.");
+  if(y == 0 && x[0] != '0'){
+    Logger::Error(string("Int-Error: transfer to num for ")+x);
+  }
 	return y;
 }
 

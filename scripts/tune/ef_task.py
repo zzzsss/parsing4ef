@@ -2,6 +2,7 @@ from control import *
 from os import system, popen
 from sys import argv
 import random
+from threading import Lock
 
 class efResult(Result):
     def __init__(self, l):
@@ -15,22 +16,20 @@ class efResult(Result):
 
 class efTask(OneTask):
     task_id = 0
+    id_lock = Lock()
     def execute(self, arg):
+        # counting
+        efTask.id_lock.acquire()
+        cur_id = efTask.task_id
         efTask.task_id += 1
+        efTask.id_lock.release()
         # the dir
-        conf_temp = "conf.txt"
-        dir_name = "task%s" % efTask.task_id
+        dir_name = "task%s" % cur_id
         system("mkdir %s" % dir_name)
         # write conf
-        s = ""
-        with open(conf_temp) as fd:
-            for l in fd:
-                fs = l.split()
-                if len(fs)>=1:
-                    one = random.choice(fs)
-                else:
-                    one = ""
-                s += one + "\n"
+        s = self.get_conf(cur_id)
+        if s is None:     # nothing if no confs
+            return (arg, efResult([0.]))
         with open("%s/_conf" % dir_name, 'w') as fd:
             fd.write(s)
         # execute (this one ignore arg)
@@ -41,8 +40,40 @@ class efTask(OneTask):
         res = [float(i) for i in ret]
         return (arg, efResult(res))
 
+    def get_conf(self, cur_id):
+        conf_temp = "conf.txt"
+        s = ""
+        with open(conf_temp) as fd:
+            for l in fd:
+                fs = l.split()
+                if len(fs)>=1:
+                    one = random.choice(fs)
+                else:
+                    one = ""
+                s += one + "\n"
+        return s
+
+class efTaskSeq(efTask):
+    def get_conf(self, cur_id):
+        conf_temp = "conf.txt"
+        s = ""
+        num = cur_id
+        with open(conf_temp) as fd:
+            for l in fd:
+                fs = l.split()
+                length = len(fs)
+                if len(fs)>=1:
+                    one = fs[num%length]
+                    num = num//length
+                else:
+                    one = ""
+                s += one + "\n"
+        return s
+
 if __name__ == "__main__":
     n = int(argv[1])
-    x = TaskPool(efTask, workers=n)
+    x = TaskPool({"rand":efTask, "seq":efTaskSeq}[argv[3]], workers=n)
     x._add_task([i for i in range(int(argv[2]))])    # max number of random select
     x.run()
+
+# python3 ../ef/scripts/tune/ef_task.py 12 12 rand/seq

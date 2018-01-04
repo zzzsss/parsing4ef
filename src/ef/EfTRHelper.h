@@ -26,6 +26,7 @@ private:
 	int last_cut_iter{-1};
 	int best_iter{0};
 	double best_score{0};
+  const char* best_result{""};
 public:
 	EfTRHelper(DpOptions* op): opt(op), lrate_init(op->tr_lrate), lrate_current(op->tr_lrate), iters_all(op->tr_iters),
 		tr_cut(op->tr_cut), tr_cut_times(op->tr_cut_times), tr_cut_iters(op->tr_cut_iters), tr_nocut_iters(op->tr_nocut_iters),
@@ -33,7 +34,9 @@ public:
 	bool keepon(){
 		return iters_current < iters_all || total_cut_times < tr_cut_times;
 	}
-	bool end_iter_save(double s){	// s is the current dev score, return whether save model
+	bool end_iter_save(EVAL_RES_TYPE s0){	// s is the current dev score, return whether save model
+    auto s = s0.first;
+    auto res = s0.second;
 		// first for lrate
 		bool this_cut = false;
 		bool this_best = false;
@@ -50,6 +53,7 @@ public:
 			best_iter = iters_current;
 			best_score = s;
 			this_best = true;
+      best_result = res;
 		}
     scores.push_back(s);
     iters_current++;
@@ -73,7 +77,8 @@ public:
 		fout << "zzzzz ";
 		for(auto x : scores)
 			fout << x << " ";
-		fout << endl;
+    fout << endl;
+    fout << "zzdev " << best_result << endl;
 	}
 };
 

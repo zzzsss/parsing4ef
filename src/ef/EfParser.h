@@ -7,6 +7,7 @@
 #include "../components/FeatureManager.h"
 #include "../model/Model.h"
 #include "EfTRHelper.h"
+#include "../tools/DpTools.h"
 
 // the class of main easy-first parser
 class EfParser{
@@ -20,7 +21,7 @@ private:
 	ModelZ* model{nullptr};
 	// sub-rountines
 	void do_train(DPS_PTR train, EfTRHelper* h);
-	double do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold);	// return acc if dev
+  EVAL_RES_TYPE do_dev_test(DPS_PTR test, DPS_PTR gold, string f_out, string f_gold);	// return acc if dev
 public:
 	// all the confs are in the options, simple building
 	EfParser(int argc, char** argv);

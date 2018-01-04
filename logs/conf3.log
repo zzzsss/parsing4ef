@@ -1,0 +1,255 @@
+# 18.01.22 final running
+
+# basic
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:35
+loss_mode:2
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+beam_div:4
+beam_all:12
+
+# ========== 1. PTB ==========
+# x70 (loss function)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:40
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+beam_div:4
+beam_all:12
+loss_mode:0 loss_mode:1 loss_mode:2
+margin:2 margin:0
+update_mode:0 update_mode:1
+
+# x71 (loss function continued)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:40
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+beam_div:4
+beam_all:12
+loss_mode:0 loss_mode:1 loss_mode:2
+margin:2 margin:0
+update_mode:2 update_mode:3
+
+# x72 (merging)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:35
+loss_mode:2
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+beam_div:4
+recomb_mode:0 recomb_mode:4
+recomb_divL:0 recomb_divL:6
+recomb_divU:0 recomb_divU:4
+beam_all:12
+
+# x55 (merging2)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:35
+loss_mode:2
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+beam_div:4 beam_div:6 beam_div:8
+recomb_mode:4
+recomb_divL:6
+recomb_divU:0 recomb_divU:4
+beam_all:12
+
+# ---------------------------------
+# 18.01.25: re-schedule: for the experiments
+# maybe this will be the final form of settings
+
+# x70 (beam-div on Unlabeled)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:36
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+loss_mode:0
+beam_div:1 beam_div:2 beam_div:3 beam_div:4 beam_div:5 beam_div:6 beam_div:7 beam_div:8 beam_div:9 beam_div:10 beam_div:11 beam_div:12
+recomb_mode:4
+recomb_divU:4
+beam_all:12
+
+# x71 (beam-div on Top)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:36
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+loss_mode:0
+beam_div:1 beam_div:2 beam_div:3 beam_div:4 beam_div:5 beam_div:6 beam_div:7 beam_div:8 beam_div:9 beam_div:10 beam_div:11 beam_div:12
+recomb_mode:4
+recomb_divU:6
+beam_all:12
+
+# x55 (on loss functions & rec)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:36
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+beam_div:4
+loss_mode:0 loss_mode:1 loss_mode:2
+recomb_mode:4
+recomb_divU:4 recomb_divU:6
+beam_all:12
+
+# x56 (on loss functions & rec)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:36
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:2
+beam_div:4
+loss_mode:0 loss_mode:1 loss_mode:2
+recomb_mode:0
+recomb_divL:0
+recomb_divU:4 recomb_divU:6
+beam_all:12
+
+# x72 (whatever)
+file_train:../../data/ptb/train.auto
+file_dev:../../data/ptb/dev.auto
+file_test:../../data/ptb/test.auto
+embed_file:../../data/glove/glove.6B.50d.txt
+embed_scale:1.0
+mss:o-update_mode-0
+fss:zc0
+tr_iters:36
+tr_lrate_lbound:0.001
+mss:h0-d0.0|h1-d0.0
+tr_nocut_iters:10
+tr_cut_iters:4
+tr_lrate:0.05
+mss:o-blstm_layer-1
+mss:o-blstm_fsize-0
+mss:o-blstm_size-160
+mss:o-blstm_drop-0.2
+margin:3 margin:2 margin:1 margin:0
+loss_mode:0 loss_mode:1 loss_mode:2
+recomb_mode:0
+recomb_divL:0
+recomb_divU:0
+beam_all:12

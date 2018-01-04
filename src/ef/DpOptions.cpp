@@ -176,7 +176,7 @@ void DpOptions::check_and_report()
 	if(drop_is_drop > 0){	// check
 		switch(update_mode){
 		case UPDATE_EU: Logger::Warn("drop_is_drop will not affect EU."); break;
-		case UPDATE_RESTART: errorer("drop_is_drop should be off for UPDATE_RESTART."); break;
+    case UPDATE_RESTART: Logger::Warn("drop_is_drop should be off for UPDATE_RESTART, auto turning off!"); drop_is_drop = 0; break;
 		default: break;
 		}
 	}

@@ -13,8 +13,10 @@ namespace{
 	{
 		auto z = m.find(s);
 		if(z == m.end()){
-			if(de < 0)	//throw an runtime
-				Logger::Error("Lookup Error.");
+      if(de < 0){	//throw an runtime
+        Logger::Error(string("Lookup Error on ") + s);   // 
+        return de;
+      }
 			else
 				return de;
 		}

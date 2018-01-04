@@ -23,8 +23,11 @@ void DpSentence::read_one(const vector<string>& them)
 		heads.emplace_back(-1);
 		rels.emplace_back("<root-rel>");
 	}
-	if(dp_str2num<int>(them[0]) != size())
-		Logger::Error("Format-Error: wrong field[0].");
+  if(dp_str2num<int>(them[0]) != size()){
+    string tmp_err = "Format-Error: wrong field[0] as ";
+    tmp_err += them[0];
+    Logger::Error(tmp_err);
+  }
 	forms.emplace_back(them[1]);
 	// -- norm with re
 	string temp_norm = them[1];
@@ -93,15 +96,18 @@ DPS_PTR read_corpus(string file)
 	DP_PTR one{new DpSentence()};
 	int all_tokens = 0;
 	while(getline(fin, cur_line)){
-		stringstream tmp_str(cur_line);
-		vector<string> tmp_fields;
-		//split the fields for empty ones
-		string tmp_one;
-		while(tmp_str >> tmp_one)
-			tmp_fields.emplace_back(tmp_one);
-		//sentence
-		if(tmp_fields.size() > 0)
-			one->read_one(tmp_fields);
+		vector<string> tmp_fields = dp_split(cur_line, '\t');
+		//sentence 
+    if(tmp_fields.size() > 0){
+      // check special format
+      auto first_tok = tmp_fields[0];
+      if(first_tok[0] == '#')
+        ;   // skip comment
+      else if(first_tok.find('-') != string::npos || first_tok.find('.') != string::npos)
+        ;   // skip ud specific line
+      else
+        one->read_one(tmp_fields);
+    }
 		else if(one->size() > 0){
 			// finish one
 			one->finish_one();
